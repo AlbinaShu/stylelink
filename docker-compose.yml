@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: stylelink-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: stylelink
+      POSTGRES_USER: stylelink
+      POSTGRES_PASSWORD: stylelink
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
