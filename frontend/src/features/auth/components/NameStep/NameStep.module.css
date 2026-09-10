@@ -1,0 +1,68 @@
+.root {
+  text-align: center;
+}
+
+.icon {
+  width: 57px;
+  height: 57px;
+  margin: -2px auto 25px;
+  border-radius: 15px;
+  background: #f0ebff;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 27px;
+}
+
+.root h1 {
+  margin: 0;
+  color: #09070d;
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+}
+
+.root p {
+  margin: 8px 0 0;
+  color: #746e7a;
+  font-size: 14px;
+}
+
+.input {
+  width: 100%;
+  height: 45px;
+  margin-top: 29px;
+  margin-bottom: 15px;
+  border: 2px solid #c7b9ff;
+  border-radius: 16px;
+  outline: none;
+  background: transparent;
+  color: #3c3743;
+  text-align: center;
+  font-size: 14px;
+}
+
+.input::placeholder {
+  color: #77717d;
+}
+
+.input:focus {
+  border-color: var(--primary);
+}
+
+.skip {
+  margin-top: 20px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #47414e;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.skip:disabled {
+  cursor: default;
+  opacity: 0.6;
+}

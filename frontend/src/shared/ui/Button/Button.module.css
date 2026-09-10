@@ -1,0 +1,21 @@
+.button {
+  height: 46px;
+  border: 0 !important;
+  border-radius: 14px !important;
+  background: var(--primary) !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 600;
+  box-shadow: none !important;
+}
+
+.button:hover {
+  background: #6840e9 !important;
+}
+
+.button:disabled,
+.button.ant-btn-disabled {
+  opacity: 1;
+  background: var(--primary-soft) !important;
+  color: #fff !important;
+}
