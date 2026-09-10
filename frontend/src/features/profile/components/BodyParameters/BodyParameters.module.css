@@ -1,0 +1,225 @@
+.collapse {
+  margin-top: 18px;
+
+  border: 1px solid var(--border);
+  border-radius: 15px;
+
+  background: #fff;
+
+  overflow: hidden;
+}
+
+.collapse :global(.ant-collapse-item) {
+  border-bottom: 0;
+}
+
+.collapse :global(.ant-collapse-header) {
+  min-height: 41px;
+
+  padding: 10px 15px !important;
+
+  align-items: center !important;
+}
+
+.collapse :global(.ant-collapse-header-text) {
+  font-size: 12px;
+}
+
+.collapse :global(.ant-collapse-content) {
+  border-top: 1px solid var(--border);
+}
+
+.collapse :global(.ant-collapse-content-box) {
+  padding: 12px 15px 15px;
+}
+
+.optional {
+  padding: 4px 7px;
+
+  border-radius: 7px;
+
+  background: #f0eef5;
+  color: var(--muted);
+
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.form {
+  width: 100%;
+}
+
+.form :global(.ant-form-item) {
+  margin-bottom: 12px;
+}
+
+.form :global(.ant-form-item-label) {
+  padding-bottom: 5px;
+}
+
+.form :global(.ant-form-item-label > label) {
+  color: var(--muted);
+
+  font-size: 11px;
+}
+
+/* Пол */
+
+.genderField {
+  margin-bottom: 13px !important;
+}
+
+.gender {
+  width: 100%;
+
+  display: flex;
+}
+
+.gender :global(.ant-radio-button-wrapper) {
+  flex: 1;
+
+  height: 34px;
+
+  padding-inline: 8px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  font-size: 12px;
+}
+
+/* Поля параметров */
+
+.input {
+  width: 100%;
+  height: 35px;
+
+  border-radius: 18px;
+}
+
+.input :global(.ant-input-number-input) {
+  height: 33px;
+
+  padding-inline: 12px;
+
+  font-size: 12px;
+}
+
+/*
+ * Disabled InputNumber.
+ * Переопределяем стандартный цвет Ant Design,
+ * чтобы он соответствовал макету.
+ */
+
+.form :global(.ant-input-number-disabled) {
+  background: #faf9fd;
+
+  border-color: #e5defd;
+
+  cursor: default;
+}
+
+.form :global(.ant-input-number-disabled:hover) {
+  background: #faf9fd;
+
+  border-color: #e5defd;
+}
+
+.form :global(.ant-input-number-disabled .ant-input-number-input) {
+  color: #b9b5c1;
+
+  cursor: default;
+}
+
+/* Disabled Radio */
+
+.gender :global(.ant-radio-button-wrapper-disabled) {
+  background: #faf9fd;
+
+  border-color: #e5defd;
+
+  color: #7f7a88;
+}
+
+.gender
+  :global(
+    .ant-radio-button-wrapper-disabled:first-child
+  ) {
+  border-color: #e5defd;
+}
+
+.gender
+  :global(
+    .ant-radio-button-wrapper-disabled.ant-radio-button-wrapper-checked
+  ) {
+  background: var(--primary);
+
+  border-color: var(--primary);
+
+  color: #fff;
+}
+
+/* Кнопка "Изменить" */
+
+.editButton {
+  width: 100%;
+  height: 35px;
+
+  margin-top: 5px;
+
+  border-radius: 18px;
+
+  font-size: 12px;
+}
+
+/* Кнопки редактирования */
+
+.actions {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 8px;
+
+  margin-top: 5px;
+}
+
+.saveButton,
+.cancelButton {
+  height: 35px;
+
+  border-radius: 18px;
+
+  font-size: 12px;
+}
+
+.saveButton {
+  background: var(--primary);
+
+  border-color: var(--primary);
+}
+
+.saveButton:hover {
+  background: var(--primary) !important;
+
+  border-color: var(--primary) !important;
+}
+
+.cancelButton {
+  background: #fff;
+}
+
+/* Небольшие экраны */
+
+@media (max-width: 480px) {
+  .collapse :global(.ant-collapse-content-box) {
+    padding-inline: 14px;
+  }
+
+  .gender :global(.ant-radio-button-wrapper) {
+    padding-inline: 4px;
+  }
+}
