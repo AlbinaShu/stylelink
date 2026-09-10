@@ -31,6 +31,6 @@ export const useAuthStore = create<IAuthState>((set) => ({
   clearAuth: () => {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
 
-    set({ accessToken: null });
+    set({ accessToken: null, isRegistrationInProgress: false });
   },
 }));

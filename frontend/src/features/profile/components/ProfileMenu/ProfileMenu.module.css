@@ -1,0 +1,49 @@
+.card {
+  margin-top: 18px;
+  overflow: hidden;
+  border-radius: 15px;
+}
+
+.item {
+  padding: 0 !important;
+}
+
+.item::after {
+  display: none;
+}
+
+.button {
+  height: 43px;
+  padding: 0 17px !important;
+
+  border-radius: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  color: var(--text);
+
+  font-size: 12px;
+}
+
+.button:hover {
+  color: var(--text) !important;
+  background: #faf9fd !important;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.label > :global(.anticon) {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.arrow {
+  color: var(--muted);
+  font-size: 10px;
+}

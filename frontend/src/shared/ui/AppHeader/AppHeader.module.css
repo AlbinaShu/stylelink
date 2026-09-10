@@ -1,0 +1,59 @@
+.header {
+  width: 100%;
+  height: var(--header-height);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.inner {
+  position: relative;
+  width: 575px;
+  max-width: calc(100% - 32px);
+  height: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.brand {
+  text-decoration: none;
+}
+
+.profileButton {
+  margin-left: auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.back {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #6f6a78;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+}
+
+.title {
+  margin-left: 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .inner {
+    max-width: calc(100% - 28px);
+  }
+}

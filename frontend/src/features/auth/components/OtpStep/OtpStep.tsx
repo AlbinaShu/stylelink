@@ -9,7 +9,7 @@ import styles from './OtpStep.module.css';
 interface IOtpStepProps {
   email: string;
   onBack: () => void;
-  onVerified: () => void;
+  onVerified: () => void | Promise<void>;
 }
 
 const LENGTH = 6;
@@ -61,10 +61,23 @@ function OtpStep({
     try {
       setLoading(true);
       await verifyCode(email, value);
-      onVerified();
     } catch (error) {
       message.error(
-        error instanceof Error ? error.message : 'Неверный код',
+        error instanceof Error
+          ? error.message
+          : 'Неверный код',
+      );
+      
+      return;
+    }
+
+    try {
+      await onVerified();
+    } catch (error) {
+      message.error(
+        error instanceof Error
+          ? error.message
+          : 'Не удалось завершить регистрацию',
       );
     } finally {
       setLoading(false);

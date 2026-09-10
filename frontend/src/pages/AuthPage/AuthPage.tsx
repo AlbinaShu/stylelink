@@ -8,9 +8,13 @@ import OtpStep from '../../features/auth/components/OtpStep/OtpStep';
 import NameStep from '../../features/auth/components/NameStep/NameStep';
 import ForgotPassword from '../../features/auth/components/ForgotPassword/ForgotPassword';
 import { useAuth } from '../../features/auth/hooks/useAuth';
-import type { AuthMode, AuthStep, IAuthCredentials } from '../../features/auth/types';
-import styles from './AuthPage.module.css';
+import type {
+  AuthMode,
+  AuthStep,
+  IAuthCredentials,
+} from '../../features/auth/types';
 import { useProfile } from '../../features/profile/hooks/useProfile';
+import styles from './AuthPage.module.css';
 
 interface IAuthShellProps {
   children: ReactNode;
@@ -18,7 +22,11 @@ interface IAuthShellProps {
   progress?: number;
 }
 
-function AuthShell({ children, onBack, progress }: IAuthShellProps) {
+function AuthShell({
+  children,
+  onBack,
+  progress,
+}: IAuthShellProps) {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -39,7 +47,9 @@ function AuthShell({ children, onBack, progress }: IAuthShellProps) {
               {[1, 2, 3].map((item) => (
                 <span
                   key={item}
-                  className={item <= progress ? styles.active : ''}
+                  className={
+                    item <= progress ? styles.active : ''
+                  }
                 />
               ))}
             </div>
@@ -57,15 +67,21 @@ function AuthShell({ children, onBack, progress }: IAuthShellProps) {
 function AuthPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { register, setRegistrationInProgress } = useAuth();
+  const {
+    register,
+    setRegistrationInProgress,
+  } = useAuth();
   const { updateCurrentUser } = useProfile();
 
   const initialMode: AuthMode =
-    searchParams.get('mode') === 'register' ? 'register' : 'login';
+    searchParams.get('mode') === 'register'
+      ? 'register'
+      : 'login';
 
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [step, setStep] = useState<AuthStep>('credentials');
-  const [credentials, setCredentials] = useState<IAuthCredentials | null>(null);
+  const [credentials, setCredentials] =
+    useState<IAuthCredentials | null>(null);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [forgotPassword, setForgotPassword] = useState(false);
@@ -83,7 +99,9 @@ function AuthPage() {
     setForgotPassword(false);
   };
 
-  const startRegistrationVerification = (values: IAuthCredentials) => {
+  const startRegistrationVerification = (
+    values: IAuthCredentials,
+  ) => {
     setCredentials(values);
     setEmail(values.email);
     setStep('verification');
@@ -109,36 +127,50 @@ function AuthPage() {
   };
 
   const handleVerificationComplete = async () => {
-    if (!credentials) return;
+    if (!credentials) {
+      return;
+    }
 
-    setRegistrationInProgress(true);
-
-    await register(credentials);
-
-    setStep('name');
+    try {
+      setRegistrationInProgress(true);
+      await register(credentials);
+      setStep('name');
+    } catch (error) {
+      setRegistrationInProgress(false);
+      throw error;
+    }
   };
 
   const finishRegistration = async () => {
+    const trimmedName = name.trim();
+
+    if (!trimmedName) {
+      return;
+    }
+
     try {
-      const trimmedName = name.trim();
-
-      if (!trimmedName) {
-        return;
-      }
-
       setNameLoading(true);
 
       await updateCurrentUser(trimmedName);
+
+      setRegistrationInProgress(false);
+      navigate('/main', { replace: true });
     } finally {
       setNameLoading(false);
-      setRegistrationInProgress(false);
     }
+  };
+
+  const skipRegistrationName = () => {
+    setRegistrationInProgress(false);
+    navigate('/main', { replace: true });
   };
 
   if (forgotPassword) {
     return (
       <AuthShell onBack={back}>
-        <ForgotPassword onBack={() => setForgotPassword(false)} />
+        <ForgotPassword
+          onBack={() => setForgotPassword(false)}
+        />
       </AuthShell>
     );
   }
@@ -162,8 +194,8 @@ function AuthPage() {
           name={name}
           loading={nameLoading}
           onNameChange={setName}
-          onComplete={() => finishRegistration()}
-          onSkip={() => finishRegistration()}
+          onComplete={finishRegistration}
+          onSkip={skipRegistrationName}
         />
       </AuthShell>
     );
@@ -178,7 +210,9 @@ function AuthPage() {
         </div>
 
         <LoginForm
-          onLoggedIn={() => navigate('/main', { replace: true })}
+          onLoggedIn={() =>
+            navigate('/main', { replace: true })
+          }
           onRegister={goRegister}
           onForgotPassword={() => setForgotPassword(true)}
         />
@@ -187,7 +221,10 @@ function AuthPage() {
   }
 
   return (
-    <AuthShell onBack={() => navigate('/')} progress={1}>
+    <AuthShell
+      onBack={() => navigate('/')}
+      progress={1}
+    >
       <div className={styles.heading}>
         <h1>Создать аккаунт</h1>
         <p>Зарегистрируйтесь, чтобы сохранять образы</p>
