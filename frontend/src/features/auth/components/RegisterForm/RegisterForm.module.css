@@ -1,0 +1,83 @@
+.form :global(.ant-form-item) {
+  margin-bottom: 11px;
+}
+
+.form :global(.ant-form-item:nth-child(2)) {
+  margin-bottom: 13px;
+}
+
+.form :global(.ant-form-item:nth-child(3)) {
+  margin-bottom: 20px;
+}
+
+.form :global(.ant-form-item-explain) {
+  font-size: 12px;
+}
+
+.input.ant-input,
+.input.ant-input-affix-wrapper {
+  height: 43px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--input-bg);
+  box-shadow: none;
+  color: #15121a;
+  font-size: 14px;
+  padding-left: 16px;
+}
+
+.input.ant-input-affix-wrapper {
+  padding-right: 13px;
+}
+
+.input.ant-input-affix-wrapper input {
+  background: transparent;
+  font-size: 14px;
+}
+
+.input::placeholder,
+.input input::placeholder {
+  color: #77717f;
+  opacity: 1;
+}
+
+.input.ant-input-affix-wrapper:hover,
+.input.ant-input-affix-wrapper:focus-within,
+.input.ant-input:hover,
+.input.ant-input:focus {
+  border-color: transparent;
+  box-shadow: 0 0 0 1px rgba(112, 68, 245, 0.16);
+}
+
+.consent {
+  align-items: flex-start;
+  color: #77717d;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.consent :global(.ant-checkbox) {
+  margin-top: 3px;
+}
+
+.consent a {
+  color: #2f2a35;
+  text-decoration: underline;
+}
+
+.switch {
+  margin-top: 23px;
+  text-align: center;
+  color: #8c8692;
+  font-size: 12px;
+}
+
+.switch button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #17131c;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
