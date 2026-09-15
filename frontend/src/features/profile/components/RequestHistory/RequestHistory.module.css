@@ -1,0 +1,77 @@
+.card {
+  margin-top: 18px;
+  min-height: 275px;
+
+  border-radius: 15px;
+}
+
+.card :global(.ant-card-body) {
+  height: 100%;
+  padding: 17px 18px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.headerIcon {
+  margin-top: 2px;
+
+  color: var(--primary);
+  font-size: 15px;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.headerText :global(.ant-typography) {
+  line-height: 1.2;
+}
+
+.headerText :global(.ant-typography:first-child) {
+  font-size: 13px;
+}
+
+.headerText :global(.ant-typography-secondary) {
+  font-size: 10px;
+}
+
+.card :global(.ant-empty) {
+  margin: 0;
+
+  min-height: 210px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card :global(.ant-empty-image) {
+  margin-bottom: 13px;
+}
+
+.emptyIcon {
+  color: #85818b;
+  font-size: 28px;
+}
+
+.emptyDescription {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.emptyTitle {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.emptyDescription :global(.ant-typography-secondary) {
+  font-size: 11px;
+  line-height: 1.4;
+}

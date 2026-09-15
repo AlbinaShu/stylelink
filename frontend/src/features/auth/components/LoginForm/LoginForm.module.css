@@ -1,0 +1,74 @@
+.form :global(.ant-form-item) {
+  margin-bottom: 11px;
+}
+
+.form :global(.ant-form-item-explain) {
+  font-size: 12px;
+}
+
+.input.ant-input,
+.input.ant-input-affix-wrapper {
+  height: 43px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--input-bg);
+  box-shadow: none;
+  color: #15121a;
+  font-size: 14px;
+  padding-left: 16px;
+}
+
+.input.ant-input-affix-wrapper {
+  padding-right: 13px;
+}
+
+.input.ant-input-affix-wrapper input {
+  background: transparent;
+  font-size: 14px;
+}
+
+.input::placeholder,
+.input input::placeholder {
+  color: #77717f;
+  opacity: 1;
+}
+
+.input.ant-input-affix-wrapper:hover,
+.input.ant-input-affix-wrapper:focus-within,
+.input.ant-input:hover,
+.input.ant-input:focus {
+  border-color: transparent;
+  box-shadow: 0 0 0 1px rgba(112, 68, 245, 0.16);
+}
+
+.forgot {
+  display: flex;
+  justify-content: flex-end;
+  margin: 4px 0 21px;
+}
+
+.forgot button,
+.switch button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.forgot button {
+  color: var(--primary);
+  font-size: 12px;
+}
+
+.switch {
+  margin-top: 23px;
+  text-align: center;
+  color: #8c8692;
+  font-size: 12px;
+}
+
+.switch button {
+  color: #17131c;
+  font-size: 13px;
+  font-weight: 600;
+}

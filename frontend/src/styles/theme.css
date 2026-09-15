@@ -1,0 +1,11 @@
+:root {
+  --bg: #faf9fd;
+  --text: #0d0b12;
+  --muted: #77727e;
+  --muted-2: #a19ba7;
+  --border: #e8e4ef;
+  --input-bg: #f2f0f8;
+  --primary: #7044f5;
+  --primary-soft: #c2b3ff;
+  --header-height: 51px;
+}

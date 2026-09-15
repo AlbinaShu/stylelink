@@ -1,0 +1,37 @@
+.card {
+  border-radius: 15px;
+}
+
+.card :global(.ant-card-body) {
+  padding: 18px;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  flex-shrink: 0;
+  background: #eee9ff;
+  color: var(--primary);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.info :global(.ant-typography) {
+  margin: 0;
+}
+
+.info :global(.ant-typography:first-child) {
+  font-size: 14px;
+}
+
+.info :global(.ant-typography-secondary) {
+  font-size: 12px;
+}
