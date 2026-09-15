@@ -10,6 +10,7 @@ from app.models.base import Base
 
 if TYPE_CHECKING:
     from app.models.outfit import Outfit
+    from app.models.generation_search_item import GenerationSearchItem
 
 
 class Generation(Base):
@@ -83,6 +84,14 @@ class Generation(Base):
         nullable=True,
     )
 
+    status: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        default="created",
+        server_default="created",
+        index=True,
+    )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -94,6 +103,11 @@ class Generation(Base):
     )
 
     outfits: Mapped[list["Outfit"]] = relationship(
+        back_populates="generation",
+        cascade="all, delete-orphan",
+    )
+
+    search_items: Mapped[list["GenerationSearchItem"]] = relationship(
         back_populates="generation",
         cascade="all, delete-orphan",
     )

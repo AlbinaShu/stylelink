@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     smtp_user: str
     smtp_password: str
     smtp_from: str
+    gigachat_credentials: str
+    gigachat_model: str
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

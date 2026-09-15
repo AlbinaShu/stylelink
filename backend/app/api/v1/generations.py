@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func, select
 from uuid import UUID
-
 
 
 from app.api.deps import get_current_user
@@ -18,6 +17,7 @@ from app.schemas.generation import (
 
 from app.models.outfit import Outfit
 from app.schemas.outfit import OutfitResponse
+from app.services.generation_pipeline import GenerationPipeline
 
 
 router = APIRouter()
@@ -27,6 +27,7 @@ router = APIRouter()
 @router.post("", response_model=GenerationResponse)
 async def create_generation(
     data: GenerationRequest,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):
@@ -43,11 +44,17 @@ async def create_generation(
         waist=data.waist,
         hips=data.hips,
         prompt=data.prompt,
+        status="created",
     )
 
     session.add(generation)
     await session.commit()
     await session.refresh(generation)
+
+    background_tasks.add_task(
+        GenerationPipeline().run,
+        generation.id,
+    )
 
     return generation
 
@@ -120,3 +127,30 @@ async def get_generation_outfits(
     )
 
     return result.scalars().all()
+
+# Получение одной генерации
+@router.get(
+    "/{generation_id}",
+    response_model=GenerationResponse,
+)
+async def get_generation(
+    generation_id: UUID,
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+):
+    result = await session.execute(
+        select(Generation).where(
+            Generation.id == generation_id,
+            Generation.user_id == current_user.id,
+        )
+    )
+
+    generation = result.scalar_one_or_none()
+
+    if generation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Generation not found",
+        )
+
+    return generation

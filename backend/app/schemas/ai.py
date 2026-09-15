@@ -1,0 +1,14 @@
+from pydantic import BaseModel, Field
+
+
+class SearchItem(BaseModel):
+    item_type: str = Field(
+        description="Конкретный тип товара, который нужно найти"
+    )
+    search_query: str = Field(
+        description="Поисковый запрос для каталога Wildberries"
+    )
+
+
+class SearchItems(BaseModel):
+    items: list[SearchItem]

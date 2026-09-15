@@ -7,3 +7,6 @@ from app.models.profile import Profile
 from app.models.password_reset import PasswordResetCode
 from app.models.generation import Generation
 from app.models.revoked_token import RevokedToken
+from app.models.generation_search_item import GenerationSearchItem
+from app.models.product import Product
+from app.models.generation_search_item_product import GenerationSearchItemProduct

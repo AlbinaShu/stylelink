@@ -1,0 +1,141 @@
+from typing import Any
+
+import requests
+
+from app.services.marketplaces.base import MarketplaceService
+
+
+class WildberriesMarketplace(MarketplaceService):
+    SEARCH_URL = "https://search.wb.ru/exactmatch/ru/common/v4/search"
+
+    def __init__(self):
+        self.session = requests.Session()
+        self.session.headers.update(
+            {
+                "User-Agent": (
+                    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/140.0.0.0 Safari/537.36"
+                ),
+            "Accept": "application/json,text/plain,*/*",
+            "Referer": "https://www.wildberries.ru/",
+            "Accept-Language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Connection": "keep-alive",
+            }
+        )
+
+    async def search_products(
+        self,
+        search_query: str,
+        page: int = 1,
+    ) -> list[dict]:
+        params = {
+            "appType": 1,
+            "curr": "rub",
+            "dest": -1257786,
+            "lang": "ru",
+            "page": page,
+            "query": search_query,
+            "resultset": "catalog",
+            "sort": "popular",
+            "spp": 30,
+        }
+
+        response = self.session.get(
+            self.SEARCH_URL,
+            params=params,
+            timeout=20,
+        )
+
+        if response.status_code == 429:
+            raise RuntimeError(
+                "Wildberries временно ограничил запросы к каталогу (429)"
+            )
+
+        response.raise_for_status()
+
+        data = response.json()
+
+        products = data.get("products", [])
+
+        return [
+            self._normalize_product(product)
+            for product in products
+        ]
+
+    def _normalize_product(self, product: dict[str, Any]) -> dict:
+        sizes = product.get("sizes") or []
+
+        normalized_sizes = []
+
+        for size in sizes:
+            price = size.get("price") or {}
+
+            normalized_sizes.append(
+                {
+                    "name": size.get("name"),
+                    "orig_name": size.get("origName"),
+                    "option_id": size.get("optionId"),
+                    "price": {
+                        "basic": price.get("basic"),
+                        "product": price.get("product"),
+                        "logistics": price.get("logistics"),
+                        "return": price.get("return"),
+                        "cashback": price.get("cashback"),
+                    },
+                }
+            )
+
+        prices = [
+            size["price"]["product"]
+            for size in normalized_sizes
+            if size["price"]["product"] is not None
+        ]
+
+        price = min(prices) / 100 if prices else None
+
+        colors = [
+            {
+                "name": color.get("name"),
+                "id": color.get("id"),
+            }
+            for color in (product.get("colors") or [])
+        ]
+
+        return {
+            "marketplace": "wildberries",
+
+            # Основной ID карточки товара WB.
+            "external_id": product.get("id"),
+
+            "product_url": (
+                f"https://www.wildberries.ru/catalog/{product.get('id')}/detail.aspx"
+                if product.get("id")
+                else None
+            ),
+
+            # ID группы / модели WB.
+            "imt_id": product.get("root"),
+
+            "name": product.get("name"),
+            "brand": product.get("brand"),
+
+            "supplier": product.get("supplier"),
+            "supplier_id": product.get("supplierId"),
+
+            "rating": product.get("rating"),
+            "review_rating": product.get("reviewRating"),
+            "feedbacks": product.get("feedbacks"),
+
+            "subject_id": product.get("subjectId"),
+            "subject_parent_id": product.get("subjectParentId"),
+
+            "price": price,
+
+            "colors": colors,
+            "sizes": normalized_sizes,
+
+            # Весь исходный объект WB сохраняем для будущего ML,
+            # анализа характеристик и восстановления новых полей.
+            "raw_data": product,
+        }
