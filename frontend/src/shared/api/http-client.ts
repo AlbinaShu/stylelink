@@ -5,10 +5,8 @@ import {
   useAuthStore,
 } from '../../features/auth/model/auth.store';
 
-const API_URL = import.meta.env.VITE_API_URL ?? '';
-
 const http = axios.create({
-  baseURL: API_URL,
+  baseURL: window.__ENV__?.API_URL || import.meta.env.VITE_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
