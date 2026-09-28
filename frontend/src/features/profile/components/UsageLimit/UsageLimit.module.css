@@ -1,0 +1,39 @@
+.card {
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.card :global(.ant-card-body) {
+  padding: 16px;
+}
+
+.label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.value {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.progress {
+  margin: 0;
+}
+
+.progress :global(.ant-progress-inner) {
+  background: var(--surface-muted);
+}
+
+.progress :global(.ant-progress-bg) {
+  background: var(--primary) !important;
+}
+
+.description {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
