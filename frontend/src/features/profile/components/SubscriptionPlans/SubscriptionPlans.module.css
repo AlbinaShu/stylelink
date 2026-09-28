@@ -1,0 +1,143 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.heading :global(.ant-typography) {
+  margin: 0;
+}
+
+.heading :global(h5.ant-typography) {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.heading :global(.ant-typography-secondary) {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 12px;
+}
+
+.card {
+  height: 100%;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.card :global(.ant-card-body) {
+  height: 100%;
+  padding: 18px;
+}
+
+.current {
+  border-color: var(--primary) !important;
+}
+
+.content {
+  width: 100%;
+  height: 100%;
+  display: flex !important;
+  flex-direction: column;
+}
+
+.cardHeader {
+  min-height: 58px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cardHeader :global(.ant-typography) {
+  margin: 0;
+}
+
+.cardHeader :global(h5.ant-typography) {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cardHeader :global(.ant-tag) {
+  border-radius: 999px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.description {
+  display: block;
+  margin-top: 4px;
+
+  min-height: 36px;
+
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.price {
+  margin-top: 14px;
+  color: var(--primary);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.list {
+  flex: 1;
+  margin-top: 10px;
+}
+
+.list :global(.ant-list-item) {
+  padding: 4px 0;
+}
+
+.list svg {
+  color: var(--primary);
+}
+
+.list :global(.ant-typography) {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.button {
+  margin-top: 16px;
+  height: 40px;
+  border-radius: 14px !important;
+}
+
+.button:global(.ant-btn-default) {
+  border-color: var(--border);
+  color: var(--muted);
+}
+
+.button:global(.ant-btn-primary) {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.button:global(.ant-btn-primary:hover) {
+  border-color: var(--primary-hover);
+  background: var(--primary-hover);
+}
+
+@media(max-width:640px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}

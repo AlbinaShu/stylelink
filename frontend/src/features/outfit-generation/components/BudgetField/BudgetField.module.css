@@ -1,0 +1,82 @@
+.root {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.label {
+    color: var(--text) !important;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.label span {
+    color: var(--primary);
+}
+
+.card {
+    border: 1px solid var(--border) !important;
+    border-radius: 18px !important;
+    background: var(--surface);
+    box-shadow: none !important;
+}
+
+.card :global(.ant-card-body) {
+    padding: 14px;
+}
+
+.inputWrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input {
+    width: 100%;
+    height: 36px;
+    border: 0 !important;
+    border-radius: 18px !important;
+    background: var(--surface-soft) !important;
+    box-shadow: none !important;
+}
+
+.input :global(.ant-input-number-input) {
+    height: 36px;
+    padding: 0 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.currency {
+    color: var(--muted) !important;
+    font-size: 12px;
+}
+
+.slider {
+    margin: 18px 2px 8px !important;
+}
+
+.slider :global(.ant-slider-rail) {
+    background: var(--surface-muted) !important;
+}
+
+.slider :global(.ant-slider-track) {
+    background: var(--primary) !important;
+}
+
+.slider :global(.ant-slider-handle::after) {
+    box-shadow: 0 0 0 2px var(--primary) !important;
+    background: var(--primary) !important;
+}
+
+.range {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.range :global(.ant-typography) {
+    color: var(--muted) !important;
+    font-size: 11px;
+}

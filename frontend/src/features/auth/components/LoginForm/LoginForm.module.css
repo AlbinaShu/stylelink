@@ -3,72 +3,104 @@
 }
 
 .form :global(.ant-form-item-explain) {
-  font-size: 12px;
+  padding: 3px 4px 0;
+  color: var(--danger);
+  font-size: 11px;
 }
 
 .input.ant-input,
 .input.ant-input-affix-wrapper {
   height: 43px;
-  border: 0;
-  border-radius: 14px;
-  background: var(--input-bg);
-  box-shadow: none;
-  color: #15121a;
-  font-size: 14px;
   padding-left: 16px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--surface-soft);
+  color: var(--text);
+  font-size: 14px;
+  box-shadow: none;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .input.ant-input-affix-wrapper {
-  padding-right: 13px;
+  padding-right: 15px;
 }
 
 .input.ant-input-affix-wrapper input {
   background: transparent;
+  color: var(--text);
   font-size: 14px;
 }
 
 .input::placeholder,
 .input input::placeholder {
-  color: #77717f;
+  color: var(--muted);
   opacity: 1;
 }
 
-.input.ant-input-affix-wrapper:hover,
-.input.ant-input-affix-wrapper:focus-within,
 .input.ant-input:hover,
-.input.ant-input:focus {
-  border-color: transparent;
-  box-shadow: 0 0 0 1px rgba(112, 68, 245, 0.16);
+.input.ant-input-affix-wrapper:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-soft);
+}
+
+.input.ant-input:focus,
+.input.ant-input-affix-wrapper:focus,
+.input.ant-input-affix-wrapper:focus-within,
+.input.ant-input-affix-wrapper-focused {
+  border-color: var(--primary);
+  background: var(--surface-soft);
+  box-shadow: none;
+}
+
+.input :global(.ant-input-password-icon) {
+  color: var(--muted);
+}
+
+.input :global(.ant-input-password-icon:hover) {
+  color: var(--primary);
 }
 
 .forgot {
+  margin: 4px 0 21px;
   display: flex;
   justify-content: flex-end;
-  margin: 4px 0 21px;
 }
 
 .forgot button,
 .switch button {
-  border: 0;
   padding: 0;
+  border: 0;
   background: transparent;
+  font-family: inherit;
   cursor: pointer;
 }
 
 .forgot button {
   color: var(--primary);
   font-size: 12px;
+  transition: color 0.2s ease;
+}
+
+.forgot button:hover {
+  color: var(--primary-hover);
 }
 
 .switch {
   margin-top: 23px;
-  text-align: center;
-  color: #8c8692;
+  color: var(--muted);
   font-size: 12px;
+  text-align: center;
 }
 
 .switch button {
-  color: #17131c;
+  color: var(--text);
   font-size: 13px;
   font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.switch button:hover {
+  color: var(--primary);
 }

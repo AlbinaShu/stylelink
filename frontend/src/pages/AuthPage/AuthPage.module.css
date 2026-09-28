@@ -6,6 +6,7 @@
 .header {
   height: var(--header-height);
   border-bottom: 1px solid var(--border);
+  background: var(--bg);
 }
 
 .headerInner {
@@ -14,6 +15,7 @@
   max-width: calc(100% - 32px);
   height: 100%;
   margin: 0 auto;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,35 +23,46 @@
 
 .back {
   position: absolute;
-  left: 7px;
   top: 50%;
-  transform: translateY(-50%);
-  width: 25px;
-  height: 25px;
+  left: 7px;
+  width: 28px;
+  height: 28px;
   padding: 0;
-  border: 0;
-  background: transparent;
-  color: #6f6a78;
   display: flex;
   align-items: center;
   justify-content: center;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
   font-size: 13px;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.back:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 
 .progress {
   position: absolute;
-  right: 0;
   top: 50%;
-  transform: translateY(-50%);
+  right: 0;
   display: flex;
   gap: 6px;
+  transform: translateY(-50%);
 }
 
 .progress span {
   width: 22px;
   height: 5px;
-  border-radius: 999px;
-  background: #eeecf2;
+  border-radius: var(--radius-pill);
+  background: var(--surface-muted);
+  transition: background-color 0.2s ease;
 }
 
 .progress .active {
@@ -58,9 +71,10 @@
 
 .content {
   min-height: calc(100vh - var(--header-height));
+  padding: 40px 0;
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 201px 0 40px;
 }
 
 .container {
@@ -70,7 +84,7 @@
 
 .heading h1 {
   margin: 0;
-  color: #09070d;
+  color: var(--text-strong);
   font-size: 23px;
   line-height: 1.25;
   font-weight: 600;
@@ -79,7 +93,7 @@
 
 .heading p {
   margin: 6px 0 29px;
-  color: #746f7b;
+  color: var(--muted);
   font-size: 14px;
   line-height: 1.4;
 }
@@ -91,6 +105,22 @@
   }
 
   .content {
-    padding-top: 130px;
+    padding: 32px 0;
+  }
+
+  .back {
+    left: 0;
+  }
+
+  .progress {
+    right: 0;
+  }
+
+  .heading h1 {
+    font-size: 22px;
+  }
+
+  .heading p {
+    font-size: 13px;
   }
 }
