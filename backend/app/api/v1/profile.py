@@ -7,6 +7,7 @@ from app.models.profile import Profile
 from app.models.user import User
 from app.schemas.profile import ProfileRequest, ProfileResponse
 from app.api.deps import get_current_user
+from app.services.ab.ab_test_service import ABTestService
 
 
 router = APIRouter()
@@ -48,6 +49,11 @@ async def update_profile(
     profile.chest = data.chest
     profile.waist = data.waist
     profile.hips = data.hips
+
+    await ABTestService.get_or_assign(
+        session=session,
+        profile=profile,
+    )
 
     await session.commit()
     await session.refresh(profile)

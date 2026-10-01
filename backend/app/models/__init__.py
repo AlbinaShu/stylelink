@@ -10,3 +10,5 @@ from app.models.revoked_token import RevokedToken
 from app.models.generation_search_item import GenerationSearchItem
 from app.models.product import Product
 from app.models.generation_search_item_product import GenerationSearchItemProduct
+from app.models.ab_assignment import ABAssignment
+from app.models.experiment_event import ExperimentEvent
