@@ -6,7 +6,7 @@ from app.core.database import AsyncSessionLocal
 from app.models.generation import Generation
 from app.models.generation_search_item import GenerationSearchItem
 from app.services.gigachat import GigaChatService
-from app.services.marketplaces.wildberries import WildberriesMarketplace
+from app.services.marketplaces.yandex_market import YandexMarketMarketplace
 from app.services.product_service import ProductService
 
 
@@ -44,15 +44,15 @@ class GenerationPipeline:
 
                 await db.flush()
 
-                # 2. Ищем товары на Wildberries
+                # 2. Ищем товары на Яндекс Маркете
                 generation.status = "searching_products"
                 await db.commit()
 
-                wb = WildberriesMarketplace()
+                marketplace = YandexMarketMarketplace()
                 product_service = ProductService()
 
                 for search_item in search_items:
-                    products = await wb.search_products(
+                    products = await marketplace.search_products(
                         search_item.search_query
                     )
 

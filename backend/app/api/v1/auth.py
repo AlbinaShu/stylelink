@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
+from app.models.profile import Profile
 
 from app.core.database import get_db
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -252,6 +253,17 @@ async def register_user(
 
     session.add(user)
 
+    # Получаем user.id без commit
+    await session.flush()
+
+    # Создаём пустой профиль пользователя
+    profile = Profile(
+        user_id=user.id,
+    )
+
+    session.add(profile)
+
+    # User и Profile сохраняются одной транзакцией
     await session.commit()
     await session.refresh(user)
 
@@ -331,6 +343,7 @@ async def logout_user(
 
 
 # Восстановление пароля
+
 @router.post(
     "/password-reset/request-code",
     response_model=PasswordResetResponse,

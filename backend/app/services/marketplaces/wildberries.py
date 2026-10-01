@@ -11,6 +11,45 @@ class WildberriesMarketplace(MarketplaceService):
 
     USER_AGENT = "Mozilla/5.0"
 
+    def _basket_card_url(self, nm_id: int, shard: int) -> str:
+        vol = nm_id // 100000
+        part = nm_id // 1000
+        host = f"{shard:02d}" if shard < 10 else str(shard)
+
+        return (
+            f"https://basket-{host}.wbbasket.ru/"
+            f"vol{vol}/part{part}/{nm_id}/info/ru/card.json"
+        )
+
+    def _image_url(self, nm_id: int, shard: int, index: int = 1) -> str:
+        vol = nm_id // 100000
+        part = nm_id // 1000
+        host = f"{shard:02d}" if shard < 10 else str(shard)
+
+        return (
+            f"https://basket-{host}.wbbasket.ru/"
+            f"vol{vol}/part{part}/{nm_id}/images/big/{index}.webp"
+        )
+
+    async def _find_basket_shard(
+        self,
+        nm_id: int,
+        max_shard: int = 50,
+    ) -> int | None:
+        for shard in range(1, max_shard + 1):
+            try:
+                await self._get_json(
+                    self._basket_card_url(nm_id, shard),
+                    timeout=4,
+                    attempts=1,
+                )
+            except RuntimeError:
+                continue
+
+            return shard
+
+        return None
+
     async def search_products(
         self,
         search_query: str,
@@ -35,10 +74,15 @@ class WildberriesMarketplace(MarketplaceService):
 
         products = data.get("products") or []
 
-        return [
-            self._normalize_product(product)
-            for product in products
-        ]
+        semaphore = asyncio.Semaphore(10)
+
+        async def normalize_product(product: dict[str, Any]) -> dict:
+            async with semaphore:
+                return await self._normalize_product(product)
+
+        return await asyncio.gather(
+            *(normalize_product(product) for product in products)
+        )
 
     async def _get_json(
         self,
@@ -107,7 +151,7 @@ class WildberriesMarketplace(MarketplaceService):
             f"Wildberries request failed after {attempts} attempts: {last_error}"
         )
 
-    def _normalize_product(self, product: dict[str, Any]) -> dict:
+    async def _normalize_product(self, product: dict[str, Any]) -> dict:
         sizes = product.get("sizes") or []
 
         normalized_sizes = []
@@ -148,9 +192,22 @@ class WildberriesMarketplace(MarketplaceService):
 
         external_id = product.get("id")
 
+        image_url = None
+
+        if external_id:
+            shard = await self._find_basket_shard(external_id)
+
+            if shard is not None:
+                image_url = self._image_url(
+                    external_id,
+                    shard,
+                    index=1,
+                )
+
         return {
             "marketplace": "wildberries",
             "external_id": external_id,
+            "image_url": image_url,
             "product_url": (
                 f"https://www.wildberries.ru/catalog/{external_id}/detail.aspx"
                 if external_id
