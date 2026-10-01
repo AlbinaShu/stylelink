@@ -1,12 +1,16 @@
 import {
   HeartOutlined,
+  HomeOutlined,
   PlusOutlined,
   SkinOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { Button } from 'antd';
 import type { ReactNode } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 
 import styles from './AppBottomNav.module.css';
 
@@ -20,23 +24,29 @@ interface IAppBottomNavItem {
 
 const items: IAppBottomNavItem[] = [
   {
+    key: 'home',
+    label: 'Главная',
+    path: '/main',
+    icon: <HomeOutlined />,
+  },
+  {
     key: 'outfits',
     label: 'Образы',
-    path: '/main',
+    path: '/outfits',
     icon: <SkinOutlined />,
+  },
+  {
+    key: 'create',
+    label: 'Подбор',
+    path: '/outfit-generation',
+    icon: <PlusOutlined />,
+    isCreate: true,
   },
   {
     key: 'favorites',
     label: 'Избранное',
     path: '/favorites',
     icon: <HeartOutlined />,
-  },
-  {
-    key: 'create',
-    label: 'Подбор',
-    path: '/create',
-    icon: <PlusOutlined />,
-    isCreate: true,
   },
   {
     key: 'profile',
@@ -46,12 +56,16 @@ const items: IAppBottomNavItem[] = [
   },
 ];
 
+
 function AppBottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
 
   const isActive = (path: string) => {
-    return location.pathname === path;
+    return (
+      location.pathname === path ||
+      location.pathname.startsWith(`${path}/`)
+    );
   };
 
   return (
@@ -64,9 +78,13 @@ function AppBottomNav() {
             <Button
               key={item.key}
               type="text"
-              className={`${styles.item} ${
-                active ? styles.active : ''
-              } ${item.isCreate ? styles.createItem : ''}`}
+              className={[
+                styles.item,
+                active ? styles.active : '',
+                item.isCreate ? styles.createItem : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
               onClick={() => navigate(item.path)}
             >
               <span

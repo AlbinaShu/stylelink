@@ -8,6 +8,8 @@ import ProfileMenu from '../../features/profile/components/ProfileMenu/ProfileMe
 import UserCard from '../../features/profile/components/UserCard/UserCard';
 import RequestHistory from '../../features/profile/components/RequestHistory/RequestHistory';
 import { useProfile } from '../../features/profile/hooks/useProfile';
+import SubscriptionPlans from '../../features/profile/components/SubscriptionPlans/SubscriptionPlans';
+import UsageLimit from '../../features/profile/components/UsageLimit/UsageLimit';
 
 import AppBottomNav from '../../shared/ui/AppBottomNav/AppBottomNav';
 import AppHeader from '../../shared/ui/AppHeader/AppHeader';
@@ -54,6 +56,10 @@ function ProfilePage() {
         ) : (
           <>
             <UserCard user={user!} />
+
+            <SubscriptionPlans />
+
+            <UsageLimit />
 
             <BodyParameters profile={profile!} />
 

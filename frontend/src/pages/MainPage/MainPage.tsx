@@ -1,19 +1,40 @@
-import { ArrowRightOutlined, SkinOutlined } from '@ant-design/icons';
+import {
+  ArrowRightOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
+import {
+  Button,
+  Card,
+  Flex,
+  Image,
+  Typography,
+} from 'antd';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import { useProfile } from '../../features/profile/hooks/useProfile';
+import AppBottomNav from '../../shared/ui/AppBottomNav/AppBottomNav';
 import AppHeader from '../../shared/ui/AppHeader/AppHeader';
+
 import styles from './MainPage.module.css';
 
+const { Title, Text } = Typography;
+
 function MainPage() {
+  const navigate = useNavigate();
   const { user, loadProfile, isLoading } = useProfile();
 
   useEffect(() => {
     if (!user) {
       void loadProfile();
     }
-  }, [user, loadProfile]);
+  }, [user]);
 
   const userName = user?.name?.trim() || 'Пользователь';
+
+  const handleCreate = () => {
+    navigate('/outfit-generation');
+  };
 
   return (
     <div className={styles.page}>
@@ -21,42 +42,116 @@ function MainPage() {
 
       <main className={styles.content}>
         <section className={styles.welcome}>
-          <p className={styles.greeting}>
-            Добро пожаловать,
-          </p>
+          <Text className={styles.greeting}>
+            Добрый вечер,
+          </Text>
 
-          <h1 className={styles.title}>
+          <Title level={2} className={styles.title}>
             {isLoading ? 'Пользователь' : userName} 👋
-          </h1>
+          </Title>
         </section>
 
-        <button
-          type="button"
-          className={styles.newOutfit}
+        <Card
+          bordered={false}
+          className={styles.hero}
+          styles={{
+            body: {
+              padding: 0,
+              height: '100%',
+            },
+          }}
         >
-          <div className={styles.newOutfitText}>
-            <strong>Новый подбор</strong>
-            <span>5 образов за 10 минут</span>
+          <button
+            type="button"
+            className={styles.heroAction}
+            onClick={handleCreate}
+          >
+            <div className={styles.heroOverlay} />
+
+            <div className={styles.heroContent}>
+              <div className={styles.brand}>
+                <span className={styles.brandIcon}>✧</span>
+                AI-StyleLink
+              </div>
+
+              <div className={styles.heroBottom}>
+                <div>
+                  <Title level={4} className={styles.heroTitle}>
+                    Новый подбор образов
+                  </Title>
+
+                  <Text className={styles.heroDescription}>
+                    5 образов из Wildberries за 10 минут
+                  </Text>
+                </div>
+
+                <span className={styles.plusButton}>
+                  <PlusOutlined />
+                </span>
+              </div>
+            </div>
+          </button>
+        </Card>
+
+        <Card
+          bordered
+          className={styles.startCard}
+          styles={{
+            body: {
+              padding: 0,
+            },
+          }}
+        >
+          <div className={styles.preview}>
+            <Image
+              preview={false}
+              src="/images/yellow-woman.webp"
+              alt=""
+              className={styles.previewImage}
+            />
+
+            <Image
+              preview={false}
+              src="/images/yellow-woman2.webp"
+              alt=""
+              className={styles.previewImage}
+            />
+
+            <Image
+              preview={false}
+              src="/images/green-woman.webp"
+              alt=""
+              className={styles.previewImage}
+            />
           </div>
 
-          <span className={styles.arrow}>
-            <ArrowRightOutlined />
-          </span>
-        </button>
+          <Flex
+            vertical
+            align="center"
+            className={styles.startContent}
+          >
+            <Title level={5} className={styles.startTitle}>
+              Начните первый подбор
+            </Title>
 
-        <section className={styles.emptyState}>
-          <SkinOutlined className={styles.emptyIcon} />
+            <Text className={styles.startDescription}>
+              После подбора здесь появится история запросов и избранные образы
+            </Text>
 
-          <p className={styles.emptyTitle}>
-            Начните первый подбор
-          </p>
-
-          <p className={styles.emptyDescription}>
-            После подбора здесь появится история запросов и
-            избранные образы
-          </p>
-        </section>
+            <Button
+              type="primary"
+              icon={<ArrowRightOutlined />}
+              iconPosition="end"
+              onClick={handleCreate}
+              className={styles.startButton}
+            >
+              Начать подбор
+            </Button>
+          </Flex>
+        </Card>
       </main>
+
+      <AppBottomNav />
     </div>
   );
 }

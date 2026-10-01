@@ -4,6 +4,7 @@ import LandingPage from './pages/LandingPage/LandingPage';
 import AuthPage from './pages/AuthPage/AuthPage';
 import MainPage from './pages/MainPage/MainPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
+import OutfitGenerationPage from './pages/OutfitGenerationPage/OutfitGenerationPage';
 import { useAuth } from './features/auth/hooks/useAuth';
 
 interface IRouteProps {
@@ -52,6 +53,15 @@ export function AppRouter() {
         element={
           <ProtectedRoute>
             <MainPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/outfit-generation"
+        element={
+          <ProtectedRoute>
+            <OutfitGenerationPage />
           </ProtectedRoute>
         }
       />

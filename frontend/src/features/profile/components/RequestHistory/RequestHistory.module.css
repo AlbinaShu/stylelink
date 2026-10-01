@@ -1,26 +1,31 @@
 .card {
-  margin-top: 18px;
-  min-height: 275px;
-
-  border-radius: 15px;
+  border: 1px solid var(--border) !important;
+  border-radius: 20px !important;
+  background: var(--surface);
+  box-shadow: none !important;
 }
 
 .card :global(.ant-card-body) {
-  height: 100%;
-  padding: 17px 18px;
+  padding: 18px;
 }
 
 .header {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .headerIcon {
-  margin-top: 2px;
-
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--primary-soft);
   color: var(--primary);
-  font-size: 15px;
+  font-size: 18px;
 }
 
 .headerText {
@@ -30,48 +35,51 @@
 }
 
 .headerText :global(.ant-typography) {
-  line-height: 1.2;
+  margin: 0;
 }
 
-.headerText :global(.ant-typography:first-child) {
-  font-size: 13px;
+.headerText :global(.ant-typography strong) {
+  color: var(--text);
+  font-size: 15px;
 }
 
 .headerText :global(.ant-typography-secondary) {
-  font-size: 10px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .card :global(.ant-empty) {
-  margin: 0;
-
-  min-height: 210px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.card :global(.ant-empty-image) {
-  margin-bottom: 13px;
+  margin: 24px 0 10px;
 }
 
 .emptyIcon {
-  color: #85818b;
-  font-size: 28px;
+  color: var(--primary);
+  font-size: 42px;
 }
 
 .emptyDescription {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
 }
 
 .emptyTitle {
   color: var(--text);
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .emptyDescription :global(.ant-typography-secondary) {
-  font-size: 11px;
-  line-height: 1.4;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media(max-width:640px) {
+  .card :global(.ant-card-body) {
+    padding: 16px;
+  }
 }
