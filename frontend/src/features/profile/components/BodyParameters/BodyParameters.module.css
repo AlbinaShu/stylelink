@@ -1,47 +1,48 @@
-.collapse {
-  margin-top: 18px;
-
+.wrapper {
   border: 1px solid var(--border);
-  border-radius: 15px;
+  border-radius: 20px;
+  background: var(--surface);
+}
 
-  background: #fff;
-
+.collapse {
   overflow: hidden;
+  border: 0 !important;
+  border-radius: 20px !important;
+  background: var(--surface) !important;
 }
 
 .collapse :global(.ant-collapse-item) {
-  border-bottom: 0;
+  border: 0 !important;
 }
 
 .collapse :global(.ant-collapse-header) {
-  min-height: 41px;
-
-  padding: 10px 15px !important;
-
+  height: 56px;
+  padding: 0 16px !important;
   align-items: center !important;
+  color: var(--text) !important;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.collapse :global(.ant-collapse-header-text) {
-  font-size: 12px;
+.collapse :global(.ant-collapse-expand-icon) {
+  color: var(--muted);
 }
 
 .collapse :global(.ant-collapse-content) {
   border-top: 1px solid var(--border);
+  background: transparent;
 }
 
 .collapse :global(.ant-collapse-content-box) {
-  padding: 12px 15px 15px;
+  padding: 16px !important;
 }
 
 .optional {
-  padding: 4px 7px;
-
-  border-radius: 7px;
-
-  background: #f0eef5;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--surface-soft);
   color: var(--muted);
-
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 400;
 }
 
@@ -59,167 +60,152 @@
 
 .form :global(.ant-form-item-label > label) {
   color: var(--muted);
-
-  font-size: 11px;
+  font-size: 12px;
 }
 
-/* Пол */
-
 .genderField {
-  margin-bottom: 13px !important;
+  margin-bottom: 14px !important;
 }
 
 .gender {
   width: 100%;
-
   display: flex;
 }
 
 .gender :global(.ant-radio-button-wrapper) {
   flex: 1;
-
-  height: 34px;
-
-  padding-inline: 8px;
-
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  text-align: center;
-
-  font-size: 12px;
+  border: 1px solid var(--border) !important;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 13px;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
-/* Поля параметров */
+.gender :global(.ant-radio-button-wrapper:first-child) {
+  border-radius: 18px 0 0 18px;
+}
+
+.gender :global(.ant-radio-button-wrapper:last-child) {
+  border-radius: 0 18px 18px 0;
+}
+
+.gender :global(.ant-radio-button-wrapper::before) {
+  display: none;
+}
+
+.gender :global(.ant-radio-button-wrapper:hover) {
+  color: var(--primary);
+}
+
+.gender :global(.ant-radio-button-wrapper-checked) {
+  border-color: var(--primary) !important;
+  background: var(--primary) !important;
+  color: #fff !important;
+}
+
+.gender :global(.ant-radio-button-wrapper-checked:hover) {
+  border-color: var(--primary-hover) !important;
+  background: var(--primary-hover) !important;
+  color: #fff !important;
+}
 
 .input {
   width: 100%;
-  height: 35px;
-
-  border-radius: 18px;
+  height: 38px;
+  border: 1px solid transparent !important;
+  border-radius: 18px !important;
+  background: var(--bg) !important;
+  box-shadow: none !important;
 }
 
 .input :global(.ant-input-number-input) {
-  height: 33px;
-
-  padding-inline: 12px;
-
-  font-size: 12px;
+  height: 36px;
+  padding: 0 14px;
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
 }
 
-/*
- * Disabled InputNumber.
- * Переопределяем стандартный цвет Ant Design,
- * чтобы он соответствовал макету.
- */
-
-.form :global(.ant-input-number-disabled) {
-  background: #faf9fd;
-
-  border-color: #e5defd;
-
-  cursor: default;
+.input :global(.ant-input-number-input::placeholder) {
+  color: var(--muted);
 }
 
-.form :global(.ant-input-number-disabled:hover) {
-  background: #faf9fd;
-
-  border-color: #e5defd;
+.input:hover {
+  border-color: var(--border-strong) !important;
 }
 
-.form :global(.ant-input-number-disabled .ant-input-number-input) {
-  color: #b9b5c1;
-
-  cursor: default;
+.input:global(.ant-input-number-focused) {
+  border-color: var(--primary) !important;
+  box-shadow: none !important;
 }
-
-/* Disabled Radio */
-
-.gender :global(.ant-radio-button-wrapper-disabled) {
-  background: #faf9fd;
-
-  border-color: #e5defd;
-
-  color: #7f7a88;
-}
-
-.gender
-  :global(
-    .ant-radio-button-wrapper-disabled:first-child
-  ) {
-  border-color: #e5defd;
-}
-
-.gender
-  :global(
-    .ant-radio-button-wrapper-disabled.ant-radio-button-wrapper-checked
-  ) {
-  background: var(--primary);
-
-  border-color: var(--primary);
-
-  color: #fff;
-}
-
-/* Кнопка "Изменить" */
-
-.editButton {
-  width: 100%;
-  height: 35px;
-
-  margin-top: 5px;
-
-  border-radius: 18px;
-
-  font-size: 12px;
-}
-
-/* Кнопки редактирования */
 
 .actions {
-  display: grid;
-
-  grid-template-columns: 1fr 1fr;
-
-  gap: 8px;
-
-  margin-top: 5px;
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
 }
 
-.saveButton,
-.cancelButton {
-  height: 35px;
-
-  border-radius: 18px;
-
-  font-size: 12px;
+.actions button {
+  flex: 1;
+  height: 40px;
+  border-radius: 18px !important;
+  font-size: 13px;
 }
 
 .saveButton {
-  background: var(--primary);
-
-  border-color: var(--primary);
+  border-color: var(--primary) !important;
+  background: var(--primary) !important;
+  color: #fff !important;
 }
 
 .saveButton:hover {
-  background: var(--primary) !important;
-
-  border-color: var(--primary) !important;
+  border-color: var(--primary-hover) !important;
+  background: var(--primary-hover) !important;
 }
 
 .cancelButton {
-  background: #fff;
+  border-color: var(--border) !important;
+  background: var(--surface) !important;
+  color: var(--text) !important;
 }
 
-/* Небольшие экраны */
+.cancelButton:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
 
-@media (max-width: 480px) {
+.editButton {
+  width: 100%;
+  height: 40px;
+  border-radius: 18px !important;
+  border-color: var(--border) !important;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.editButton:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+@media(max-width:640px) {
   .collapse :global(.ant-collapse-content-box) {
-    padding-inline: 14px;
+    padding: 14px !important;
   }
 
-  .gender :global(.ant-radio-button-wrapper) {
-    padding-inline: 4px;
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
   }
 }

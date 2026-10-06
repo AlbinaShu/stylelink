@@ -36,6 +36,10 @@ function OtpStep({
     return () => window.clearInterval(timer);
   }, [seconds]);
 
+  useEffect(() => {
+    refs.current[0]?.focus();
+  }, []);
+
   const change = (index: number, value: string) => {
     const digit = value.replace(/\D/g, '').slice(-1);
     const next = [...code];
@@ -67,7 +71,7 @@ function OtpStep({
           ? error.message
           : 'Неверный код',
       );
-      
+
       return;
     }
 
@@ -145,6 +149,8 @@ function OtpStep({
       >
         Отправить код повторно через <strong>{seconds}с</strong>
       </button>
+
+      <br />
 
       <button type="button" className={styles.change} onClick={onBack}>
         Изменить email

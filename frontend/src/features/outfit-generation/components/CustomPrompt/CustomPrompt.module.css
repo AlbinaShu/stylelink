@@ -1,0 +1,43 @@
+.root {
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    color: var(--text) !important;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.description {
+    margin-top: 4px;
+    color: var(--muted) !important;
+    font-size: 11px;
+}
+
+.input {
+    margin-top: 10px;
+    padding: 12px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 18px !important;
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    font-size: 13px;
+    resize: none !important;
+    box-shadow: none !important;
+}
+
+.input:hover,
+.input:focus {
+    border-color: var(--primary) !important;
+    box-shadow: none !important;
+}
+
+.input::placeholder {
+    color: var(--muted-2);
+}
+
+.root :global(.ant-input-data-count) {
+    color: var(--muted);
+    font-size: 11px;
+}

@@ -1,11 +1,73 @@
 :root {
-  --bg: #faf9fd;
-  --text: #0d0b12;
-  --muted: #77727e;
-  --muted-2: #a19ba7;
-  --border: #e8e4ef;
-  --input-bg: #f2f0f8;
-  --primary: #7044f5;
-  --primary-soft: #c2b3ff;
+  /* Backgrounds */
+  --bg: #fbf8f4;
+  --surface: #ffffff;
+  --surface-soft: #f3e8de;
+  --surface-glass: rgba(255, 255, 255, 0.72);
+  --surface-glass-soft: rgba(255, 255, 255, 0.7);
+  --surface-muted: #eee4db;
+
+  /* Text */
+  --text: #2b1c19;
+  --text-strong: #17100e;
+  --text-soft: #33221f;
+  --muted: #a47768;
+  --muted-2: #b59a92;
+
+  /* Borders */
+  --border: #eaded8;
+  --border-strong: #e9ddd6;
+
+  /* Inputs */
+  --input-bg: #ffffff;
+
+  /* Brand */
+  --primary: #982f49;
+  --primary-hover: #84263d;
+  --primary-active: #722235;
+  --primary-soft: #f3e8de;
+  --primary-text-soft: #9a4254;
+
+  /* Marketplace */
+  --accent: #b70d70;
+  --accent-soft: #f7e5ed;
+
+  /* Contrast */
+  --contrast: #2b1c19;
+  --on-primary: #ffffff;
+  --on-contrast: #ffffff;
+
+  /* States */
+  --success: #4f7a61;
+  --warning: #b77a35;
+  --danger: #b63f4d;
+
+  /* Shadows */
+  --shadow-sm: 0 4px 14px rgba(55, 34, 28, 0.06);
+  --shadow-md: 0 16px 28px rgba(55, 34, 28, 0.12);
+  --shadow-lg: 0 20px 50px rgba(55, 34, 28, 0.14);
+
+  /* Landing overlays */
+  --header-bg: rgba(251, 248, 244, 0.96);
+  --header-bg-mobile: rgba(251, 248, 244, 0.95);
+
+  --hero-overlay-start: rgba(251, 248, 244, 0.03);
+  --hero-overlay-mid: rgba(251, 248, 244, 0.1);
+  --hero-overlay-end: rgba(251, 248, 244, 0.93);
+
+  --cta-overlay-start: rgba(51, 36, 31, 0.96);
+  --cta-overlay-mid: rgba(51, 36, 31, 0.84);
+  --cta-overlay-end: rgba(51, 36, 31, 0.08);
+
+  --cta-overlay-mobile-start: rgba(57, 42, 37, 0.95);
+  --cta-overlay-mobile-mid: rgba(57, 42, 37, 0.82);
+  --cta-overlay-mobile-end: rgba(57, 42, 37, 0.05);
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
   --header-height: 51px;
 }

@@ -1,21 +1,46 @@
 .button {
-  height: 46px;
+  height: 44px;
+
   border: 0 !important;
-  border-radius: 14px !important;
+  border-radius: var(--radius-md) !important;
+
   background: var(--primary) !important;
-  color: #fff !important;
-  font-size: 14px !important;
+  color: var(--on-primary) !important;
+
+  font-size: 13px !important;
   font-weight: 600;
+
   box-shadow: none !important;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease,
+    opacity 0.2s ease;
 }
 
-.button:hover {
-  background: #6840e9 !important;
+.button:hover:not(:disabled) {
+  background: var(--primary-hover) !important;
+  color: var(--on-primary) !important;
+}
+
+.button:active:not(:disabled) {
+  background: var(--primary-active) !important;
+
+  transform: scale(0.995);
 }
 
 .button:disabled,
-.button.ant-btn-disabled {
+.button:global(.ant-btn-disabled) {
   opacity: 1;
-  background: var(--primary-soft) !important;
-  color: #fff !important;
+
+  border-color: transparent !important;
+
+  background: #caa7ad !important;
+  color: var(--on-primary) !important;
+
+  cursor: not-allowed;
+}
+
+.button :global(.anticon) {
+  font-size: 13px;
 }
