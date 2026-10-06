@@ -1,4 +1,5 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, Query, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import func, select
@@ -9,6 +10,7 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.generation import Generation
 from app.models.user import User
+from app.models.profile import Profile
 from app.schemas.generation import (
     GenerationRequest,
     GenerationResponse,
@@ -16,8 +18,9 @@ from app.schemas.generation import (
 )
 
 from app.models.outfit import Outfit
-from app.schemas.outfit import OutfitResponse
+from app.schemas.outfit import OutfitResponse, OutfitControlResponse
 from app.services.generation_pipeline import GenerationPipeline
+from app.services.ab.ab_test_service import ABTestService
 
 
 router = APIRouter()
@@ -97,13 +100,13 @@ async def get_generations(
 # Получение аутфитов генерации
 @router.get(
     "/{generation_id}/outfits",
-    response_model=list[OutfitResponse],
 )
 async def get_generation_outfits(
     generation_id: UUID,
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):
+    # Проверяем, что generation принадлежит текущему пользователю.
     generation_result = await session.execute(
         select(Generation).where(
             Generation.id == generation_id,
@@ -119,6 +122,30 @@ async def get_generation_outfits(
             detail="Generation not found",
         )
 
+    # Получаем профиль текущего пользователя.
+    profile_result = await session.execute(
+        select(Profile).where(
+            Profile.user_id == current_user.id,
+        )
+    )
+
+    profile = profile_result.scalar_one_or_none()
+
+    if profile is None:
+        raise HTTPException(
+            status_code=409,
+            detail="Profile is required for A/B assignment",
+        )
+
+    # Получаем уже существующую группу или назначаем её один раз.
+    assignment = await ABTestService.get_or_assign(
+        session=session,
+        profile=profile,
+    )
+
+    # Если assignment был создан только что, сохраняем его.
+    await session.commit()
+
     result = await session.execute(
         select(Outfit)
         .options(selectinload(Outfit.items))
@@ -126,7 +153,30 @@ async def get_generation_outfits(
         .order_by(Outfit.created_at.asc())
     )
 
-    return result.scalars().all()
+    outfits = result.scalars().all()
+
+    # Control A:
+    # Size Shift существует в БД, но наружу не отдаётся.
+    if assignment.ab_group == "A":
+        payload = [
+            OutfitControlResponse.model_validate(outfit).model_dump(
+                mode="json",
+            )
+            for outfit in outfits
+        ]
+
+        return JSONResponse(content=payload)
+
+    # Treatment B:
+    # Отдаём recommended_size + fit.
+    payload = [
+        OutfitResponse.model_validate(outfit).model_dump(
+            mode="json",
+        )
+        for outfit in outfits
+    ]
+
+    return JSONResponse(content=payload)
 
 # Получение одной генерации
 @router.get(

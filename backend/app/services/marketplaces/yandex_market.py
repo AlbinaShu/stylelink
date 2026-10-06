@@ -13,6 +13,7 @@ from app.services.marketplaces.base import MarketplaceService
 
 class YandexMarketMarketplace(MarketplaceService):
     MARKETPLACE = "yandex_market"
+
     BASE_URL = "https://market.yandex.ru"
     SEARCH_URL = "https://market.yandex.ru/search"
 
@@ -158,6 +159,180 @@ class YandexMarketMarketplace(MarketplaceService):
                 "Yandex Market request failed after retries"
             )
 
+    @staticmethod
+    def _normalize_category(
+        name: str | None,
+    ) -> str | None:
+        """
+        Приводит название товара к одной из категорий,
+        используемых FashionCLIP.
+
+        Возможные значения:
+        - top
+        - bottom
+        - dress
+        - shoes
+        - outerwear
+        - accessory
+        """
+
+        if not name:
+            return None
+
+        value = name.lower()
+
+        # Более специфичные категории должны проверяться раньше.
+
+        categories: dict[str, tuple[str, ...]] = {
+            "dress": (
+                "платье",
+                "сарафан",
+            ),
+            "outerwear": (
+                "куртка",
+                "пальто",
+                "пуховик",
+                "тренч",
+                "ветровка",
+                "бомбер",
+                "шуба",
+                "дубленка",
+                "дублёнка",
+                "плащ",
+            ),
+            "shoes": (
+                "кроссовки",
+                "кеды",
+                "ботинки",
+                "полуботинки",
+                "туфли",
+                "сапоги",
+                "ботильоны",
+                "лоферы",
+                "мокасины",
+                "босоножки",
+                "сандалии",
+                "тапочки",
+                "обувь",
+            ),
+            "bottom": (
+                "джинсы",
+                "брюки",
+                "штаны",
+                "юбка",
+                "шорты",
+                "легинсы",
+                "лосины",
+            ),
+            "top": (
+                "футболка",
+                "рубашка",
+                "блузка",
+                "блуза",
+                "свитер",
+                "свитшот",
+                "худи",
+                "лонгслив",
+                "топ",
+                "водолазка",
+                "джемпер",
+                "кардиган",
+                "поло",
+                "майка",
+                "толстовка",
+            ),
+            "accessory": (
+                "сумка",
+                "рюкзак",
+                "ремень",
+                "шарф",
+                "палантин",
+                "шапка",
+                "кепка",
+                "панама",
+                "очки",
+                "перчатки",
+                "варежки",
+                "аксессуар",
+            ),
+        }
+
+        for category, keywords in categories.items():
+            if any(keyword in value for keyword in keywords):
+                return category
+
+        return None
+
+    @staticmethod
+    def _extract_image_url(
+        product: dict[str, Any],
+    ) -> str | None:
+        """
+        JSON-LD image может быть:
+        - строкой;
+        - списком;
+        - объектом с полем url.
+
+        FashionCLIP нужен один URL изображения.
+        """
+
+        image = product.get("image")
+
+        if isinstance(image, str):
+            return image
+
+        if isinstance(image, list):
+            for item in image:
+                if isinstance(item, str) and item:
+                    return item
+
+                if isinstance(item, dict):
+                    url = item.get("url")
+
+                    if isinstance(url, str) and url:
+                        return url
+
+            return None
+
+        if isinstance(image, dict):
+            url = image.get("url")
+
+            if isinstance(url, str):
+                return url
+
+        return None
+
+    @staticmethod
+    def _extract_colors(
+        product: dict[str, Any],
+    ) -> list[str] | None:
+        """
+        Пытается получить цвет из JSON-LD Product.
+
+        Поле optional: если цвет отсутствует,
+        возвращаем None.
+        """
+
+        color = product.get("color")
+
+        if isinstance(color, str):
+            color = color.strip()
+
+            if color:
+                return [color]
+
+        if isinstance(color, list):
+            colors = [
+                str(item).strip()
+                for item in color
+                if str(item).strip()
+            ]
+
+            if colors:
+                return list(dict.fromkeys(colors))
+
+        return None
+
     def _parse_product_card(
         self,
         html_text: str,
@@ -165,13 +340,17 @@ class YandexMarketMarketplace(MarketplaceService):
         """
         Парсит HTML карточки товара.
 
-        Возвращает данные, необходимые до FashionCLIP:
-        - external_id (OSKU);
+        Возвращает данные товара, необходимые Backend:
+
+        - external_id;
         - name;
+        - category;
+        - description;
         - price;
         - sizes;
         - image_url;
-        - product_url.
+        - product_url;
+        - colors.
 
         Связь size -> OSKU сохраняется в raw_data.
         """
@@ -222,6 +401,17 @@ class YandexMarketMarketplace(MarketplaceService):
 
         offer = product.get("offers") or {}
 
+        # Иногда offers может быть массивом.
+        if isinstance(offer, list):
+            offer = (
+                offer[0]
+                if offer and isinstance(offer[0], dict)
+                else {}
+            )
+
+        if not isinstance(offer, dict):
+            offer = {}
+
         # -------------------------------------------------
         # 2. Доступные размеры
         # -------------------------------------------------
@@ -269,6 +459,8 @@ class YandexMarketMarketplace(MarketplaceService):
         if not variants:
             product_url_for_id = (
                 (product.get("offers") or {}).get("url")
+                if isinstance(product.get("offers"), dict)
+                else offer.get("url")
             )
 
             current_osku_match = re.search(
@@ -336,24 +528,196 @@ class YandexMarketMarketplace(MarketplaceService):
         )
 
         # -------------------------------------------------
-        # 4. Нормализованный товар
+        # 4. Данные для FashionCLIP
+        # -------------------------------------------------
+
+        name = product.get("name")
+
+        description = product.get("description")
+
+        if not isinstance(description, str):
+            description = None
+
+        if description:
+            description = description.strip() or None
+
+        image_url = self._extract_image_url(product)
+        colors = self._extract_colors(product)
+
+        category = self._normalize_category(
+            name if isinstance(name, str) else None
+        )
+
+        # -------------------------------------------------
+        # 5. Нормализованный товар
         # -------------------------------------------------
 
         return {
             "marketplace": self.MARKETPLACE,
             "external_id": external_id,
-            "name": product.get("name"),
+            "name": name,
+            "category": category,
+            "description": description,
             "price": offer.get("price"),
             "sizes": [
                 variant["size"]
                 for variant in variants
             ],
-            "image_url": product.get("image"),
+            "image_url": image_url,
             "product_url": product_url,
+            "colors": colors,
             "raw_data": {
                 "variants": variants,
             },
         }
+
+
+    @staticmethod
+    def _extract_json_string(
+        text: str,
+        key: str,
+    ) -> str | None:
+        match = re.search(
+            rf'"{re.escape(key)}"\s*:\s*"((?:\\.|[^"\\])*)"',
+            text,
+        )
+
+        if not match:
+            return None
+
+        try:
+            return json.loads(f'"{match.group(1)}"')
+        except json.JSONDecodeError:
+            return match.group(1)
+
+    @classmethod
+    def _parse_fit_data(
+        cls,
+        html_text: str,
+    ) -> dict[str, Any]:
+        model_match = re.search(
+            r'"modelId"\s*:\s*"?(\d+)"?',
+            html_text,
+        )
+
+        model_id = (
+            model_match.group(1)
+            if model_match
+            else None
+        )
+
+        review_ids = list(
+            dict.fromkeys(
+                re.findall(
+                    r'"reviewId"\s*:\s*"?(\d+)"?',
+                    html_text,
+                )
+            )
+        )
+
+        reviews: list[dict[str, Any]] = []
+
+        for review_id in review_ids:
+            positions = []
+
+            for pattern in (
+                f'"reviewId":"{review_id}"',
+                f'"reviewId":{review_id}',
+            ):
+                position = html_text.find(pattern)
+
+                if position != -1:
+                    positions.append(position)
+
+            if not positions:
+                continue
+
+            position = min(positions)
+
+            chunk = html_text[
+                max(0, position - 5000):
+                min(len(html_text), position + 12000)
+            ]
+
+            parts = []
+
+            for key in ("pro", "contra", "comment"):
+                value = cls._extract_json_string(
+                    chunk,
+                    key,
+                )
+
+                if value and value.strip():
+                    parts.append(value.strip())
+
+            review_text = " ".join(
+                dict.fromkeys(parts)
+            ).strip()
+
+            # Пустой отзыв нам действительно нечего
+            # отправлять в текстовую ML-модель.
+            if not review_text:
+                continue
+
+            size = None
+
+            titles = re.findall(
+                r'"title"\s*:\s*"((?:\\.|[^"\\])*)"',
+                chunk,
+            )
+
+            for raw_title in titles:
+                try:
+                    title = json.loads(
+                        f'"{raw_title}"'
+                    )
+                except json.JSONDecodeError:
+                    title = raw_title
+
+                size_match = re.search(
+                    r'(?:размер|Размер)\s+'
+                    r'([A-Za-zА-Яа-я0-9./-]+)',
+                    title,
+                )
+
+                if size_match:
+                    size = size_match.group(1)
+                    break
+
+            reviews.append(
+                {
+                    "text": review_text,
+                    "size": size,
+                }
+            )
+
+        return {
+            "model_id": model_id,
+            "reviews": reviews,
+        }
+
+    async def get_fit_data(
+        self,
+        product_url: str,
+    ) -> dict[str, Any]:
+        clean_url = (
+            product_url
+            .split("?", 1)[0]
+            .rstrip("/")
+        )
+
+        if clean_url.endswith("/reviews"):
+            reviews_url = clean_url
+        else:
+            reviews_url = f"{clean_url}/reviews"
+
+        reviews_html = await self._get_html(
+            reviews_url
+        )
+
+        return self._parse_fit_data(
+            reviews_html
+        )
 
     async def search_products(
         self,
@@ -365,7 +729,10 @@ class YandexMarketMarketplace(MarketplaceService):
         подробные данные карточек.
         """
 
-        # 1. Получаем HTML страницы поиска.
+        # -------------------------------------------------
+        # 1. Получаем HTML страницы поиска
+        # -------------------------------------------------
+
         search_html = await self._get_html(
             self.SEARCH_URL,
             params={
@@ -376,7 +743,10 @@ class YandexMarketMarketplace(MarketplaceService):
 
         search_html = html.unescape(search_html)
 
-        # 2. Извлекаем ссылки на карточки.
+        # -------------------------------------------------
+        # 2. Извлекаем ссылки на карточки
+        # -------------------------------------------------
+
         pattern = re.compile(
             r'href="([^"]*/card/[^"]*/\d+(?:\?[^"]*)?)"'
         )
@@ -399,11 +769,17 @@ class YandexMarketMarketplace(MarketplaceService):
             seen.add(url)
             card_urls.append(url)
 
-        # Пока ограничиваем количество карточек,
-        # чтобы не делать лишние запросы.
+        # Пока ограничиваем количество карточек
+        # на один поисковый запрос.
+        #
+        # Общий лимит для FashionCLIP будет контролироваться
+        # отдельно на уровне generation pipeline.
         card_urls = card_urls[:20]
 
-        # 3. Загружаем и парсим одну карточку.
+        # -------------------------------------------------
+        # 3. Загружаем и парсим одну карточку
+        # -------------------------------------------------
+
         async def load_product(
             url: str,
         ) -> dict[str, Any] | None:
@@ -414,10 +790,12 @@ class YandexMarketMarketplace(MarketplaceService):
                     card_html
                 )
 
-                # До FashionCLIP нам нужны эти поля.
+                # Минимальный набор данных для дальнейшего
+                # формирования FashionCLIP request.
                 required_fields = (
                     "external_id",
                     "name",
+                    "category",
                     "price",
                     "image_url",
                     "product_url",
@@ -429,17 +807,19 @@ class YandexMarketMarketplace(MarketplaceService):
                 ):
                     return None
 
-                # До FashionCLIP товар без доступных размеров
-                # нам не подходит.
+                # Размеры пока сохраняем обязательными:
+                # они понадобятся на следующих этапах pipeline.
                 sizes = product.get("sizes") or []
 
                 if not sizes:
                     return None
 
                 # Один размер может встречаться у нескольких OSKU
-                # (например, разные цвета). Для общего списка размеров
-                # оставляем каждое значение только один раз.
-                product["sizes"] = list(dict.fromkeys(sizes))
+                # (например, разные цвета). Для общего списка
+                # размеров оставляем каждое значение один раз.
+                product["sizes"] = list(
+                    dict.fromkeys(sizes)
+                )
 
                 return product
 
@@ -451,9 +831,10 @@ class YandexMarketMarketplace(MarketplaceService):
                 # не должна ронять весь поиск.
                 return None
 
-        # 4. Карточки запускаем конкурентно.
-        # Реальную нагрузку всё равно контролируют
-        # Semaphore(3) и rate limiter внутри _get_html().
+        # -------------------------------------------------
+        # 4. Карточки запускаем конкурентно
+        # -------------------------------------------------
+
         results = await asyncio.gather(
             *(
                 load_product(url)
@@ -461,7 +842,10 @@ class YandexMarketMarketplace(MarketplaceService):
             )
         )
 
-        # 5. Убираем карточки, которые не удалось получить.
+        # -------------------------------------------------
+        # 5. Убираем карточки, которые не удалось получить
+        # -------------------------------------------------
+
         return [
             product
             for product in results

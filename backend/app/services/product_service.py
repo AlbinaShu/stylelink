@@ -67,6 +67,8 @@ class ProductService:
             # Обновляем данные карточки при каждом новом поиске.
             product.imt_id = product_data.get("imt_id")
             product.name = product_data.get("name")
+            product.category = product_data.get("category")
+            product.description = product_data.get("description")
             product.brand = product_data.get("brand")
             product.product_url = product_data.get("product_url")
             product.image_url = product_data.get("image_url")

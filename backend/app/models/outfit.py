@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Float, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -29,6 +29,18 @@ class Outfit(Base):
         ForeignKey("generations.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
+    )
+
+    # Позиция образа в результате FashionCLIP.
+    rank: Mapped[int | None] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
+    # Общая оценка образа FashionCLIP.
+    score: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
     )
 
     title: Mapped[str] = mapped_column(
