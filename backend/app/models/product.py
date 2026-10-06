@@ -47,6 +47,17 @@ class Product(Base):
         nullable=True,
     )
 
+    category: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
+        index=True,
+    )
+
+    description: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True,
+    )
+
     brand: Mapped[str | None] = mapped_column(
         String(255),
         nullable=True,
