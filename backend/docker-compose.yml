@@ -8,9 +8,29 @@ services:
       POSTGRES_USER: stylelink
       POSTGRES_PASSWORD: stylelink
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  ml:
+    build:
+      context: ../ml
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8001:8001"
+    volumes:
+      - ml_models:/models
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=2)
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10m
+
 volumes:
   postgres_data:
+  ml_models:
