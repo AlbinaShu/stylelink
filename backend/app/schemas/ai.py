@@ -6,7 +6,7 @@ class SearchItem(BaseModel):
         description="Конкретный тип товара, который нужно найти"
     )
     search_query: str = Field(
-        description="Поисковый запрос для каталога Wildberries"
+        description="Поисковый запрос для Яндекс Маркета"
     )
 
 

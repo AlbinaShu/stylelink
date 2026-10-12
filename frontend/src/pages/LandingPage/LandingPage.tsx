@@ -26,16 +26,16 @@ interface IStat {
 
 const stats: IStat[] = [
   {
-    value: '5',
+    value: 'до 5',
     label: 'образов за раз',
   },
   {
-    value: '10',
-    label: 'минут на подбор',
+    value: 'ЯМ',
+    label: 'Яндекс Маркет',
   },
   {
-    value: 'WB',
-    label: 'Wildberries',
+    value: 'ML',
+    label: 'анализ отзывов',
   },
 ];
 
@@ -49,13 +49,13 @@ const steps: IStep[] = [
   {
     number: '02',
     title: 'ИИ подберёт образы',
-    text: '5 готовых образов с вещами из Wildberries',
+    text: 'До 5 образов с вещами из Яндекс Маркета',
     icon: <ThunderboltOutlined />,
   },
   {
     number: '03',
     title: 'Купи в один клик',
-    text: 'Все вещи с вашим размером и в рамках бюджета',
+    text: 'Ссылки на товары и сигналы о посадке из отзывов',
     icon: <ShoppingOutlined />,
   },
 ];
@@ -102,19 +102,19 @@ function LandingPage() {
           <div className={styles.hero}>
             <div className={styles.heroCopy}>
               <span className={styles.marketplace}>
-                Wildberries
+                Яндекс Маркет
               </span>
 
               <h1 className={styles.heroTitle}>
                 Подбери
                 <br />
-                5 образов
+                образы
                 <br />
-                <span>за 10 минут</span>
+                <span>под свой запрос</span>
               </h1>
 
               <p className={styles.description}>
-                Вещи из Wildberries с гарантией бюджета и правильным размером.
+                Вещи из Яндекс Маркета в рамках бюджета. Посадку оцениваем по отзывам.
               </p>
 
               <Button

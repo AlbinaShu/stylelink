@@ -11,6 +11,10 @@ import requests
 from app.services.marketplaces.base import MarketplaceService
 
 
+class YandexMarketAccessBlocked(RuntimeError):
+    pass
+
+
 class YandexMarketMarketplace(MarketplaceService):
     MARKETPLACE = "yandex_market"
 
@@ -111,7 +115,12 @@ class YandexMarketMarketplace(MarketplaceService):
 
                 # Успешный HTTP-ответ.
                 if response.status_code < 400:
-                    return response.text
+                    body = response.content.decode("utf-8", errors="replace")
+                    if "Вы не робот?" in body[:5000]:
+                        raise YandexMarketAccessBlocked(
+                            "Yandex Market requested a CAPTCHA for a product card"
+                        )
+                    return body
 
                 # Too Many Requests.
                 if response.status_code == 429:
