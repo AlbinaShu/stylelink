@@ -30,15 +30,14 @@ async def predict(
         reviews = product.reviews
         num_reviews = len(reviews)
 
-        # Для проверки HTTP-контура:
-        # если отзывов нет — недостаточно данных.
+        # Если отзывов нет — недостаточно данных
+        # для определения посадки.
         if num_reviews == 0:
             predictions.append(
                 SizeShiftPrediction(
                     product_id=product.product_id,
                     status="insufficient_evidence",
                     fit_signal=None,
-                    recommended_size=None,
                     confidence=None,
                     num_reviews=0,
                     num_fit_reviews=0,
@@ -51,25 +50,12 @@ async def predict(
             continue
 
         # Mock не является реальной ML-логикой.
-        # Просто возвращаем валидный predicted response.
-        sizes = [
-            review.size
-            for review in reviews
-            if review.size is not None
-        ]
-
-        recommended_size = (
-            sizes[0]
-            if sizes
-            else None
-        )
-
+        # Size Shift определяет только посадку по отзывам.
         predictions.append(
             SizeShiftPrediction(
                 product_id=product.product_id,
                 status="predicted",
                 fit_signal="true_to_size",
-                recommended_size=recommended_size,
                 confidence=0.85,
                 num_reviews=num_reviews,
                 num_fit_reviews=num_reviews,

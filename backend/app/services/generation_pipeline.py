@@ -11,6 +11,7 @@ from app.models.generation_search_item_product import (
 from app.models.outfit import Outfit
 from app.models.outfit_item import OutfitItem
 from app.models.product import Product
+from app.models.profile import Profile
 from app.schemas.fashion_clip import (
     FashionClipContext,
     FashionClipProduct,
@@ -27,6 +28,7 @@ from app.services.marketplaces.yandex_market import (
 from app.services.ml.fashion_clip_client import FashionClipClient
 from app.services.ml.size_shift_client import SizeShiftClient
 from app.services.product_service import ProductService
+from app.services.size_recommendation_service import SizeRecommendationService
 
 
 class GenerationPipeline:
@@ -49,6 +51,14 @@ class GenerationPipeline:
 
                 if generation is None:
                     return
+
+                # Профиль пользователя нужен Backend для рекомендации размера.
+                profile_result = await db.execute(
+                    select(Profile).where(
+                        Profile.user_id == generation.user_id
+                    )
+                )
+                profile = profile_result.scalar_one_or_none()
 
                 # -------------------------------------------------
                 # 1. GigaChat формирует поисковые запросы
@@ -298,6 +308,24 @@ class GenerationPipeline:
                     await db.flush()
 
                     for ml_item, product in valid_items:
+                        available_sizes = (
+                            SizeRecommendationService.normalize_available_sizes(
+                                product.sizes,
+                                ml_item.category,
+                            )
+                        )
+
+                        recommended_size = (
+                            SizeRecommendationService.recommend_size(
+                                available_sizes=available_sizes,
+                                category=ml_item.category,
+                                gender=profile.gender if profile else None,
+                                chest=profile.chest if profile else None,
+                                waist=profile.waist if profile else None,
+                                hips=profile.hips if profile else None,
+                            )
+                        )
+
                         outfit_item = OutfitItem(
                             outfit_id=outfit.id,
                             product_id=product.id,
@@ -310,6 +338,8 @@ class GenerationPipeline:
                             name=product.name or "",
                             price=float(product.price or 0),
                             size=None,
+                            available_sizes=available_sizes,
+                            recommended_size=recommended_size,
                             image=product.image_url,
                             marketplace=product.marketplace,
                             url=product.product_url or "",
@@ -449,9 +479,6 @@ class GenerationPipeline:
                     outfit_items = result.scalars().all()
 
                     for outfit_item in outfit_items:
-                        outfit_item.recommended_size = (
-                            prediction.recommended_size
-                        )
                         outfit_item.fit_status = (
                             prediction.status
                         )
