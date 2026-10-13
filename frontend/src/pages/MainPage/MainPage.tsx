@@ -81,7 +81,7 @@ function MainPage() {
                   </Title>
 
                   <Text className={styles.heroDescription}>
-                    5 образов из Wildberries за 10 минут
+                    До 5 образов из Яндекс Маркета
                   </Text>
                 </div>
 

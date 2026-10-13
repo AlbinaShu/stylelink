@@ -6,7 +6,14 @@ import {
     Button,
     Typography,
 } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import {
+    createGeneration,
+    getGeneration,
+    getGenerationOutfits,
+} from '../../api/generation.api';
+import type { IOutfit } from '../../api/generation.api';
 
 import type {
     IGenerationForm,
@@ -15,6 +22,7 @@ import type {
 import BodyParameters from '../BodyParameters/BodyParameters';
 import BudgetField from '../BudgetField/BudgetField';
 import CustomPrompt from '../CustomPrompt/CustomPrompt';
+import GenerationResults from '../GenerationResults/GenerationResults';
 import OptionSelector from '../OptionSelector/OptionSelector';
 
 import styles from './GenerationForm.module.css';
@@ -96,6 +104,45 @@ function GenerationForm() {
     const [values, setValues] = useState<IGenerationForm>(
         initialValues,
     );
+    const [generationId, setGenerationId] = useState<string | null>(null);
+    const [status, setStatus] = useState<string | null>(null);
+    const [outfits, setOutfits] = useState<IOutfit[] | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (!generationId) {
+            return;
+        }
+
+        let cancelled = false;
+        let timer: ReturnType<typeof setTimeout>;
+
+        const poll = async () => {
+            try {
+                const generation = await getGeneration(generationId);
+                if (cancelled) return;
+
+                setStatus(generation.status);
+                if (generation.status === 'completed') {
+                    const result = await getGenerationOutfits(generationId);
+                    if (!cancelled) setOutfits(result);
+                } else if (generation.status !== 'failed') {
+                    timer = setTimeout(() => void poll(), 2500);
+                }
+            } catch {
+                if (!cancelled) {
+                    setError('Не удалось получить результат. Проверьте соединение с сервером.');
+                }
+            }
+        };
+
+        void poll();
+        return () => {
+            cancelled = true;
+            clearTimeout(timer);
+        };
+    }, [generationId]);
 
     const setField = <K extends keyof IGenerationForm>(
         field: K,
@@ -115,15 +162,32 @@ function GenerationForm() {
 
     const canGenerate = promptIsValid || optionsAreValid;
 
-    const handleGenerate = () => {
-        if (!canGenerate) {
+    const isGenerating = Boolean(status && status !== 'completed' && status !== 'failed');
+
+    const handleGenerate = async () => {
+        if (!canGenerate || isSubmitting || isGenerating) {
             return;
         }
 
-        // API будет добавлено позже.
+        setIsSubmitting(true);
+        setGenerationId(null);
+        setStatus(null);
+        setOutfits(null);
+        setError(null);
+
+        try {
+            const generation = await createGeneration(values);
+            setStatus(generation.status);
+            setGenerationId(generation.id);
+        } catch {
+            setError('Не удалось отправить запрос. Проверьте соединение с сервером.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
+      <>
         <div className={styles.form}>
             <OptionSelector
                 label="Повод"
@@ -193,16 +257,19 @@ function GenerationForm() {
                 <Button
                     type="primary"
                     size="large"
-                    disabled={!canGenerate}
+                    disabled={!canGenerate || isGenerating}
+                    loading={isSubmitting || isGenerating}
                     icon={<StarOutlined />}
                     onClick={handleGenerate}
                     className={styles.generateButton}
                 >
-                    <span>Сгенерировать 5 образов</span>
+                    <span>Подобрать образы</span>
                     <ArrowRightOutlined />
                 </Button>
             </div>
         </div>
+        <GenerationResults status={status} outfits={outfits} error={error} />
+      </>
     );
 }
 

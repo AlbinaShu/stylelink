@@ -19,9 +19,7 @@ class ABTestService:
         hips = profile.hips
 
         if chest is None or waist is None or hips is None:
-            raise ValueError(
-                "Для определения A/B-страты нужны chest, waist и hips"
-            )
+            return "unknown"
 
         if gender in {"female", "woman", "женский", "ж"}:
             is_large = (
@@ -39,7 +37,7 @@ class ABTestService:
             )
             return "man_large" if is_large else "man_small"
 
-        raise ValueError(f"Неизвестное значение gender: {profile.gender}")
+        return "unknown"
 
     @classmethod
     async def get_or_assign(

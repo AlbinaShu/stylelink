@@ -9,12 +9,12 @@ class GenerationRequest(BaseModel):
     season: str | None = None
     budget: float | None = None
 
-    gender: str
-    height: float
-    weight: float
-    chest: float
-    waist: float
-    hips: float
+    gender: str | None = None
+    height: float | None = None
+    weight: float | None = None
+    chest: float | None = None
+    waist: float | None = None
+    hips: float | None = None
 
     prompt: str | None = Field(default=None, max_length=500)
 
@@ -46,4 +46,3 @@ class GenerationsPageResponse(BaseModel):
     page: int
     page_size: int
     pages: int
-    
