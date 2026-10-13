@@ -34,7 +34,6 @@ class SizeShiftPrediction(BaseModel):
         "runs_large",
     ] | None = None
 
-    recommended_size: str | None = None
     confidence: float | None = None
 
     num_reviews: int = 0

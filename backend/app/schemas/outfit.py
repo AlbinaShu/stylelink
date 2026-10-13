@@ -54,6 +54,7 @@ class OutfitItemResponse(BaseModel):
     name: str
     price: float
     size: str | None
+    available_sizes: list[str] = Field(default_factory=list)
     image: str | None
     marketplace: str
     url: str
@@ -146,6 +147,7 @@ class OutfitItemResponse(BaseModel):
             "name": value.name,
             "price": value.price,
             "size": value.size,
+            "available_sizes": value.available_sizes or [],
             "image": value.image,
             "marketplace": value.marketplace,
             "url": value.url,
@@ -187,6 +189,8 @@ class OutfitItemControlResponse(BaseModel):
     name: str
     price: float
     size: str | None
+    available_sizes: list[str] = Field(default_factory=list)
+    recommended_size: str | None = None
     image: str | None
     marketplace: str
     url: str
