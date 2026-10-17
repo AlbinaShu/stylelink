@@ -49,7 +49,12 @@ class ExperimentEventService:
         )
 
         session.add(event)
-        await session.commit()
-        await session.refresh(event)
+
+        # Не делаем commit внутри service.
+        # Endpoint сам решает, когда завершить транзакцию.
+        # Это позволяет buy_click атомарно сохранить:
+        #   1) ExperimentEvent
+        #   2) SurveyBuyClick
+        await session.flush()
 
         return event
