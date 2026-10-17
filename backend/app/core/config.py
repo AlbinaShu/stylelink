@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 1440
     smtp_host: str = "smtp.gmail.com"
-    smtp_port: int = 587
+    smtp_port: int = 465
     smtp_user: str
     smtp_password: str
     smtp_from: str
@@ -23,6 +23,16 @@ class Settings(BaseSettings):
 
     size_shift_url: str = "http://127.0.0.1:8002"
     size_shift_timeout_seconds: float = 60.0
+
+    survey_test_mode: bool = True
+    survey_test_period_minutes: int = 10
+    survey_period_days: int = 14
+    survey_test_email_delay_minutes: int = 15
+    survey_email_delay_days: int = 5
+    survey_token_lifetime_days: int = 14
+
+    survey_frontend_url: str = "http://localhost:3000/survey"
+    survey_reminder_delay_days: int = 3
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
