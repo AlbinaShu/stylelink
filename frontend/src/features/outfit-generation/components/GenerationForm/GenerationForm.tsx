@@ -3,26 +3,25 @@ import {
     StarOutlined,
 } from '@ant-design/icons';
 import {
+    Alert,
     Button,
     Typography,
 } from 'antd';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
     createGeneration,
-    getGeneration,
-    getGenerationOutfits,
 } from '../../api/generation.api';
-import type { IOutfit } from '../../api/generation.api';
 
 import type {
     IGenerationForm,
     IGenerationOption,
 } from '../../types';
+
 import BodyParameters from '../BodyParameters/BodyParameters';
 import BudgetField from '../BudgetField/BudgetField';
 import CustomPrompt from '../CustomPrompt/CustomPrompt';
-import GenerationResults from '../GenerationResults/GenerationResults';
 import OptionSelector from '../OptionSelector/OptionSelector';
 
 import styles from './GenerationForm.module.css';
@@ -101,48 +100,11 @@ const initialValues: IGenerationForm = {
 };
 
 function GenerationForm() {
-    const [values, setValues] = useState<IGenerationForm>(
-        initialValues,
-    );
-    const [generationId, setGenerationId] = useState<string | null>(null);
-    const [status, setStatus] = useState<string | null>(null);
-    const [outfits, setOutfits] = useState<IOutfit[] | null>(null);
+    const navigate = useNavigate();
+
+    const [values, setValues] = useState<IGenerationForm>(initialValues);
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    useEffect(() => {
-        if (!generationId) {
-            return;
-        }
-
-        let cancelled = false;
-        let timer: ReturnType<typeof setTimeout>;
-
-        const poll = async () => {
-            try {
-                const generation = await getGeneration(generationId);
-                if (cancelled) return;
-
-                setStatus(generation.status);
-                if (generation.status === 'completed') {
-                    const result = await getGenerationOutfits(generationId);
-                    if (!cancelled) setOutfits(result);
-                } else if (generation.status !== 'failed') {
-                    timer = setTimeout(() => void poll(), 2500);
-                }
-            } catch {
-                if (!cancelled) {
-                    setError('Не удалось получить результат. Проверьте соединение с сервером.');
-                }
-            }
-        };
-
-        void poll();
-        return () => {
-            cancelled = true;
-            clearTimeout(timer);
-        };
-    }, [generationId]);
 
     const setField = <K extends keyof IGenerationForm>(
         field: K,
@@ -152,42 +114,35 @@ function GenerationForm() {
             ...current,
             [field]: value,
         }));
+
+        if (error) {
+            setError(null);
+        }
     };
 
     const promptIsValid = values.prompt.trim().length >= 5;
-
-    const optionsAreValid = Boolean(
-        values.occasion && values.style,
-    );
-
+    const optionsAreValid = Boolean(values.occasion && values.style);
     const canGenerate = promptIsValid || optionsAreValid;
 
-    const isGenerating = Boolean(status && status !== 'completed' && status !== 'failed');
-
     const handleGenerate = async () => {
-        if (!canGenerate || isSubmitting || isGenerating) {
+        if (!canGenerate || isSubmitting) {
             return;
         }
 
         setIsSubmitting(true);
-        setGenerationId(null);
-        setStatus(null);
-        setOutfits(null);
         setError(null);
 
         try {
             const generation = await createGeneration(values);
-            setStatus(generation.status);
-            setGenerationId(generation.id);
+
+            navigate(`/outfit-generation/${generation.id}/loading`);
         } catch {
-            setError('Не удалось отправить запрос. Проверьте соединение с сервером.');
-        } finally {
+            setError('Не удалось запустить подбор. Проверьте соединение с сервером.');
             setIsSubmitting(false);
         }
     };
 
     return (
-      <>
         <div className={styles.form}>
             <OptionSelector
                 label="Повод"
@@ -249,6 +204,15 @@ function GenerationForm() {
                 }}
             />
 
+            {error && (
+                <Alert
+                    type="error"
+                    showIcon
+                    message={error}
+                    className={styles.error}
+                />
+            )}
+
             <div className={styles.submit}>
                 <Text className={styles.hint}>
                     Выберите повод и стиль или введите свой запрос (≥5 символов)
@@ -257,19 +221,22 @@ function GenerationForm() {
                 <Button
                     type="primary"
                     size="large"
-                    disabled={!canGenerate || isGenerating}
-                    loading={isSubmitting || isGenerating}
+                    disabled={!canGenerate || isSubmitting}
+                    loading={isSubmitting}
                     icon={<StarOutlined />}
                     onClick={handleGenerate}
                     className={styles.generateButton}
                 >
-                    <span>Подобрать образы</span>
-                    <ArrowRightOutlined />
+                    <span>
+                        Подобрать образы
+                    </span>
+
+                    {!isSubmitting && (
+                        <ArrowRightOutlined />
+                    )}
                 </Button>
             </div>
         </div>
-        <GenerationResults status={status} outfits={outfits} error={error} />
-      </>
     );
 }
 

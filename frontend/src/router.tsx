@@ -5,6 +5,8 @@ import AuthPage from './pages/AuthPage/AuthPage';
 import MainPage from './pages/MainPage/MainPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import OutfitGenerationPage from './pages/OutfitGenerationPage/OutfitGenerationPage';
+import GenerationLoadingPage from './pages/GenerationLoadingPage/GenerationLoadingPage';
+import GenerationResultsPage from './pages/GenerationResultsPage/GenerationResultsPage';
 import { useAuth } from './features/auth/hooks/useAuth';
 
 interface IRouteProps {
@@ -62,6 +64,24 @@ export function AppRouter() {
         element={
           <ProtectedRoute>
             <OutfitGenerationPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/outfit-generation/:generationId/loading"
+        element={
+          <ProtectedRoute>
+            <GenerationLoadingPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/outfit-generation/:generationId/results"
+        element={
+          <ProtectedRoute>
+            <GenerationResultsPage />
           </ProtectedRoute>
         }
       />
