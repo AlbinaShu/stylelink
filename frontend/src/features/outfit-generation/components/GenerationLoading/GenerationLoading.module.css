@@ -1,0 +1,191 @@
+.root {
+    width: 100%;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+    box-sizing: border-box;
+}
+
+.content {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.loader {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8edef;
+}
+
+.loader :global(.ant-spin) {
+    color: #96344d;
+}
+
+.loader :global(.anticon) {
+    font-size: 28px;
+}
+
+.title {
+    margin: 0 !important;
+    color: #17100d !important;
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    line-height: 30px !important;
+    text-align: center;
+}
+
+.description {
+    min-height: 22px;
+    margin-top: 8px;
+    color: #a57d70 !important;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    text-align: center;
+}
+
+.progressBlock {
+    width: 100%;
+    max-width: 360px;
+    margin-top: 28px;
+}
+
+.progressHeader {
+    width: 100%;
+    margin-bottom: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.progressLabel {
+    color: #a98f85 !important;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+    white-space: nowrap;
+}
+
+.progressValue {
+    color: #96344d !important;
+    font-size: 14px;
+    font-weight: 700 !important;
+    line-height: 18px;
+    white-space: nowrap;
+}
+
+.progress {
+    width: 100%;
+}
+
+.progress :global(.ant-progress-outer) {
+    width: 100%;
+}
+
+.progress :global(.ant-progress-inner) {
+    height: 8px;
+    border-radius: 999px;
+    background: #f2e9e5;
+}
+
+.progress :global(.ant-progress-bg) {
+    height: 8px !important;
+    border-radius: 999px !important;
+    background: #96344d !important;
+    transition: width 0.6s ease !important;
+}
+
+.connectionMessage {
+    margin-top: 12px;
+    color: #b18478 !important;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+    text-align: center;
+}
+
+.hint {
+    max-width: 320px;
+    margin-top: 18px;
+    color: #b29a91 !important;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 18px;
+    text-align: center;
+}
+
+.cancelButton {
+    height: auto !important;
+    margin-top: 14px;
+    padding: 4px 10px !important;
+    color: #a57d70 !important;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
+    border-radius: 8px;
+}
+
+.cancelButton:hover {
+    background: #f8f3f0 !important;
+    color: #96344d !important;
+}
+
+@media (max-width: 640px) {
+    .root {
+        padding: 20px;
+    }
+
+    .content {
+        max-width: 100%;
+    }
+
+    .loader {
+        width: 58px;
+        height: 58px;
+        margin-bottom: 20px;
+    }
+
+    .loader :global(.anticon) {
+        font-size: 26px;
+    }
+
+    .title {
+        font-size: 20px !important;
+        line-height: 28px !important;
+    }
+
+    .description {
+        margin-top: 7px;
+        font-size: 13px;
+        line-height: 20px;
+    }
+
+    .progressBlock {
+        max-width: 100%;
+        margin-top: 24px;
+    }
+
+    .progressLabel {
+        font-size: 12px;
+    }
+
+    .progressValue {
+        font-size: 14px;
+    }
+
+    .hint {
+        margin-top: 16px;
+    }
+}

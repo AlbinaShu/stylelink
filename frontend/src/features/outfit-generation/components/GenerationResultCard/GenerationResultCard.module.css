@@ -1,0 +1,129 @@
+.card {
+    overflow: hidden;
+    border: 1px solid #eadfd9;
+    border-radius: 14px;
+    background: #fff;
+}
+
+.header {
+    min-height: 60px;
+    padding: 13px 14px;
+    border-bottom: 1px solid #eee5e0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.heading {
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+}
+
+.number {
+    min-width: 26px;
+    height: 21px;
+    padding: 0 7px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5ebe3;
+    color: #a88877;
+    font-size: 9px;
+    line-height: 1;
+}
+
+.titleBlock {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    overflow: hidden;
+    color: #17100d !important;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.meta {
+    min-height: 18px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.occasion {
+    color: #b28d7d !important;
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.separator {
+    color: #c9ada1;
+    font-size: 11px;
+    line-height: 16px;
+}
+
+.styleTag {
+    height: 17px;
+    margin: 0 !important;
+    padding: 0 7px !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    display: inline-flex !important;
+    align-items: center;
+    background: #f7e9ed !important;
+    color: #96344d !important;
+    font-size: 11px !important;
+    font-weight: 500;
+    line-height: 17px !important;
+}
+
+.summary {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.totalPrice {
+    color: #17100d !important;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 18px;
+    white-space: nowrap;
+}
+
+.itemsCount {
+    margin-top: 1px;
+    color: #b28d7d !important;
+    font-size: 11px;
+    line-height: 13px;
+    white-space: nowrap;
+}
+
+.products {
+    padding: 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+@media (max-width: 640px) {
+    .header {
+        padding: 12px;
+    }
+
+    .products {
+        padding: 10px;
+    }
+}

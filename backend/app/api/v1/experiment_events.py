@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
@@ -36,7 +37,7 @@ async def save_event(
             event_type=event_type,
             session_id=data.session_id,
             event_timestamp=data.timestamp,
-            payload=payload,
+            payload=jsonable_encoder(payload),
         )
 
         # Для обычных analytics events транзакция заканчивается здесь.
@@ -65,7 +66,7 @@ async def recommendation_view(
         payload={
             "device_type": data.device_type,
             "outfitItems": [
-                item.model_dump()
+                item.model_dump(mode="json")
                 for item in data.outfitItems
             ],
         },
