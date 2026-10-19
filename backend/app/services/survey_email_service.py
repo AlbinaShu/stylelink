@@ -1,8 +1,7 @@
-import asyncio
-import smtplib
 from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
 
+import aiosmtplib
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -42,8 +41,9 @@ class SurveyEmailService:
             f"{separator}token={token}"
         )
 
-    @staticmethod
-    def _send_sync(
+    @classmethod
+    async def send(
+        cls,
         recipient: str,
         subject: str,
         body: str,
@@ -56,30 +56,14 @@ class SurveyEmailService:
 
         message.set_content(body)
 
-        with smtplib.SMTP_SSL(
-            settings.smtp_host,
-            settings.smtp_port,
+        await aiosmtplib.send(
+            message,
+            hostname=settings.smtp_host,
+            port=settings.smtp_port,
+            start_tls=True,
+            username=settings.smtp_user,
+            password=settings.smtp_password,
             timeout=30,
-        ) as smtp:
-            smtp.login(
-                settings.smtp_user,
-                settings.smtp_password,
-            )
-
-            smtp.send_message(message)
-
-    @classmethod
-    async def send(
-        cls,
-        recipient: str,
-        subject: str,
-        body: str,
-    ) -> None:
-        await asyncio.to_thread(
-            cls._send_sync,
-            recipient,
-            subject,
-            body,
         )
 
     @classmethod

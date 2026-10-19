@@ -1,0 +1,11 @@
+.question {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.radioGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}

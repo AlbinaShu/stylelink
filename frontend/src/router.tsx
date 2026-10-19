@@ -8,6 +8,9 @@ import OutfitGenerationPage from './pages/OutfitGenerationPage/OutfitGenerationP
 import GenerationLoadingPage from './pages/GenerationLoadingPage/GenerationLoadingPage';
 import GenerationResultsPage from './pages/GenerationResultsPage/GenerationResultsPage';
 import { useAuth } from './features/auth/hooks/useAuth';
+import SurveyPopup from './features/survey/components/SurveyPopup/SurveyPopup';
+import SurveyEmailPage from './pages/SurveyEmailPage/SurveyEmailPage';
+import { useSessionLifecycle } from './features/experiment-events/hooks/useSessionLifecycle';
 
 interface IRouteProps {
   children: ReactNode;
@@ -23,9 +26,13 @@ function GuestRoute({ children }: IRouteProps) {
 
 function ProtectedRoute({ children }: IRouteProps) {
   const { isLoggedIn } = useAuth();
+  useSessionLifecycle();
 
   return isLoggedIn
-    ? children
+    ? <>
+        {children}
+        <SurveyPopup />
+      </>
     : <Navigate to="/" replace />;
 }
 
@@ -49,6 +56,8 @@ export function AppRouter() {
           </GuestRoute>
         }
       />
+
+      <Route path="/survey" element={<SurveyEmailPage />} />
 
       <Route
         path="/main"

@@ -150,6 +150,7 @@ function GenerationResultCard({
                     <GenerationResultProduct
                         key={item.id}
                         item={item}
+                        outfitId={outfit.id}
                     />
                 ))}
             </div>

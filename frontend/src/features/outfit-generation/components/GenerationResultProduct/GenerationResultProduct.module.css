@@ -351,3 +351,10 @@
         line-height: 15px;
     }
 }
+
+
+.selectedSize {
+    outline: 2px solid #7044f5;
+    outline-offset: 1px;
+    cursor: pointer;
+}
