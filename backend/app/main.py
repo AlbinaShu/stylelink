@@ -33,7 +33,9 @@ app = FastAPI(
     title="AI·StyleLink API",
     version="1.0.0",
     lifespan=lifespan,
-    swagger_ui_persist_authorization=True,
+    swagger_ui_parameters={
+        "persistAuthorization": True,
+    },
 )
 
 app.add_middleware(
