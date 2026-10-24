@@ -305,7 +305,7 @@
       var(--cta-overlay-mid) 42%,
       var(--cta-overlay-end) 100%
     ),
-    url('../../assets/images/stylelink-cta-banner.png') center 37% / cover no-repeat;
+    url('/images/stylelink-cta-banner.webp') center 37% / cover no-repeat;
 }
 
 .bottomCtaContent {
@@ -557,7 +557,7 @@
         var(--cta-overlay-mobile-mid) 43%,
         var(--cta-overlay-mobile-end) 100%
       ),
-      url('../../assets/images/stylelink-cta-banner.png') 82% 50% / cover no-repeat;
+      url('/images/stylelink-cta-banner.webp') 82% 50% / cover no-repeat;
   }
 
   .bottomCtaContent {

@@ -16,7 +16,7 @@ import { useProfile } from '../../features/profile/hooks/useProfile';
 import AppBottomNav from '../../shared/ui/AppBottomNav/AppBottomNav';
 import AppHeader from '../../shared/ui/AppHeader/AppHeader';
 
-import firstGenerationFlatlay from '../../assets/images/first-generation-flatlay.png';
+import firstGenerationFlatlay from '/images/first-generation-flatlay.webp';
 import styles from './MainPage.module.css';
 
 const { Title, Text } = Typography;
