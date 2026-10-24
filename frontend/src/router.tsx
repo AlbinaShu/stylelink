@@ -3,7 +3,9 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import LandingPage from './pages/LandingPage/LandingPage';
 import AuthPage from './pages/AuthPage/AuthPage';
 import MainPage from './pages/MainPage/MainPage';
+import OutfitsPage from './pages/OutfitsPage/OutfitsPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
+import SupportPage from './pages/SupportPage/SupportPage';
 import OutfitGenerationPage from './pages/OutfitGenerationPage/OutfitGenerationPage';
 import GenerationLoadingPage from './pages/GenerationLoadingPage/GenerationLoadingPage';
 import GenerationResultsPage from './pages/GenerationResultsPage/GenerationResultsPage';
@@ -69,6 +71,15 @@ export function AppRouter() {
       />
 
       <Route
+        path="/outfits"
+        element={
+          <ProtectedRoute>
+            <OutfitsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/outfit-generation"
         element={
           <ProtectedRoute>
@@ -100,6 +111,15 @@ export function AppRouter() {
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/support"
+        element={
+          <ProtectedRoute>
+            <SupportPage />
           </ProtectedRoute>
         }
       />

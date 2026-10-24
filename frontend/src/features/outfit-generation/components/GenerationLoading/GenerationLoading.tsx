@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { LoadingOutlined } from '@ant-design/icons';
 import {
     Button,
     Progress,
-    Spin,
     Typography,
 } from 'antd';
 
@@ -239,13 +237,31 @@ function GenerationLoading({
     return (
         <div className={styles.root}>
             <div className={styles.content}>
-                <div className={styles.loader}>
-                    <Spin
-                        indicator={
-                            <LoadingOutlined spin />
-                        }
-                        size="large"
-                    />
+                <div
+                    className={styles.loader}
+                    aria-label="Создаём образы"
+                >
+                    <div className={styles.loaderGlow} />
+
+                    <div className={styles.loaderRing}>
+                        <span className={styles.loaderDot} />
+                    </div>
+
+                    <div className={styles.loaderCore}>
+                        <span className={styles.loaderSparkle}>✦</span>
+                    </div>
+
+                    <span
+                        className={`${styles.loaderParticle} ${styles.loaderParticleOne}`}
+                    >
+                        ✦
+                    </span>
+
+                    <span
+                        className={`${styles.loaderParticle} ${styles.loaderParticleTwo}`}
+                    >
+                        ✦
+                    </span>
                 </div>
 
                 <Title

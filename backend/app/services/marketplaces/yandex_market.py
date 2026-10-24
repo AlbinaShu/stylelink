@@ -27,11 +27,11 @@ class YandexMarketMarketplace(MarketplaceService):
         "Chrome/140.0.0.0 Safari/537.36"
     )
 
-    # Максимум 3 HTTP-запроса одновременно.
-    MAX_CONCURRENT_REQUESTS = 3
+    # Максимум 2 HTTP-запроса одновременно.
+    MAX_CONCURRENT_REQUESTS = 2
 
     # Минимальный интервал между стартами HTTP-запросов.
-    MIN_REQUEST_INTERVAL = 0.5
+    MIN_REQUEST_INTERVAL = 1.0
 
     # Первый запрос + максимум 3 повторные попытки.
     MAX_RETRIES = 3
@@ -117,9 +117,19 @@ class YandexMarketMarketplace(MarketplaceService):
                 if response.status_code < 400:
                     body = response.content.decode("utf-8", errors="replace")
                     if "Вы не робот?" in body[:5000]:
-                        raise YandexMarketAccessBlocked(
-                            "Yandex Market requested a CAPTCHA for a product card"
+                        if attempt >= self.MAX_RETRIES:
+                            raise YandexMarketAccessBlocked(
+                                "Yandex Market requested a CAPTCHA"
+                            )
+
+                        delay = (
+                            self.RETRY_BASE_DELAY * (2 ** attempt)
+                            + random.uniform(0.5, 1.5)
                         )
+
+                        await asyncio.sleep(delay)
+                        continue
+
                     return body
 
                 # Too Many Requests.
@@ -542,6 +552,21 @@ class YandexMarketMarketplace(MarketplaceService):
 
         name = product.get("name")
 
+        # Бренд из Product JSON-LD.
+        # В карточках он может приходить как строкой:
+        #   "brand": "ZARINA"
+        # или объектом:
+        #   "brand": {"@type": "Brand", "name": "ZARINA"}
+        brand_data = product.get("brand")
+        brand = None
+
+        if isinstance(brand_data, str):
+            brand = brand_data.strip() or None
+        elif isinstance(brand_data, dict):
+            brand_name = brand_data.get("name")
+            if isinstance(brand_name, str):
+                brand = brand_name.strip() or None
+
         description = product.get("description")
 
         if not isinstance(description, str):
@@ -567,6 +592,7 @@ class YandexMarketMarketplace(MarketplaceService):
             "name": name,
             "category": category,
             "description": description,
+            "brand": brand,
             "price": offer.get("price"),
             "sizes": [
                 variant["size"]
@@ -732,6 +758,9 @@ class YandexMarketMarketplace(MarketplaceService):
         self,
         search_query: str,
         page: int = 1,
+        price_from: float | None = None,
+        price_to: float | None = None,
+        fallback_category: str | None = None,
     ) -> list[dict[str, Any]]:
         """
         Ищет товары на Яндекс Маркете и загружает
@@ -742,12 +771,22 @@ class YandexMarketMarketplace(MarketplaceService):
         # 1. Получаем HTML страницы поиска
         # -------------------------------------------------
 
+        params: dict[str, Any] = {
+            "text": search_query,
+            "page": page,
+        }
+
+        # Яндекс Маркет поддерживает pricefrom / priceto
+        # для ограничения ценового диапазона HTML-поиска.
+        if price_from is not None:
+            params["pricefrom"] = str(max(0, round(price_from)))
+
+        if price_to is not None:
+            params["priceto"] = str(max(0, round(price_to)))
+
         search_html = await self._get_html(
             self.SEARCH_URL,
-            params={
-                "text": search_query,
-                "page": page,
-            },
+            params=params,
         )
 
         search_html = html.unescape(search_html)
@@ -799,6 +838,15 @@ class YandexMarketMarketplace(MarketplaceService):
                     card_html
                 )
 
+                # Если категория не распознана по названию карточки,
+                # используем категорию поискового элемента,
+                # которую заранее определил GigaChat.
+                if (
+                    product.get("category") is None
+                    and fallback_category is not None
+                ):
+                    product["category"] = fallback_category
+
                 # Минимальный набор данных для дальнейшего
                 # формирования FashionCLIP request.
                 required_fields = (
@@ -835,6 +883,7 @@ class YandexMarketMarketplace(MarketplaceService):
             except (
                 requests.RequestException,
                 ValueError,
+                YandexMarketAccessBlocked,
             ):
                 # Одна проблемная карточка
                 # не должна ронять весь поиск.

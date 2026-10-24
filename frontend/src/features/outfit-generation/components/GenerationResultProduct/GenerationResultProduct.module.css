@@ -78,8 +78,8 @@
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    background: #b50964 !important;
-    color: #fff !important;
+    background: var(--marketplace-yandex) !important;
+    color: var(--marketplace-yandex-text) !important;
     font-size: 10px !important;
     font-weight: 700 !important;
     line-height: 18px !important;
@@ -265,6 +265,19 @@
 
 .fitInfo {
     color: #2684ff;
+}
+
+.fitDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.fitMeta {
+    display: block;
+    color: #a57d70 !important;
+    font-size: 11px;
+    line-height: 16px;
 }
 
 .fitDescription {

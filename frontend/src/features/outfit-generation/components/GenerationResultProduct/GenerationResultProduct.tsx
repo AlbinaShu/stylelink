@@ -6,7 +6,7 @@ import {
 } from '@ant-design/icons';
 import { Collapse, Image, Tag, Typography, message } from 'antd';
 import type { MouseEvent, ReactNode } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { sendBuyClick, sendSizeChanged, sendTooltipOpen } from '../../../experiment-events/api/experiment-events.api';
 import { getSessionId } from '../../../../shared/utils/session';
 import type { IOutfitItem } from '../../types';
@@ -17,6 +17,7 @@ const { Text } = Typography;
 interface IGenerationResultProductProps {
   item: IOutfitItem;
   outfitId: string;
+  shoeSize: number | null;
 }
 
 interface IFitConfig { label: string; icon: ReactNode; className: string; }
@@ -39,49 +40,93 @@ const FIT_CONFIG: Record<string, IFitConfig> = {
   },
 };
 
-function getFitDescription(item: IOutfitItem): string {
-  if (!item.fit) return '';
-
-  const { fit_signal: fitSignal, confidence } = item.fit;
-  const confidencePercent = confidence !== null ? Math.round(confidence * 100) : null;
-
-  switch (fitSignal) {
-    case 'runs_small':
-      return confidencePercent !== null
-        ? `${confidencePercent}% отзывов указывают на маломерность.`
-        : 'По отзывам товар маломерит. Учитывайте это при выборе размера.';
-    case 'true_to_size':
-      return confidencePercent !== null
-        ? `${confidencePercent}% отзывов подтверждают соответствие стандартной размерной сетке.`
-        : 'По отзывам размер соответствует стандартной размерной сетке.';
-    case 'runs_large':
-      return confidencePercent !== null
-        ? `${confidencePercent}% отзывов указывают на большемерность.`
-        : 'По отзывам товар большемерит. Учитывайте это при выборе размера.';
+function getConfidenceLabel(level: string | null | undefined): string | null {
+  switch (level) {
+    case 'low':
+      return 'Низкая уверенность';
+    case 'medium':
+      return 'Средняя уверенность';
+    case 'high':
+      return 'Высокая уверенность';
     default:
-      return 'Информация о посадке рассчитана на основе отзывов покупателей.';
+      return null;
   }
+}
+
+function getReviewsLabel(count: number): string {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+
+  if (mod10 === 1 && mod100 !== 11) {
+    return `${count} отзыв`;
+  }
+
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
+    return `${count} отзыва`;
+  }
+
+  return `${count} отзывов`;
 }
 
 function getMarketplaceLabel(marketplace: string): string {
   switch (marketplace.toLowerCase()) {
     case 'yandex_market':
     case 'yandex market':
-      return 'ЯМ';
+      return 'Яндекс Маркет';
     default:
       return marketplace;
   }
 }
 
-function GenerationResultProduct({ item, outfitId }: IGenerationResultProductProps) {
+function GenerationResultProduct({
+  item,
+  outfitId,
+  shoeSize,
+}: IGenerationResultProductProps) {
   const isAccessory = item.category === 'accessory';
+
+  // Категории обуви, которые могут прийти с backend/marketplace.
+  const normalizedCategory = item.category?.trim().toLowerCase() ?? '';
+  const isShoe = [
+    'shoes',
+    'shoe',
+    'footwear',
+    'обувь',
+  ].includes(normalizedCategory);
+
   const showFit = item.fit != null;
   const showSizes = !isAccessory && Boolean(item.available_sizes?.length);
   const recommendedSize = !isAccessory ? item.recommended_size : null;
-  const [selectedSize, setSelectedSize] = useState<string | null>(recommendedSize);
+
+  // Нормализация нужна, чтобы 39.0 совпадал с "39",
+  // а 38.5 продолжал совпадать с "38.5".
+  const normalizedShoeSize =
+    shoeSize == null ? null : String(Number(shoeSize));
+
+  const shoeSizeFromAvailable =
+    isShoe && normalizedShoeSize !== null
+      ? item.available_sizes?.find(
+          (size) => String(Number(size)) === normalizedShoeSize,
+        ) ?? null
+      : null;
+
+  const initialSize = shoeSizeFromAvailable ?? recommendedSize;
+
+  const [selectedSize, setSelectedSize] = useState<string | null>(
+    initialSize,
+  );
+
+  useEffect(() => {
+    setSelectedSize(initialSize);
+  }, [item.id, initialSize]);
 
   const fitConfig = item.fit?.fit_signal != null ? FIT_CONFIG[item.fit.fit_signal] : undefined;
-  const fitDescription = getFitDescription(item);
+  const isInsufficientFit = item.fit?.status === 'insufficient_evidence';
+  const fitTitle = isInsufficientFit
+    ? 'Недостаточно данных о посадке'
+    : (fitConfig?.label ?? 'Есть информация о посадке');
+  const confidenceLabel = getConfidenceLabel(item.fit?.confidence_level);
+  const reviewsLabel = item.fit ? getReviewsLabel(item.fit.num_reviews) : null;
 
   const changeSize = (size: string) => {
     const previousSize = selectedSize;
@@ -112,30 +157,25 @@ function GenerationResultProduct({ item, outfitId }: IGenerationResultProductPro
     }).catch(() => undefined);
   };
 
-  const handleBuy = async (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-
+  const handleBuy = (event: MouseEvent<HTMLAnchorElement>) => {
     const sizeForEvent = isAccessory ? 'not_applicable' : selectedSize;
 
     if (!sizeForEvent) {
+      event.preventDefault();
       void message.warning('Выберите размер перед переходом к покупке.');
       return;
     }
 
-    try {
-      await sendBuyClick({
-        session_id: getSessionId(),
-        timestamp: new Date().toISOString(),
-        product_id: item.product_id,
-        recommended_size: recommendedSize,
-        price: item.price,
-        outfit_id: outfitId,
-        selected_size: sizeForEvent,
-        match: recommendedSize !== null && sizeForEvent === recommendedSize,
-      });
-    } catch {}
-
-    window.open(item.url, '_blank', 'noopener,noreferrer');
+    void sendBuyClick({
+      session_id: getSessionId(),
+      timestamp: new Date().toISOString(),
+      product_id: item.product_id,
+      recommended_size: recommendedSize,
+      price: item.price,
+      outfit_id: outfitId,
+      selected_size: sizeForEvent,
+      match: recommendedSize !== null && sizeForEvent === recommendedSize,
+    }).catch(() => undefined);
   };
 
   return (
@@ -173,6 +213,9 @@ function GenerationResultProduct({ item, outfitId }: IGenerationResultProductPro
               {item.available_sizes!.map((size) => {
                 const isRecommended = recommendedSize !== null && size === recommendedSize;
                 const isSelected = selectedSize === size;
+                const isPreselectedShoeSize =
+                  shoeSizeFromAvailable !== null &&
+                  size === shoeSizeFromAvailable;
                 return (
                   <Tag
                     key={size}
@@ -182,7 +225,9 @@ function GenerationResultProduct({ item, outfitId }: IGenerationResultProductPro
                     onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') changeSize(size); }}
                     className={[
                       styles.size,
-                      isRecommended ? styles.recommendedSize : '',
+                      (isRecommended || isPreselectedShoeSize)
+                        ? styles.recommendedSize
+                        : '',
                       isSelected ? styles.selectedSize : '',
                     ].filter(Boolean).join(' ')}
                   >
@@ -208,10 +253,26 @@ function GenerationResultProduct({ item, outfitId }: IGenerationResultProductPro
                 label: (
                   <span className={[styles.fitLabel, fitConfig?.className ?? styles.fitInfo].filter(Boolean).join(' ')}>
                     {fitConfig?.icon ?? <InfoCircleOutlined />}
-                    <span>По отзывам: {fitConfig?.label ?? 'есть информация о посадке'}</span>
+                    <span>По отзывам: {fitTitle}</span>
                   </span>
                 ),
-                children: <Text className={styles.fitDescription}>{fitDescription}</Text>,
+                children: (
+                  <div className={styles.fitDetails}>
+                    {reviewsLabel && (
+                      <Text className={styles.fitMeta}>
+                        {confidenceLabel
+                          ? `${confidenceLabel} · ${reviewsLabel}`
+                          : reviewsLabel}
+                      </Text>
+                    )}
+
+                    {item.fit?.explanation && (
+                      <Text className={styles.fitDescription}>
+                        {item.fit.explanation}
+                      </Text>
+                    )}
+                  </div>
+                ),
               }]}
             />
           )}

@@ -45,6 +45,16 @@ SEARCH_ITEMS_SYSTEM_PROMPT = """
     "ботинки мужские..." → item_type "ботинки",
     "куртка мужская..." → item_type "куртка".
 19. Выбирай только товары, необходимые для формирования запрошенного образа.
+20. Для каждого товара обязательно укажи category.
+21. category может иметь только одно из значений:
+    "top", "bottom", "dress", "shoes", "outerwear", "accessory".
+22. category — это общая категория товара для FashionCLIP,
+    а item_type — конкретное название товара. Например:
+    item_type "велосипедки" → category "bottom",
+    item_type "джоггеры" → category "bottom",
+    item_type "кюлоты" → category "bottom",
+    item_type "спортивный топ" → category "top",
+    item_type "кроссовки" → category "shoes".
 """
 
 

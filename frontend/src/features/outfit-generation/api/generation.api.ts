@@ -1,11 +1,28 @@
 import http from '../../../shared/api/http-client';
-import type { IGeneration, IGenerationForm, IOutfit } from '../types';
+import type { IGeneration, IGenerationForm, IGenerationsPage, IOutfit } from '../types';
 
 export async function createGeneration(values: IGenerationForm): Promise<IGeneration> {
   const { data } = await http.post<IGeneration>('/api/v1/generations', {
     ...values,
     prompt: values.prompt.trim() || null,
   });
+
+  return data;
+}
+
+export async function getGenerations(
+  page = 1,
+  pageSize = 20,
+): Promise<IGenerationsPage> {
+  const { data } = await http.get<IGenerationsPage>(
+    '/api/v1/generations',
+    {
+      params: {
+        page,
+        page_size: pageSize,
+      },
+    },
+  );
 
   return data;
 }

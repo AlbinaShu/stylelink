@@ -79,6 +79,7 @@ class GenerationPipeline:
                     search_item = GenerationSearchItem(
                         generation_id=generation.id,
                         item_type=item.item_type,
+                        category=item.category,
                         search_query=item.search_query,
                     )
 
@@ -97,10 +98,59 @@ class GenerationPipeline:
                 marketplace = YandexMarketMarketplace()
                 product_service = ProductService()
 
-                for search_item in search_items:
-                    products = await marketplace.search_products(
-                        search_item.search_query
+                # Распределяем бюджет по количеству элементов образа.
+                #
+                # Это не жёсткий лимит итоговой стоимости:
+                # диапазоны нужны только для формирования более
+                # релевантного по цене пула товаров для FashionCLIP.
+                item_count = len(search_items)
+
+                target_price: float | None = None
+                price_to: float | None = None
+
+                if generation.budget is not None and item_count > 0:
+                    target_price = (
+                        float(generation.budget) / item_count
                     )
+                    price_to = target_price * 1.20
+
+                for search_item in search_items:
+                    products = []
+
+                    if target_price is not None:
+                        # Ступенчато расширяем только нижнюю границу.
+                        #
+                        # При target_price = 10 000 ₽:
+                        # 1. 5 500–12 000 ₽
+                        # 2. 3 500–12 000 ₽
+                        # 3. 2 000–12 000 ₽
+                        price_from_steps = (
+                            target_price * 0.55,
+                            target_price * 0.35,
+                            target_price * 0.20,
+                        )
+
+                        for price_from in price_from_steps:
+                            products = (
+                                await marketplace.search_products(
+                                    search_item.search_query,
+                                    price_from=price_from,
+                                    price_to=price_to,
+                                    fallback_category=search_item.category,
+                                )
+                            )
+
+                            if products:
+                                break
+
+                    # Последний fallback:
+                    # если ни один ценовой диапазон не дал товаров,
+                    # ищем без ограничения по цене.
+                    if not products:
+                        products = await marketplace.search_products(
+                            search_item.search_query,
+                            fallback_category=search_item.category,
+                        )
 
                     await product_service.save_search_products(
                         db=db,
@@ -319,10 +369,10 @@ class GenerationPipeline:
                             SizeRecommendationService.recommend_size(
                                 available_sizes=available_sizes,
                                 category=ml_item.category,
-                                gender=profile.gender if profile else None,
-                                chest=profile.chest if profile else None,
-                                waist=profile.waist if profile else None,
-                                hips=profile.hips if profile else None,
+                                gender=generation.gender,
+                                chest=generation.chest,
+                                waist=generation.waist,
+                                hips=generation.hips,
                             )
                         )
 

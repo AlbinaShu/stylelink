@@ -65,19 +65,55 @@ class SizeRecommendationService:
         if not available_sizes or not gender:
             return None
 
-        # Пока рекомендуем только для размеров RU вида 40, 42, 44...
-        numeric_sizes: list[int] = []
+        # Поддерживаем как одиночные RU-размеры ("44"),
+        # так и диапазоны продавца ("44-46").
+        #
+        # Храним исходную строку размера, потому что именно её нужно
+        # вернуть frontend для предвыбора из available_sizes.
+        size_options: list[tuple[str, int, int]] = []
 
         for value in available_sizes:
-            try:
-                size = int(value)
-            except (TypeError, ValueError):
+            raw = str(value).strip()
+
+            if not raw:
                 continue
 
-            if 36 <= size <= 70:
-                numeric_sizes.append(size)
+            # Обычный размер: "44"
+            try:
+                size = int(raw)
+            except ValueError:
+                size = None
 
-        if not numeric_sizes:
+            if size is not None:
+                if 36 <= size <= 70:
+                    size_options.append((raw, size, size))
+                continue
+
+            # Диапазон: "40-42", "44–46", "48—50"
+            normalized = (
+                raw.replace("–", "-")
+                .replace("—", "-")
+                .replace("−", "-")
+            )
+
+            parts = [part.strip() for part in normalized.split("-", 1)]
+
+            if len(parts) != 2:
+                continue
+
+            try:
+                start = int(parts[0])
+                end = int(parts[1])
+            except ValueError:
+                continue
+
+            if start > end:
+                start, end = end, start
+
+            if 36 <= start <= 70 and 36 <= end <= 70:
+                size_options.append((raw, start, end))
+
+        if not size_options:
             return None
 
         # Базовый RU-размер.
@@ -118,10 +154,35 @@ class SizeRecommendationService:
         # RU размеры обычно идут с шагом 2.
         target_ru = int(round(target_size / 2) * 2)
 
-        # Выбираем ближайший реально доступный размер продавца.
-        recommended = min(
-            numeric_sizes,
-            key=lambda size: (abs(size - target_ru), size),
-        )
+        # Сначала ищем размер или диапазон, содержащий target_ru.
+        containing = [
+            option
+            for option in size_options
+            if option[1] <= target_ru <= option[2]
+        ]
 
-        return str(recommended)
+        if containing:
+            recommended = min(
+                containing,
+                key=lambda option: (
+                    option[2] - option[1],
+                    option[1],
+                ),
+            )
+            return recommended[0]
+
+        # Если target_ru не входит ни в один доступный диапазон,
+        # выбираем ближайший размер или диапазон продавца.
+        def distance(option: tuple[str, int, int]) -> tuple[int, int]:
+            _, start, end = option
+
+            if target_ru < start:
+                return (start - target_ru, start)
+
+            return (target_ru - end, start)
+
+        recommended = min(size_options, key=distance)
+
+        # Возвращаем исходное значение из available_sizes:
+        # например "44" или "44-46".
+        return recommended[0]

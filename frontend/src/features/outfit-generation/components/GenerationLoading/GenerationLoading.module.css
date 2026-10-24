@@ -18,22 +18,174 @@
 }
 
 .loader {
-    width: 64px;
-    height: 64px;
-    margin-bottom: 22px;
-    border-radius: 50%;
+    position: relative;
+    width: 104px;
+    height: 104px;
+    margin-bottom: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8edef;
 }
 
-.loader :global(.ant-spin) {
-    color: #96344d;
+.loaderGlow {
+    position: absolute;
+    inset: 13px;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    filter: blur(12px);
+    opacity: 0.8;
+    animation: loaderGlow 2.4s ease-in-out infinite;
 }
 
-.loader :global(.anticon) {
-    font-size: 28px;
+.loaderRing {
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(152, 47, 73, 0.18);
+    border-top-color: var(--primary);
+    border-right-color: rgba(152, 47, 73, 0.5);
+    border-radius: 50%;
+    animation: loaderRotate 2.2s linear infinite;
+}
+
+.loaderRing::before {
+    content: '';
+    position: absolute;
+    inset: 9px;
+    border: 1px solid rgba(152, 47, 73, 0.12);
+    border-bottom-color: rgba(152, 47, 73, 0.4);
+    border-radius: 50%;
+}
+
+.loaderDot {
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 12px rgba(152, 47, 73, 0.4);
+    transform: translateX(-50%);
+}
+
+.loaderCore {
+    position: relative;
+    z-index: 2;
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(152, 47, 73, 0.14);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow:
+        0 12px 30px rgba(93, 43, 53, 0.1),
+        inset 0 0 0 6px rgba(243, 232, 222, 0.55);
+    animation: loaderFloat 2.4s ease-in-out infinite;
+}
+
+.loaderSparkle {
+    color: var(--primary);
+    font-size: 27px;
+    line-height: 1;
+    animation: sparklePulse 1.8s ease-in-out infinite;
+}
+
+.loaderParticle {
+    position: absolute;
+    z-index: 3;
+    color: var(--primary-text-soft);
+    line-height: 1;
+    pointer-events: none;
+}
+
+.loaderParticleOne {
+    top: 9px;
+    right: 8px;
+    font-size: 11px;
+    animation: particleOne 2.3s ease-in-out infinite;
+}
+
+.loaderParticleTwo {
+    bottom: 11px;
+    left: 7px;
+    font-size: 8px;
+    animation: particleTwo 2.7s ease-in-out infinite;
+}
+
+@keyframes loaderRotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes loaderGlow {
+    0%, 100% {
+        transform: scale(0.92);
+        opacity: 0.55;
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+}
+
+@keyframes loaderFloat {
+    0%, 100% {
+        transform: translateY(1px) scale(0.98);
+    }
+
+    50% {
+        transform: translateY(-2px) scale(1.03);
+    }
+}
+
+@keyframes sparklePulse {
+    0%, 100% {
+        transform: scale(0.9) rotate(-6deg);
+        opacity: 0.72;
+    }
+
+    50% {
+        transform: scale(1.16) rotate(6deg);
+        opacity: 1;
+    }
+}
+
+@keyframes particleOne {
+    0%, 100% {
+        transform: translate(0, 2px) scale(0.75);
+        opacity: 0.25;
+    }
+
+    50% {
+        transform: translate(3px, -3px) scale(1.15);
+        opacity: 0.85;
+    }
+}
+
+@keyframes particleTwo {
+    0%, 100% {
+        transform: translate(2px, 0) scale(0.8);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: translate(-2px, 3px) scale(1.2);
+        opacity: 0.75;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .loaderGlow,
+    .loaderRing,
+    .loaderCore,
+    .loaderSparkle,
+    .loaderParticle {
+        animation: none;
+    }
 }
 
 .title {
@@ -79,7 +231,7 @@
 }
 
 .progressValue {
-    color: #96344d !important;
+    color: var(--primary) !important;
     font-size: 14px;
     font-weight: 700 !important;
     line-height: 18px;
@@ -97,13 +249,13 @@
 .progress :global(.ant-progress-inner) {
     height: 8px;
     border-radius: 999px;
-    background: #f2e9e5;
+    background: var(--primary-soft);
 }
 
 .progress :global(.ant-progress-bg) {
     height: 8px !important;
     border-radius: 999px !important;
-    background: #96344d !important;
+    background: var(--primary) !important;
     transition: width 0.6s ease !important;
 }
 
@@ -139,7 +291,7 @@
 
 .cancelButton:hover {
     background: #f8f3f0 !important;
-    color: #96344d !important;
+    color: var(--primary) !important;
 }
 
 @media (max-width: 640px) {
@@ -152,13 +304,18 @@
     }
 
     .loader {
-        width: 58px;
-        height: 58px;
-        margin-bottom: 20px;
+        width: 92px;
+        height: 92px;
+        margin-bottom: 22px;
     }
 
-    .loader :global(.anticon) {
-        font-size: 26px;
+    .loaderCore {
+        width: 52px;
+        height: 52px;
+    }
+
+    .loaderSparkle {
+        font-size: 24px;
     }
 
     .title {

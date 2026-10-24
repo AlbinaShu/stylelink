@@ -43,6 +43,7 @@ async def create_generation(
         gender=data.gender,
         height=data.height,
         weight=data.weight,
+        shoe_size=data.shoe_size,
         chest=data.chest,
         waist=data.waist,
         hips=data.hips,
@@ -70,9 +71,19 @@ async def get_generations(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):
+    # В историю попадают только генерации, в которых есть хотя бы один outfit.
+    has_outfits = (
+        select(Outfit.id)
+        .where(Outfit.generation_id == Generation.id)
+        .exists()
+    )
+
     total_result = await session.execute(
         select(func.count(Generation.id))
-        .where(Generation.user_id == current_user.id)
+        .where(
+            Generation.user_id == current_user.id,
+            has_outfits,
+        )
     )
     total = total_result.scalar_one()
 
@@ -80,7 +91,10 @@ async def get_generations(
 
     result = await session.execute(
         select(Generation)
-        .where(Generation.user_id == current_user.id)
+        .where(
+            Generation.user_id == current_user.id,
+            has_outfits,
+        )
         .order_by(Generation.created_at.desc())
         .offset(offset)
         .limit(page_size)

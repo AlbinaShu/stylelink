@@ -14,9 +14,13 @@ import {
 } from 'react-router-dom';
 
 import {
+    getGeneration,
     getGenerationOutfits,
 } from '../../features/outfit-generation/api/generation.api';
-import type { IOutfit } from '../../features/outfit-generation/types';
+import type {
+    IGeneration,
+    IOutfit,
+} from '../../features/outfit-generation/types';
 import GenerationResults from '../../features/outfit-generation/components/GenerationResults/GenerationResults';
 import { sendRecommendationView } from '../../features/experiment-events/api/experiment-events.api';
 import { getDeviceType, getSessionId } from '../../shared/utils/session';
@@ -31,6 +35,7 @@ function GenerationResultsPage() {
     }>();
 
     const [outfits, setOutfits] = useState<IOutfit[]>([]);
+    const [generation, setGeneration] = useState<IGeneration | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const viewSentRef = useRef(false);
@@ -47,15 +52,17 @@ function GenerationResultsPage() {
                 setIsLoading(true);
                 setError(null);
 
-                const data = await getGenerationOutfits(
-                    generationId,
-                );
+                const [data, generationData] = await Promise.all([
+                    getGenerationOutfits(generationId),
+                    getGeneration(generationId),
+                ]);
 
                 if (cancelled) {
                     return;
                 }
 
                 setOutfits(data);
+                setGeneration(generationData);
 
                 if (!viewSentRef.current && data.length > 0) {
                     viewSentRef.current = true;
@@ -147,6 +154,7 @@ function GenerationResultsPage() {
                     outfits.length > 0 && (
                         <GenerationResults
                             outfits={outfits}
+                            shoeSize={generation?.shoe_size ?? null}
                         />
                     )}
             </main>

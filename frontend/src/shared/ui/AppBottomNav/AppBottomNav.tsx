@@ -5,7 +5,7 @@ import {
   SkinOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import type { ReactNode } from 'react';
 import {
   useLocation,
@@ -61,6 +61,20 @@ function AppBottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const handleItemClick = (item: IAppBottomNavItem) => {
+    if (item.key === 'favorites') {
+      void message.open({
+        type: 'info',
+        content: 'Избранное скоро появится. Мы уже работаем над этой функцией.',
+        duration: 3,
+        icon: <HeartOutlined style={{ color: 'var(--primary)' }} />,
+      });
+      return;
+    }
+
+    navigate(item.path);
+  };
+
   const isActive = (path: string) => {
     return (
       location.pathname === path ||
@@ -85,7 +99,7 @@ function AppBottomNav() {
               ]
                 .filter(Boolean)
                 .join(' ')}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleItemClick(item)}
             >
               <span
                 className={

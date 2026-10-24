@@ -6,19 +6,81 @@ import {
   Button,
   Card,
   Flex,
-  Image,
   Typography,
 } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import GenerationHistory from '../../features/outfit-generation/components/GenerationHistory/GenerationHistory';
 import { useProfile } from '../../features/profile/hooks/useProfile';
 import AppBottomNav from '../../shared/ui/AppBottomNav/AppBottomNav';
 import AppHeader from '../../shared/ui/AppHeader/AppHeader';
 
+import firstGenerationFlatlay from '../../assets/images/first-generation-flatlay.png';
 import styles from './MainPage.module.css';
 
 const { Title, Text } = Typography;
+
+function MainHistory({
+  onCreate,
+}: {
+  onCreate: () => void;
+}) {
+  const [isEmpty, setIsEmpty] = useState(false);
+
+  if (isEmpty) {
+    return (
+      <Card
+        bordered
+        className={styles.startCard}
+        styles={{
+          body: {
+            padding: 0,
+          },
+        }}
+      >
+        <div className={styles.preview}>
+          <img
+            src={firstGenerationFlatlay}
+            alt="Подбор образа AI-StyleLink"
+            className={styles.previewImage}
+          />
+        </div>
+
+        <Flex
+          vertical
+          align="center"
+          className={styles.startContent}
+        >
+          <Title level={5} className={styles.startTitle}>
+            Начните первый подбор
+          </Title>
+
+          <Text className={styles.startDescription}>
+            После первого подбора здесь появится история ваших образов
+          </Text>
+
+          <Button
+            type="primary"
+            icon={<ArrowRightOutlined />}
+            iconPosition="end"
+            onClick={onCreate}
+            className={styles.startButton}
+          >
+            Начать подбор
+          </Button>
+        </Flex>
+      </Card>
+    );
+  }
+
+  return (
+    <GenerationHistory
+      limit={3}
+      onEmpty={() => setIsEmpty(true)}
+    />
+  );
+}
 
 function MainPage() {
   const navigate = useNavigate();
@@ -31,6 +93,16 @@ function MainPage() {
   }, [user]);
 
   const userName = user?.name?.trim() || 'Пользователь';
+  const hour = new Date().getHours();
+
+  const greeting =
+    hour >= 5 && hour < 12
+      ? 'Доброе утро'
+      : hour >= 12 && hour < 18
+        ? 'Добрый день'
+        : hour >= 18 && hour < 23
+          ? 'Добрый вечер'
+          : 'Доброй ночи';
 
   const handleCreate = () => {
     navigate('/outfit-generation');
@@ -43,7 +115,7 @@ function MainPage() {
       <main className={styles.content}>
         <section className={styles.welcome}>
           <Text className={styles.greeting}>
-            Добрый вечер,
+            {greeting},
           </Text>
 
           <Title level={2} className={styles.title}>
@@ -93,62 +165,9 @@ function MainPage() {
           </button>
         </Card>
 
-        <Card
-          bordered
-          className={styles.startCard}
-          styles={{
-            body: {
-              padding: 0,
-            },
-          }}
-        >
-          <div className={styles.preview}>
-            <Image
-              preview={false}
-              src="/images/yellow-woman.webp"
-              alt=""
-              className={styles.previewImage}
-            />
-
-            <Image
-              preview={false}
-              src="/images/yellow-woman2.webp"
-              alt=""
-              className={styles.previewImage}
-            />
-
-            <Image
-              preview={false}
-              src="/images/green-woman.webp"
-              alt=""
-              className={styles.previewImage}
-            />
-          </div>
-
-          <Flex
-            vertical
-            align="center"
-            className={styles.startContent}
-          >
-            <Title level={5} className={styles.startTitle}>
-              Начните первый подбор
-            </Title>
-
-            <Text className={styles.startDescription}>
-              После подбора здесь появится история запросов и избранные образы
-            </Text>
-
-            <Button
-              type="primary"
-              icon={<ArrowRightOutlined />}
-              iconPosition="end"
-              onClick={handleCreate}
-              className={styles.startButton}
-            >
-              Начать подбор
-            </Button>
-          </Flex>
-        </Card>
+        <MainHistory
+          onCreate={handleCreate}
+        />
       </main>
 
       <AppBottomNav />

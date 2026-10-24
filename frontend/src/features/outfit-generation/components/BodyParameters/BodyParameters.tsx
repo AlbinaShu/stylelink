@@ -17,6 +17,7 @@ type BodyValues = Pick<
   | 'gender'
   | 'height'
   | 'weight'
+  | 'shoe_size'
   | 'chest'
   | 'waist'
   | 'hips'
@@ -37,12 +38,12 @@ function BodyParameters({
   return (
     <div className={styles.root}>
       <Text className={styles.title}>
-        Параметры тела
+        Параметры тела <span style={{ color: 'var(--primary)' }}>*</span>
       </Text>
 
       <Card className={styles.card}>
         <Text className={styles.label}>
-          Пол
+          Пол <span style={{ color: 'var(--primary)' }}>*</span>
         </Text>
 
         <Radio.Group
@@ -64,7 +65,7 @@ function BodyParameters({
         <Row gutter={[10, 0]} className={styles.fields}>
           <Col xs={12}>
             <Text className={styles.fieldLabel}>
-              Рост / см
+              Рост / см <span style={{ color: 'var(--primary)' }}>*</span>
             </Text>
 
             <InputNumber
@@ -80,7 +81,7 @@ function BodyParameters({
 
           <Col xs={12}>
             <Text className={styles.fieldLabel}>
-              Вес / кг
+              Вес / кг <span style={{ color: 'var(--primary)' }}>*</span>
             </Text>
 
             <InputNumber
@@ -96,7 +97,30 @@ function BodyParameters({
 
           <Col xs={12}>
             <Text className={styles.fieldLabel}>
-              Обхват груди / см
+              Размер обуви / RU <span style={{ color: 'var(--primary)' }}>*</span>
+            </Text>
+
+            <InputNumber
+              value={value.shoe_size}
+              min={30}
+              max={50}
+              step={0.5}
+                formatter={(value) =>
+                  value == null
+                    ? ''
+                    : String(Number(value))
+                }controls={false}
+              placeholder="—"
+              onChange={(nextValue) => {
+                onChange('shoe_size', nextValue);
+              }}
+              className={styles.input}
+            />
+          </Col>
+
+          <Col xs={12}>
+            <Text className={styles.fieldLabel}>
+              Обхват груди / см <span style={{ color: 'var(--primary)' }}>*</span>
             </Text>
 
             <InputNumber
@@ -112,7 +136,7 @@ function BodyParameters({
 
           <Col xs={12}>
             <Text className={styles.fieldLabel}>
-              Обхват талии / см
+              Обхват талии / см <span style={{ color: 'var(--primary)' }}>*</span>
             </Text>
 
             <InputNumber
@@ -128,7 +152,7 @@ function BodyParameters({
 
           <Col xs={12}>
             <Text className={styles.fieldLabel}>
-              Обхват бёдер / см
+              Обхват бёдер / см <span style={{ color: 'var(--primary)' }}>*</span>
             </Text>
 
             <InputNumber

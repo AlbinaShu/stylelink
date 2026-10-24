@@ -6,7 +6,6 @@ import { useAuth } from '../../features/auth/hooks/useAuth';
 import BodyParameters from '../../features/profile/components/BodyParameters/BodyParameters';
 import ProfileMenu from '../../features/profile/components/ProfileMenu/ProfileMenu';
 import UserCard from '../../features/profile/components/UserCard/UserCard';
-import RequestHistory from '../../features/profile/components/RequestHistory/RequestHistory';
 import { useProfile } from '../../features/profile/hooks/useProfile';
 import SubscriptionPlans from '../../features/profile/components/SubscriptionPlans/SubscriptionPlans';
 import UsageLimit from '../../features/profile/components/UsageLimit/UsageLimit';
@@ -62,8 +61,6 @@ function ProfilePage() {
             <UsageLimit />
 
             <BodyParameters profile={profile!} />
-
-            <RequestHistory />
 
             <ProfileMenu />
 

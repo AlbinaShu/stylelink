@@ -44,6 +44,13 @@ class Profile(Base):
         nullable=True,
     )
 
+    # Размер обуви пользователя (EU).
+    # Храним в профиле, чтобы параметр был доступен generation pipeline / ML.
+    shoe_size: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
+
     chest: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,

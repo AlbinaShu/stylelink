@@ -10,6 +10,7 @@ const { Text } = Typography;
 interface IGenerationResultCardProps {
     outfit: IOutfit;
     number: number;
+    shoeSize: number | null;
 }
 
 const OCCASION_LABELS: Record<string, string> = {
@@ -49,6 +50,7 @@ function getItemsLabel(count: number): string {
 function GenerationResultCard({
     outfit,
     number,
+    shoeSize,
 }: IGenerationResultCardProps) {
     const occasionLabel = outfit.occasion
         ? OCCASION_LABELS[outfit.occasion] ??
@@ -151,6 +153,7 @@ function GenerationResultCard({
                         key={item.id}
                         item={item}
                         outfitId={outfit.id}
+                        shoeSize={shoeSize}
                     />
                 ))}
             </div>

@@ -29,6 +29,11 @@ class GenerationSearchItem(Base):
         nullable=False,
     )
 
+    category: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+    )
+
     search_query: Mapped[str] = mapped_column(
         Text,
         nullable=False,
