@@ -100,8 +100,8 @@
   display: inline-flex;
   align-items: center;
   border-radius: var(--radius-pill);
-  background: var(--accent);
-  color: var(--on-primary);
+  background: var(--marketplace-yandex);
+  color: var(--marketplace-yandex-text);
   font-size: 12px;
   font-weight: 700;
 }
@@ -305,7 +305,7 @@
       var(--cta-overlay-mid) 42%,
       var(--cta-overlay-end) 100%
     ),
-    url('/images/hero-woman.webp') center 37% / cover no-repeat;
+    url('/images/stylelink-cta-banner.webp') center 37% / cover no-repeat;
 }
 
 .bottomCtaContent {
@@ -557,7 +557,7 @@
         var(--cta-overlay-mobile-mid) 43%,
         var(--cta-overlay-mobile-end) 100%
       ),
-      url('/images/hero-woman.webp') 72% 8% / cover no-repeat;
+      url('/images/stylelink-cta-banner.webp') 82% 50% / cover no-repeat;
   }
 
   .bottomCtaContent {

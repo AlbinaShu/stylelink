@@ -7,6 +7,7 @@ class ProfileRequest(BaseModel):
     gender: str | None = None
     height: float | None = None
     weight: float | None = None
+    shoe_size: float | None = None
     chest: float | None = None
     waist: float | None = None
     hips: float | None = None

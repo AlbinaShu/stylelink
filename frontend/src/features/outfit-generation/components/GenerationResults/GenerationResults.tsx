@@ -8,10 +8,12 @@ import styles from './GenerationResults.module.css';
 
 interface IGenerationResultsProps {
   outfits: IOutfit[];
+  shoeSize: number | null;
 }
 
 function GenerationResults({
   outfits,
+  shoeSize,
 }: IGenerationResultsProps) {
   return (
     <div className={styles.results}>
@@ -20,6 +22,7 @@ function GenerationResults({
           key={outfit.id}
           outfit={outfit}
           number={index + 1}
+          shoeSize={shoeSize}
         />
       ))}
     </div>

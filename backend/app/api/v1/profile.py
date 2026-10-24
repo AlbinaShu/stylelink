@@ -46,6 +46,7 @@ async def update_profile(
     profile.gender = data.gender
     profile.height = data.height
     profile.weight = data.weight
+    profile.shoe_size = data.shoe_size
     profile.chest = data.chest
     profile.waist = data.waist
     profile.hips = data.hips

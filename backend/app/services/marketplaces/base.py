@@ -8,6 +8,9 @@ class MarketplaceService(ABC):
         self,
         search_query: str,
         page: int = 1,
+        price_from: float | None = None,
+        price_to: float | None = None,
+        fallback_category: str | None = None,
     ) -> list[dict]:
         """
         Ищет товары на маркетплейсе.
