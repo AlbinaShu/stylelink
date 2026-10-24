@@ -9,3 +9,8 @@ export interface IAuthCredentials {
 export interface ITokenResponse {
   access_token: string;
 }
+
+export interface IIdentifyResponse {
+  exists: boolean;
+  method: string;
+}

@@ -68,6 +68,18 @@ async def request_email_code(
 ):
     email = data.email.lower().strip()
 
+    result = await session.execute(
+        select(User).where(User.email == email)
+    )
+
+    existing_user = result.scalar_one_or_none()
+
+    if existing_user is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this email already exists",
+        )
+
     # Генерация кода
     code = generate_otp()
 
