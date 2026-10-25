@@ -3,9 +3,16 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import LandingPage from './pages/LandingPage/LandingPage';
 import AuthPage from './pages/AuthPage/AuthPage';
 import MainPage from './pages/MainPage/MainPage';
+import OutfitsPage from './pages/OutfitsPage/OutfitsPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
+import SupportPage from './pages/SupportPage/SupportPage';
 import OutfitGenerationPage from './pages/OutfitGenerationPage/OutfitGenerationPage';
+import GenerationLoadingPage from './pages/GenerationLoadingPage/GenerationLoadingPage';
+import GenerationResultsPage from './pages/GenerationResultsPage/GenerationResultsPage';
 import { useAuth } from './features/auth/hooks/useAuth';
+import SurveyPopup from './features/survey/components/SurveyPopup/SurveyPopup';
+import SurveyEmailPage from './pages/SurveyEmailPage/SurveyEmailPage';
+import { useSessionLifecycle } from './features/experiment-events/hooks/useSessionLifecycle';
 
 interface IRouteProps {
   children: ReactNode;
@@ -21,9 +28,13 @@ function GuestRoute({ children }: IRouteProps) {
 
 function ProtectedRoute({ children }: IRouteProps) {
   const { isLoggedIn } = useAuth();
+  useSessionLifecycle();
 
   return isLoggedIn
-    ? children
+    ? <>
+        {children}
+        <SurveyPopup />
+      </>
     : <Navigate to="/" replace />;
 }
 
@@ -48,11 +59,22 @@ export function AppRouter() {
         }
       />
 
+      <Route path="/survey" element={<SurveyEmailPage />} />
+
       <Route
         path="/main"
         element={
           <ProtectedRoute>
             <MainPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/outfits"
+        element={
+          <ProtectedRoute>
+            <OutfitsPage />
           </ProtectedRoute>
         }
       />
@@ -67,10 +89,37 @@ export function AppRouter() {
       />
 
       <Route
+        path="/outfit-generation/:generationId/loading"
+        element={
+          <ProtectedRoute>
+            <GenerationLoadingPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/outfit-generation/:generationId/results"
+        element={
+          <ProtectedRoute>
+            <GenerationResultsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/profile"
         element={
           <ProtectedRoute>
             <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/support"
+        element={
+          <ProtectedRoute>
+            <SupportPage />
           </ProtectedRoute>
         }
       />

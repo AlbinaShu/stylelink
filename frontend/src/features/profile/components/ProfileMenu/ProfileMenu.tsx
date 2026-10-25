@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { Button, Card, List } from 'antd';
+import { Button, Card, List, message } from 'antd';
 import {
   HeartOutlined,
   QuestionCircleOutlined,
@@ -29,6 +30,24 @@ const items: IProfileMenuItem[] = [
 ];
 
 function ProfileMenu() {
+  const navigate = useNavigate();
+
+  const handleClick = (key: string) => {
+    if (key === 'favorites') {
+      void message.open({
+        type: 'info',
+        content: 'Избранное скоро появится. Мы уже работаем над этой функцией.',
+        duration: 3,
+        icon: <HeartOutlined style={{ color: 'var(--primary)' }} />,
+      });
+      return;
+    }
+
+    if (key === 'support') {
+      navigate('/support');
+    }
+  };
+
   return (
     <Card
       bordered
@@ -48,6 +67,7 @@ function ProfileMenu() {
               type="text"
               block
               className={styles.button}
+              onClick={() => handleClick(item.key)}
             >
               <span className={styles.label}>
                 {item.icon}

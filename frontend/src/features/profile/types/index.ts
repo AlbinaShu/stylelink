@@ -10,9 +10,10 @@ export interface IProfile {
   gender: string;
   height: number;
   weight: number;
+  shoe_size: number | null;
   chest: number;
   waist: number;
   hips: number;
 }
 
-export type IUpdateProfileRequest = Omit<IProfile, 'id' | 'userId'>;
+export type IUpdateProfileRequest = Omit<IProfile, 'id' | 'user_id'>;

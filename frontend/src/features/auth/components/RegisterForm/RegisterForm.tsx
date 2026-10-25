@@ -8,27 +8,38 @@ import type { IAuthCredentials } from '../../types';
 
 interface IRegisterFormProps {
   onNeedVerification: (credentials: IAuthCredentials) => void;
+  onLoggedIn: () => void;
   onLogin: () => void;
 }
 
 function RegisterForm({
   onNeedVerification,
+  onLoggedIn,
   onLogin,
 }: IRegisterFormProps) {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm<IAuthCredentials>();
-  const { requestCode } = useAuth();
+  const { identify, login, requestCode } = useAuth();
 
   const submit = async (values: IAuthCredentials) => {
     try {
       setLoading(true);
+
+      const identification = await identify(values.email);
+
+      if (identification.exists) {
+        await login(values);
+        onLoggedIn();
+        return;
+      }
+
       await requestCode(values.email);
       onNeedVerification(values);
     } catch (error) {
       message.error(
         error instanceof Error
           ? error.message
-          : 'Не удалось отправить код',
+          : 'Не удалось продолжить авторизацию',
       );
     } finally {
       setLoading(false);

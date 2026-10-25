@@ -11,6 +11,7 @@ from app.models.generation_search_item_product import (
 from app.models.outfit import Outfit
 from app.models.outfit_item import OutfitItem
 from app.models.product import Product
+from app.models.profile import Profile
 from app.schemas.fashion_clip import (
     FashionClipContext,
     FashionClipProduct,
@@ -27,6 +28,7 @@ from app.services.marketplaces.yandex_market import (
 from app.services.ml.fashion_clip_client import FashionClipClient
 from app.services.ml.size_shift_client import SizeShiftClient
 from app.services.product_service import ProductService
+from app.services.size_recommendation_service import SizeRecommendationService
 
 
 class GenerationPipeline:
@@ -50,6 +52,14 @@ class GenerationPipeline:
                 if generation is None:
                     return
 
+                # Профиль пользователя нужен Backend для рекомендации размера.
+                profile_result = await db.execute(
+                    select(Profile).where(
+                        Profile.user_id == generation.user_id
+                    )
+                )
+                profile = profile_result.scalar_one_or_none()
+
                 # -------------------------------------------------
                 # 1. GigaChat формирует поисковые запросы
                 # -------------------------------------------------
@@ -69,6 +79,7 @@ class GenerationPipeline:
                     search_item = GenerationSearchItem(
                         generation_id=generation.id,
                         item_type=item.item_type,
+                        category=item.category,
                         search_query=item.search_query,
                     )
 
@@ -87,10 +98,59 @@ class GenerationPipeline:
                 marketplace = YandexMarketMarketplace()
                 product_service = ProductService()
 
-                for search_item in search_items:
-                    products = await marketplace.search_products(
-                        search_item.search_query
+                # Распределяем бюджет по количеству элементов образа.
+                #
+                # Это не жёсткий лимит итоговой стоимости:
+                # диапазоны нужны только для формирования более
+                # релевантного по цене пула товаров для FashionCLIP.
+                item_count = len(search_items)
+
+                target_price: float | None = None
+                price_to: float | None = None
+
+                if generation.budget is not None and item_count > 0:
+                    target_price = (
+                        float(generation.budget) / item_count
                     )
+                    price_to = target_price * 1.20
+
+                for search_item in search_items:
+                    products = []
+
+                    if target_price is not None:
+                        # Ступенчато расширяем только нижнюю границу.
+                        #
+                        # При target_price = 10 000 ₽:
+                        # 1. 5 500–12 000 ₽
+                        # 2. 3 500–12 000 ₽
+                        # 3. 2 000–12 000 ₽
+                        price_from_steps = (
+                            target_price * 0.55,
+                            target_price * 0.35,
+                            target_price * 0.20,
+                        )
+
+                        for price_from in price_from_steps:
+                            products = (
+                                await marketplace.search_products(
+                                    search_item.search_query,
+                                    price_from=price_from,
+                                    price_to=price_to,
+                                    fallback_category=search_item.category,
+                                )
+                            )
+
+                            if products:
+                                break
+
+                    # Последний fallback:
+                    # если ни один ценовой диапазон не дал товаров,
+                    # ищем без ограничения по цене.
+                    if not products:
+                        products = await marketplace.search_products(
+                            search_item.search_query,
+                            fallback_category=search_item.category,
+                        )
 
                     await product_service.save_search_products(
                         db=db,
@@ -298,6 +358,24 @@ class GenerationPipeline:
                     await db.flush()
 
                     for ml_item, product in valid_items:
+                        available_sizes = (
+                            SizeRecommendationService.normalize_available_sizes(
+                                product.sizes,
+                                ml_item.category,
+                            )
+                        )
+
+                        recommended_size = (
+                            SizeRecommendationService.recommend_size(
+                                available_sizes=available_sizes,
+                                category=ml_item.category,
+                                gender=generation.gender,
+                                chest=generation.chest,
+                                waist=generation.waist,
+                                hips=generation.hips,
+                            )
+                        )
+
                         outfit_item = OutfitItem(
                             outfit_id=outfit.id,
                             product_id=product.id,
@@ -310,6 +388,8 @@ class GenerationPipeline:
                             name=product.name or "",
                             price=float(product.price or 0),
                             size=None,
+                            available_sizes=available_sizes,
+                            recommended_size=recommended_size,
                             image=product.image_url,
                             marketplace=product.marketplace,
                             url=product.product_url or "",
@@ -449,9 +529,6 @@ class GenerationPipeline:
                     outfit_items = result.scalars().all()
 
                     for outfit_item in outfit_items:
-                        outfit_item.recommended_size = (
-                            prediction.recommended_size
-                        )
                         outfit_item.fit_status = (
                             prediction.status
                         )

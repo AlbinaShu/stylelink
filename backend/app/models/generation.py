@@ -64,6 +64,11 @@ class Generation(Base):
         nullable=True,
     )
 
+    shoe_size: Mapped[float | None] = mapped_column(
+        Float,
+        nullable=True,
+    )
+
     chest: Mapped[float | None] = mapped_column(
         Float,
         nullable=True,

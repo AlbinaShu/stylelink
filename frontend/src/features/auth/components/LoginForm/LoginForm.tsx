@@ -10,22 +10,38 @@ interface ILoginFormProps {
   onLoggedIn: () => void;
   onRegister: () => void;
   onForgotPassword: () => void;
+  onNeedVerification: (values: IAuthCredentials) => void;
 }
 
 function LoginForm({
   onLoggedIn,
   onRegister,
   onForgotPassword,
+  onNeedVerification,
 }: ILoginFormProps) {
   const [form] = Form.useForm<IAuthCredentials>();
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+
+  const {
+    identify,
+    login,
+    requestCode,
+  } = useAuth();
 
   const submit = async (values: IAuthCredentials) => {
     try {
       setLoading(true);
-      await login(values);
-      onLoggedIn();
+
+      const identification = await identify(values.email);
+
+      if (identification.exists) {
+        await login(values);
+        onLoggedIn();
+        return;
+      }
+
+      await requestCode(values.email);
+      onNeedVerification(values);
     } catch (error) {
       message.error(
         error instanceof Error

@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       locale={ruRU}
       theme={{
         token: {
-          colorPrimary: '#7044f5',
+          colorPrimary: '#8B3045',
           borderRadius: 13,
           fontFamily: 'Inter, Arial, sans-serif',
         },

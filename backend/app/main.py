@@ -1,24 +1,41 @@
+import asyncio
 from contextlib import asynccontextmanager
-from fastapi.middleware.cors import CORSMiddleware
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from app.api.v1.router import api_router
 from app.core.database import engine
+from app.services.survey_scheduler import survey_scheduler
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    yield
-    await engine.dispose()
+    scheduler_task = asyncio.create_task(
+        survey_scheduler()
+    )
+
+    try:
+        yield
+    finally:
+        scheduler_task.cancel()
+
+        try:
+            await scheduler_task
+        except asyncio.CancelledError:
+            pass
+
+        await engine.dispose()
 
 
 app = FastAPI(
     title="AI·StyleLink API",
     version="1.0.0",
     lifespan=lifespan,
-    swagger_ui_persist_authorization=True,
+    swagger_ui_parameters={
+        "persistAuthorization": True,
+    },
 )
 
 app.add_middleware(
@@ -39,4 +56,7 @@ app.include_router(api_router, prefix="/api/v1")
 async def health():
     async with engine.connect() as conn:
         result = await conn.execute(text("SELECT 1"))
-        return {"status": "ok", "database": result.scalar()}
+        return {
+            "status": "ok",
+            "database": result.scalar(),
+        }

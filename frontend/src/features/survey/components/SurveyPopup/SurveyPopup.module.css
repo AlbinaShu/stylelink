@@ -1,0 +1,32 @@
+.modal :global(.ant-modal-content) {
+    max-height: calc(100vh - 64px);
+    padding: 20px 24px 22px;
+    overflow-y: auto;
+    border-radius: 16px;
+}
+
+.modal :global(.ant-modal-close) {
+    top: 16px;
+    right: 16px;
+    color: #8c8c8c;
+}
+
+.modal :global(.ant-modal-close-x) {
+    font-size: 18px;
+}
+
+.loader {
+    display: grid;
+    min-height: 220px;
+    place-items: center;
+}
+
+@media (max-width: 640px) {
+    .modal {
+        max-width: calc(100vw - 24px);
+    }
+
+    .modal :global(.ant-modal-content) {
+        padding: 18px 16px 20px;
+    }
+}

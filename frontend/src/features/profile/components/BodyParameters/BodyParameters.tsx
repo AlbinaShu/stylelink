@@ -41,6 +41,7 @@ function BodyParameters({
       gender: profile?.gender ?? null,
       height: profile?.height ?? null,
       weight: profile?.weight ?? null,
+      shoe_size: profile?.shoe_size ?? null,
       chest: profile?.chest ?? null,
       waist: profile?.waist ?? null,
       hips: profile?.hips ?? null,
@@ -129,6 +130,26 @@ function BodyParameters({
                 min={0}
                 max={500}
                 controls={false}
+                placeholder="—"
+                className={styles.input}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col xs={12} span={12}>
+            <Form.Item
+              label="Размер обуви / RU"
+              name="shoe_size"
+            >
+              <InputNumber
+                min={30}
+                max={50}
+                step={0.5}
+                formatter={(value) =>
+                  value == null
+                    ? ''
+                    : String(Number(value))
+                }controls={false}
                 placeholder="—"
                 className={styles.input}
               />

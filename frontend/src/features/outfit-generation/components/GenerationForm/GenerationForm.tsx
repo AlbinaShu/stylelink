@@ -1,28 +1,31 @@
 import {
     ArrowRightOutlined,
     StarOutlined,
+    UserOutlined,
 } from '@ant-design/icons';
 import {
+    Alert,
     Button,
+    Modal,
     Typography,
 } from 'antd';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
     createGeneration,
-    getGeneration,
-    getGenerationOutfits,
 } from '../../api/generation.api';
-import type { IOutfit } from '../../api/generation.api';
+
+import { useProfile } from '../../../profile/hooks/useProfile';
 
 import type {
     IGenerationForm,
     IGenerationOption,
 } from '../../types';
+
 import BodyParameters from '../BodyParameters/BodyParameters';
 import BudgetField from '../BudgetField/BudgetField';
 import CustomPrompt from '../CustomPrompt/CustomPrompt';
-import GenerationResults from '../GenerationResults/GenerationResults';
 import OptionSelector from '../OptionSelector/OptionSelector';
 
 import styles from './GenerationForm.module.css';
@@ -94,6 +97,7 @@ const initialValues: IGenerationForm = {
     gender: 'female',
     height: null,
     weight: null,
+    shoe_size: null,
     chest: null,
     waist: null,
     hips: null,
@@ -101,48 +105,44 @@ const initialValues: IGenerationForm = {
 };
 
 function GenerationForm() {
-    const [values, setValues] = useState<IGenerationForm>(
-        initialValues,
-    );
-    const [generationId, setGenerationId] = useState<string | null>(null);
-    const [status, setStatus] = useState<string | null>(null);
-    const [outfits, setOutfits] = useState<IOutfit[] | null>(null);
+    const navigate = useNavigate();
+
+    const {
+        profile,
+        loadProfile,
+        updateProfile,
+    } = useProfile();
+
+    const [values, setValues] = useState<IGenerationForm>(initialValues);
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const profileAppliedRef = useRef(false);
+
     useEffect(() => {
-        if (!generationId) {
+        if (!profile) {
+            void loadProfile();
+        }
+    }, [profile]);
+
+    useEffect(() => {
+        if (!profile || profileAppliedRef.current) {
             return;
         }
 
-        let cancelled = false;
-        let timer: ReturnType<typeof setTimeout>;
+        setValues((current) => ({
+            ...current,
+            gender: profile.gender ?? current.gender,
+            height: profile.height ?? current.height,
+            weight: profile.weight ?? current.weight,
+            shoe_size: profile.shoe_size ?? current.shoe_size,
+            chest: profile.chest ?? current.chest,
+            waist: profile.waist ?? current.waist,
+            hips: profile.hips ?? current.hips,
+        }));
 
-        const poll = async () => {
-            try {
-                const generation = await getGeneration(generationId);
-                if (cancelled) return;
-
-                setStatus(generation.status);
-                if (generation.status === 'completed') {
-                    const result = await getGenerationOutfits(generationId);
-                    if (!cancelled) setOutfits(result);
-                } else if (generation.status !== 'failed') {
-                    timer = setTimeout(() => void poll(), 2500);
-                }
-            } catch {
-                if (!cancelled) {
-                    setError('Не удалось получить результат. Проверьте соединение с сервером.');
-                }
-            }
-        };
-
-        void poll();
-        return () => {
-            cancelled = true;
-            clearTimeout(timer);
-        };
-    }, [generationId]);
+        profileAppliedRef.current = true;
+    }, [profile]);
 
     const setField = <K extends keyof IGenerationForm>(
         field: K,
@@ -152,42 +152,114 @@ function GenerationForm() {
             ...current,
             [field]: value,
         }));
+
+        if (error) {
+            setError(null);
+        }
     };
 
     const promptIsValid = values.prompt.trim().length >= 5;
+    const optionsAreValid = Boolean(values.occasion && values.style);
 
-    const optionsAreValid = Boolean(
-        values.occasion && values.style,
+    const bodyValuesAreComplete = Boolean(
+        values.gender &&
+        values.height != null &&
+        values.weight != null &&
+        values.shoe_size != null &&
+        values.chest != null &&
+        values.waist != null &&
+        values.hips != null
     );
 
-    const canGenerate = promptIsValid || optionsAreValid;
+    const requestIsValid = promptIsValid || optionsAreValid;
+    const canGenerate = requestIsValid && bodyValuesAreComplete;
 
-    const isGenerating = Boolean(status && status !== 'completed' && status !== 'failed');
+    const profileBodyIsComplete = Boolean(
+        profile?.gender &&
+        profile?.height != null &&
+        profile?.weight != null &&
+        profile?.shoe_size != null &&
+        profile?.chest != null &&
+        profile?.waist != null &&
+        profile?.hips != null
+    );
 
-    const handleGenerate = async () => {
-        if (!canGenerate || isSubmitting || isGenerating) {
-            return;
-        }
-
+    const createOutfitGeneration = async () => {
         setIsSubmitting(true);
-        setGenerationId(null);
-        setStatus(null);
-        setOutfits(null);
         setError(null);
 
         try {
             const generation = await createGeneration(values);
-            setStatus(generation.status);
-            setGenerationId(generation.id);
+
+            navigate(`/outfit-generation/${generation.id}/loading`);
         } catch {
-            setError('Не удалось отправить запрос. Проверьте соединение с сервером.');
-        } finally {
+            setError('Не удалось запустить подбор. Проверьте соединение с сервером.');
             setIsSubmitting(false);
         }
     };
 
+    const saveBodyParametersAndGenerate = async () => {
+        setIsSubmitting(true);
+        setError(null);
+
+        try {
+            await updateProfile({
+                gender: values.gender!,
+                height: values.height!,
+                weight: values.weight!,
+                shoe_size: values.shoe_size,
+                chest: values.chest!,
+                waist: values.waist!,
+                hips: values.hips!,
+            });
+
+            const generation = await createGeneration(values);
+
+            navigate(`/outfit-generation/${generation.id}/loading`);
+        } catch {
+            setError(
+                'Не удалось сохранить параметры или запустить подбор. Проверьте соединение с сервером.',
+            );
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleGenerate = async () => {
+        if (!canGenerate || isSubmitting) {
+            return;
+        }
+
+        if (!profileBodyIsComplete && bodyValuesAreComplete) {
+            Modal.confirm({
+                title: 'Сохранить параметры тела?',
+                icon: <UserOutlined style={{ color: 'var(--primary)' }} />,
+                content:
+                    'Сохранить эти данные в профиле, чтобы автоматически использовать их при следующих подборах?',
+                okText: 'Сохранить',
+                cancelText: 'Не сейчас',
+                centered: true,
+                okButtonProps: {
+                    style: {
+                        background: 'var(--primary)',
+                        borderColor: 'var(--primary)',
+                        boxShadow: 'none',
+                    },
+                },
+                onOk: async () => {
+                    await saveBodyParametersAndGenerate();
+                },
+                onCancel: () => {
+                    void createOutfitGeneration();
+                },
+            });
+
+            return;
+        }
+
+        await createOutfitGeneration();
+    };
+
     return (
-      <>
         <div className={styles.form}>
             <OptionSelector
                 label="Повод"
@@ -233,6 +305,7 @@ function GenerationForm() {
                     gender: values.gender,
                     height: values.height,
                     weight: values.weight,
+                    shoe_size: values.shoe_size,
                     chest: values.chest,
                     waist: values.waist,
                     hips: values.hips,
@@ -249,27 +322,39 @@ function GenerationForm() {
                 }}
             />
 
+            {error && (
+                <Alert
+                    type="error"
+                    showIcon
+                    message={error}
+                    className={styles.error}
+                />
+            )}
+
             <div className={styles.submit}>
                 <Text className={styles.hint}>
-                    Выберите повод и стиль или введите свой запрос (≥5 символов)
+                    Заполните параметры тела и выберите повод и стиль или введите свой запрос (≥5 символов)
                 </Text>
 
                 <Button
                     type="primary"
                     size="large"
-                    disabled={!canGenerate || isGenerating}
-                    loading={isSubmitting || isGenerating}
+                    disabled={!canGenerate || isSubmitting}
+                    loading={isSubmitting}
                     icon={<StarOutlined />}
                     onClick={handleGenerate}
                     className={styles.generateButton}
                 >
-                    <span>Подобрать образы</span>
-                    <ArrowRightOutlined />
+                    <span>
+                        Подобрать образы
+                    </span>
+
+                    {!isSubmitting && (
+                        <ArrowRightOutlined />
+                    )}
                 </Button>
             </div>
         </div>
-        <GenerationResults status={status} outfits={outfits} error={error} />
-      </>
     );
 }
 

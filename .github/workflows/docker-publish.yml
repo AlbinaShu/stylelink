@@ -82,3 +82,40 @@ jobs:
             ghcr.io/${{ env.REPO_OWNER }}/stylelink-backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  ml:
+    name: Build ml
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Normalize owner to lowercase
+        run: echo "REPO_OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push ml
+        uses: docker/build-push-action@v6
+        with:
+          context: ./ml
+          file: ./ml/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ env.REPO_OWNER }}/stylelink-ml:latest
+            ghcr.io/${{ env.REPO_OWNER }}/stylelink-ml:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

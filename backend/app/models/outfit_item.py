@@ -2,7 +2,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Float, ForeignKey, Integer, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -77,7 +77,15 @@ class OutfitItem(Base):
         nullable=True,
     )
 
-    # Рекомендация Size Shift.
+    # Размерный ряд продавца на момент генерации.
+    # Для аксессуаров размерный ряд не используется.
+    available_sizes: Mapped[list | None] = mapped_column(
+        JSONB,
+        nullable=True,
+    )
+
+    # Размер, рекомендованный Backend по размерной сетке продавца.
+    # Size Shift это поле не определяет.
     recommended_size: Mapped[str | None] = mapped_column(
         String(50),
         nullable=True,
