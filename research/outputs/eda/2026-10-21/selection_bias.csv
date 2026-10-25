@@ -1,0 +1,3 @@
+dataset,n,fit_keyword_share,median_words,mean_rating
+all_nonempty_wb,27384,0.10878615249780894,8.0,4.558829973707274
+manual_gold,1200,1.0,24.0,4.655

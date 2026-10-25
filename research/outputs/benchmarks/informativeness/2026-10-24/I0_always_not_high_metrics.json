@@ -1,0 +1,228 @@
+{
+  "fold_summary": {
+    "accuracy": {
+      "mean": 0.774975,
+      "standard_deviation": 0.008031,
+      "values": [
+        0.779528,
+        0.760504,
+        0.782609,
+        0.780083,
+        0.772152
+      ]
+    },
+    "high_f1": {
+      "mean": 0.0,
+      "standard_deviation": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "high_precision": {
+      "mean": 0.0,
+      "standard_deviation": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "high_recall": {
+      "mean": 0.0,
+      "standard_deviation": 0.0,
+      "values": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "macro_f1": {
+      "mean": 0.4366,
+      "standard_deviation": 0.00256,
+      "values": [
+        0.438053,
+        0.431981,
+        0.439024,
+        0.438228,
+        0.435714
+      ]
+    },
+    "pr_auc_high": {
+      "mean": 0.225025,
+      "standard_deviation": 0.008031,
+      "values": [
+        0.220472,
+        0.239496,
+        0.217391,
+        0.219917,
+        0.227848
+      ]
+    }
+  },
+  "model": "I0_always_not_high",
+  "overall": {
+    "accuracy": 0.775,
+    "confusion_matrix": {
+      "labels": [
+        "not_high",
+        "high"
+      ],
+      "values": [
+        [
+          930,
+          0
+        ],
+        [
+          270,
+          0
+        ]
+      ]
+    },
+    "high_f1": 0.0,
+    "high_precision": 0.0,
+    "high_recall": 0.0,
+    "high_support": 270,
+    "macro_f1": 0.43662,
+    "pr_auc_high": 0.225
+  },
+  "per_fold": {
+    "1": {
+      "accuracy": 0.779528,
+      "confusion_matrix": {
+        "labels": [
+          "not_high",
+          "high"
+        ],
+        "values": [
+          [
+            198,
+            0
+          ],
+          [
+            56,
+            0
+          ]
+        ]
+      },
+      "high_f1": 0.0,
+      "high_precision": 0.0,
+      "high_recall": 0.0,
+      "high_support": 56,
+      "macro_f1": 0.438053,
+      "pr_auc_high": 0.220472
+    },
+    "2": {
+      "accuracy": 0.760504,
+      "confusion_matrix": {
+        "labels": [
+          "not_high",
+          "high"
+        ],
+        "values": [
+          [
+            181,
+            0
+          ],
+          [
+            57,
+            0
+          ]
+        ]
+      },
+      "high_f1": 0.0,
+      "high_precision": 0.0,
+      "high_recall": 0.0,
+      "high_support": 57,
+      "macro_f1": 0.431981,
+      "pr_auc_high": 0.239496
+    },
+    "3": {
+      "accuracy": 0.782609,
+      "confusion_matrix": {
+        "labels": [
+          "not_high",
+          "high"
+        ],
+        "values": [
+          [
+            180,
+            0
+          ],
+          [
+            50,
+            0
+          ]
+        ]
+      },
+      "high_f1": 0.0,
+      "high_precision": 0.0,
+      "high_recall": 0.0,
+      "high_support": 50,
+      "macro_f1": 0.439024,
+      "pr_auc_high": 0.217391
+    },
+    "4": {
+      "accuracy": 0.780083,
+      "confusion_matrix": {
+        "labels": [
+          "not_high",
+          "high"
+        ],
+        "values": [
+          [
+            188,
+            0
+          ],
+          [
+            53,
+            0
+          ]
+        ]
+      },
+      "high_f1": 0.0,
+      "high_precision": 0.0,
+      "high_recall": 0.0,
+      "high_support": 53,
+      "macro_f1": 0.438228,
+      "pr_auc_high": 0.219917
+    },
+    "5": {
+      "accuracy": 0.772152,
+      "confusion_matrix": {
+        "labels": [
+          "not_high",
+          "high"
+        ],
+        "values": [
+          [
+            183,
+            0
+          ],
+          [
+            54,
+            0
+          ]
+        ]
+      },
+      "high_f1": 0.0,
+      "high_precision": 0.0,
+      "high_recall": 0.0,
+      "high_support": 54,
+      "macro_f1": 0.435714,
+      "pr_auc_high": 0.227848
+    }
+  },
+  "runtime": {
+    "artifact_bytes": 0,
+    "inference_seconds": 0.00046479201409965754,
+    "training_seconds": 0.0
+  }
+}

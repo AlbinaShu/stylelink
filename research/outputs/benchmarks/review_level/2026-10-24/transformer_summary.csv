@@ -1,0 +1,3 @@
+model,checkpoint,signal_f1,direction_macro_f1,four_class_macro_f1,accuracy,direction_macro_f1_fold_mean,direction_macro_f1_fold_std,ece_10_bins,multiclass_brier,training_seconds,inference_seconds,artifact_bytes
+ruBERT,DeepPavlov/rubert-base-cased,0.745358,0.445067,0.435142,0.458333,0.443577,0.030046,0.393965,0.896363,0.41563,27.475557,711455574
+DistilRuBERT,DeepPavlov/distilrubert-tiny-cased-conversational-v1,0.779137,0.43252,0.432259,0.46,0.430462,0.045067,0.252093,0.77119,0.283182,1.405123,41190820

@@ -1,0 +1,51 @@
+{
+  "benchmark_version": "informativeness_binary_benchmark_v1",
+  "created_on": "2026-10-24",
+  "environment": {
+    "numpy": "2.1.3",
+    "platform": "macOS-14.4.1-arm64-arm-64bit",
+    "python": "3.12.6",
+    "scikit_learn": "1.8.0"
+  },
+  "label_counts": {
+    "high": 270,
+    "not_high": 930
+  },
+  "models_completed": [
+    "I0_always_not_high",
+    "I1_tfidf_logistic_regression"
+  ],
+  "outputs": {
+    "I0_always_not_high_metrics.json": "ab6136fd8ff5770ad703f88be10692dbedea9a097434fdc8e1826c5ae7029437",
+    "I0_always_not_high_oof_predictions.csv": "76f84eb374f8610ef3c95ac5be72d2ea17ac1364fccf59850f981f375576ae45",
+    "I1_tfidf_logistic_regression_metrics.json": "4e996cf31562bb244e8393686d2d2caa718be595e0d2e7ecc4dc5c430a511ac4",
+    "I1_tfidf_logistic_regression_oof_predictions.csv": "1f1d49c2f8558e1519b38c616f4d61a76c47d18adf903bcf0449193fd992fc25",
+    "benchmark_summary.csv": "685e66a95df8fd42820b4bb8f041f57142f438bf1cf47627f47d6dfb2f6e8289",
+    "models/I1_tfidf_logistic_regression.joblib": "feb093311c8fbdde8b33ce78a45b84104d87250bd9e891361be1aefb8f3240bf"
+  },
+  "random_seed": 42,
+  "rows": 1200,
+  "script": {
+    "path": "src/models/run_informativeness_benchmark_v1.py",
+    "sha256": "a5f5bc7248ea252b3e3aac541ee4797b5c8b6f835018b5690b1bfcca925ce58b"
+  },
+  "sources": {
+    "folds": {
+      "path": "data/processed/splits/2026-10-24/review_group_folds_v1_1.csv",
+      "sha256": "6129e8bff7780217c251ad8d3ad925cb77d3f008f842db0472a597946ff4aac0"
+    },
+    "gold": {
+      "path": "data/processed/review_level/2026-10-24/review_level_dataset_v1_1.csv",
+      "sha256": "6940d9609953d767fd50c545881588da2e7036d7e799a48aafd2d848733652ab"
+    },
+    "protocol": {
+      "path": "config/simple_experiment_protocol_v1.json",
+      "sha256": "be848b84a207e3f7c3f3f7e6f760aa8b2ae742ef7d2554738588cda22dd71c3e"
+    },
+    "target": {
+      "path": "data/processed/derived_targets/2026-10-24/review_level_informativeness_binary_v1.csv",
+      "sha256": "0d9656779cdd2e549f2fc29b08f4621a5e4b5a6e0b9c6f7f426893493e1928cb"
+    }
+  },
+  "status": "complete_binary_baselines"
+}

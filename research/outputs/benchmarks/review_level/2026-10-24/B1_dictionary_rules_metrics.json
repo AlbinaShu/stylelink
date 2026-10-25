@@ -1,0 +1,1070 @@
+{
+  "calibration": {
+    "ece_10_bins": 0.323333,
+    "multiclass_brier": 0.646667,
+    "reliability_bins": [
+      {
+        "accuracy": null,
+        "count": 0,
+        "lower": 0.0,
+        "mean_confidence": null,
+        "upper": 0.1
+      },
+      {
+        "accuracy": null,
+        "count": 0,
+        "lower": 0.1,
+        "mean_confidence": null,
+        "upper": 0.2
+      },
+      {
+        "accuracy": null,
+        "count": 0,
+        "lower": 0.2,
+        "mean_confidence": null,
+        "upper": 0.30000000000000004
+      },
+      {
+        "accuracy": null,
+        "count": 0,
+        "lower": 0.30000000000000004,
+        "mean_confidence": null,
+        "upper": 0.4
+      },
+      {
+        "accuracy": null,
+        "count": 0,
+        "lower": 0.4,
+        "mean_confidence": null,
+        "upper": 0.5
+      },
+      {
+        "accuracy": null,
+        "count": 0,
+        "lower": 0.5,
+        "mean_confidence": null,
+        "upper": 0.6000000000000001
+      },
+      {
+        "accuracy": null,
+        "count": 0,
+        "lower": 0.6000000000000001,
+        "mean_confidence": null,
+        "upper": 0.7000000000000001
+      },
+      {
+        "accuracy": null,
+        "count": 0,
+        "lower": 0.7000000000000001,
+        "mean_confidence": null,
+        "upper": 0.8
+      },
+      {
+        "accuracy": null,
+        "count": 0,
+        "lower": 0.8,
+        "mean_confidence": null,
+        "upper": 0.9
+      },
+      {
+        "accuracy": 0.676667,
+        "count": 1200,
+        "lower": 0.9,
+        "mean_confidence": 1.0,
+        "upper": 1.0
+      }
+    ],
+    "score_type": "raw_maximum_probability"
+  },
+  "fold_summary": {
+    "accuracy": {
+      "mean": 0.676804,
+      "standard_deviation": 0.016645,
+      "values": [
+        0.665354,
+        0.693277,
+        0.665217,
+        0.659751,
+        0.700422
+      ]
+    },
+    "direction_macro_f1": {
+      "mean": 0.661499,
+      "standard_deviation": 0.034537,
+      "values": [
+        0.621011,
+        0.698462,
+        0.650997,
+        0.631435,
+        0.705592
+      ]
+    },
+    "four_class_macro_f1": {
+      "mean": 0.664777,
+      "standard_deviation": 0.026257,
+      "values": [
+        0.639812,
+        0.694451,
+        0.651092,
+        0.639974,
+        0.698555
+      ]
+    },
+    "signal_f1": {
+      "mean": 0.68309,
+      "standard_deviation": 0.028706,
+      "values": [
+        0.652174,
+        0.717742,
+        0.695652,
+        0.646018,
+        0.703863
+      ]
+    }
+  },
+  "model": "B1_dictionary_rules",
+  "overall": {
+    "direction_on_gold_signal": {
+      "confusion_matrix": {
+        "labels": [
+          "true_to_size",
+          "runs_small",
+          "runs_large",
+          "no_signal"
+        ],
+        "values": [
+          [
+            172,
+            8,
+            1,
+            171
+          ],
+          [
+            5,
+            104,
+            0,
+            86
+          ],
+          [
+            5,
+            0,
+            104,
+            95
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ]
+      },
+      "macro_f1": 0.664953,
+      "note": "A no_signal prediction on a Gold signal row counts as a direction miss.",
+      "per_class": {
+        "runs_large": {
+          "f1": 0.673139,
+          "precision": 0.990476,
+          "recall": 0.509804,
+          "support": 204
+        },
+        "runs_small": {
+          "f1": 0.677524,
+          "precision": 0.928571,
+          "recall": 0.533333,
+          "support": 195
+        },
+        "true_to_size": {
+          "f1": 0.644195,
+          "precision": 0.945055,
+          "recall": 0.488636,
+          "support": 352
+        }
+      },
+      "rows": 751
+    },
+    "four_class_secondary": {
+      "accuracy": 0.676667,
+      "confusion_matrix": {
+        "labels": [
+          "no_signal",
+          "true_to_size",
+          "runs_small",
+          "runs_large"
+        ],
+        "values": [
+          [
+            432,
+            11,
+            5,
+            1
+          ],
+          [
+            171,
+            172,
+            8,
+            1
+          ],
+          [
+            86,
+            5,
+            104,
+            0
+          ],
+          [
+            95,
+            5,
+            0,
+            104
+          ]
+        ]
+      },
+      "macro_f1": 0.667389,
+      "per_class": {
+        "no_signal": {
+          "f1": 0.70073,
+          "precision": 0.55102,
+          "recall": 0.962138,
+          "support": 449
+        },
+        "runs_large": {
+          "f1": 0.670968,
+          "precision": 0.981132,
+          "recall": 0.509804,
+          "support": 204
+        },
+        "runs_small": {
+          "f1": 0.666667,
+          "precision": 0.888889,
+          "recall": 0.533333,
+          "support": 195
+        },
+        "true_to_size": {
+          "f1": 0.631193,
+          "precision": 0.891192,
+          "recall": 0.488636,
+          "support": 352
+        }
+      }
+    },
+    "rows": 1200,
+    "scope": "keyword_selected_development_corpus",
+    "signal_detection": {
+      "accuracy": 0.6925,
+      "confusion_matrix": {
+        "labels": [
+          "no_signal",
+          "signal"
+        ],
+        "values": [
+          [
+            432,
+            17
+          ],
+          [
+            352,
+            399
+          ]
+        ]
+      },
+      "f1": 0.683805,
+      "positive_class": "signal",
+      "precision": 0.959135,
+      "recall": 0.531292
+    }
+  },
+  "per_fold": {
+    "1": {
+      "direction_on_gold_signal": {
+        "confusion_matrix": {
+          "labels": [
+            "true_to_size",
+            "runs_small",
+            "runs_large",
+            "no_signal"
+          ],
+          "values": [
+            [
+              32,
+              4,
+              0,
+              39
+            ],
+            [
+              0,
+              22,
+              0,
+              18
+            ],
+            [
+              1,
+              0,
+              16,
+              20
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "macro_f1": 0.621011,
+        "note": "A no_signal prediction on a Gold signal row counts as a direction miss.",
+        "per_class": {
+          "runs_large": {
+            "f1": 0.603774,
+            "precision": 1.0,
+            "recall": 0.432432,
+            "support": 37
+          },
+          "runs_small": {
+            "f1": 0.666667,
+            "precision": 0.846154,
+            "recall": 0.55,
+            "support": 40
+          },
+          "true_to_size": {
+            "f1": 0.592593,
+            "precision": 0.969697,
+            "recall": 0.426667,
+            "support": 75
+          }
+        },
+        "rows": 152
+      },
+      "four_class_secondary": {
+        "accuracy": 0.665354,
+        "confusion_matrix": {
+          "labels": [
+            "no_signal",
+            "true_to_size",
+            "runs_small",
+            "runs_large"
+          ],
+          "values": [
+            [
+              99,
+              3,
+              0,
+              0
+            ],
+            [
+              39,
+              32,
+              4,
+              0
+            ],
+            [
+              18,
+              0,
+              22,
+              0
+            ],
+            [
+              20,
+              1,
+              0,
+              16
+            ]
+          ]
+        },
+        "macro_f1": 0.639812,
+        "per_class": {
+          "no_signal": {
+            "f1": 0.71223,
+            "precision": 0.5625,
+            "recall": 0.970588,
+            "support": 102
+          },
+          "runs_large": {
+            "f1": 0.603774,
+            "precision": 1.0,
+            "recall": 0.432432,
+            "support": 37
+          },
+          "runs_small": {
+            "f1": 0.666667,
+            "precision": 0.846154,
+            "recall": 0.55,
+            "support": 40
+          },
+          "true_to_size": {
+            "f1": 0.576577,
+            "precision": 0.888889,
+            "recall": 0.426667,
+            "support": 75
+          }
+        }
+      },
+      "rows": 254,
+      "scope": "keyword_selected_development_corpus",
+      "signal_detection": {
+        "accuracy": 0.685039,
+        "confusion_matrix": {
+          "labels": [
+            "no_signal",
+            "signal"
+          ],
+          "values": [
+            [
+              99,
+              3
+            ],
+            [
+              77,
+              75
+            ]
+          ]
+        },
+        "f1": 0.652174,
+        "positive_class": "signal",
+        "precision": 0.961538,
+        "recall": 0.493421
+      }
+    },
+    "2": {
+      "direction_on_gold_signal": {
+        "confusion_matrix": {
+          "labels": [
+            "true_to_size",
+            "runs_small",
+            "runs_large",
+            "no_signal"
+          ],
+          "values": [
+            [
+              38,
+              3,
+              0,
+              33
+            ],
+            [
+              0,
+              27,
+              0,
+              14
+            ],
+            [
+              0,
+              0,
+              21,
+              22
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "macro_f1": 0.698462,
+        "note": "A no_signal prediction on a Gold signal row counts as a direction miss.",
+        "per_class": {
+          "runs_large": {
+            "f1": 0.65625,
+            "precision": 1.0,
+            "recall": 0.488372,
+            "support": 43
+          },
+          "runs_small": {
+            "f1": 0.760563,
+            "precision": 0.9,
+            "recall": 0.658537,
+            "support": 41
+          },
+          "true_to_size": {
+            "f1": 0.678571,
+            "precision": 1.0,
+            "recall": 0.513514,
+            "support": 74
+          }
+        },
+        "rows": 158
+      },
+      "four_class_secondary": {
+        "accuracy": 0.693277,
+        "confusion_matrix": {
+          "labels": [
+            "no_signal",
+            "true_to_size",
+            "runs_small",
+            "runs_large"
+          ],
+          "values": [
+            [
+              79,
+              0,
+              1,
+              0
+            ],
+            [
+              33,
+              38,
+              3,
+              0
+            ],
+            [
+              14,
+              0,
+              27,
+              0
+            ],
+            [
+              22,
+              0,
+              0,
+              21
+            ]
+          ]
+        },
+        "macro_f1": 0.694451,
+        "per_class": {
+          "no_signal": {
+            "f1": 0.692982,
+            "precision": 0.533784,
+            "recall": 0.9875,
+            "support": 80
+          },
+          "runs_large": {
+            "f1": 0.65625,
+            "precision": 1.0,
+            "recall": 0.488372,
+            "support": 43
+          },
+          "runs_small": {
+            "f1": 0.75,
+            "precision": 0.870968,
+            "recall": 0.658537,
+            "support": 41
+          },
+          "true_to_size": {
+            "f1": 0.678571,
+            "precision": 1.0,
+            "recall": 0.513514,
+            "support": 74
+          }
+        }
+      },
+      "rows": 238,
+      "scope": "keyword_selected_development_corpus",
+      "signal_detection": {
+        "accuracy": 0.705882,
+        "confusion_matrix": {
+          "labels": [
+            "no_signal",
+            "signal"
+          ],
+          "values": [
+            [
+              79,
+              1
+            ],
+            [
+              69,
+              89
+            ]
+          ]
+        },
+        "f1": 0.717742,
+        "positive_class": "signal",
+        "precision": 0.988889,
+        "recall": 0.563291
+      }
+    },
+    "3": {
+      "direction_on_gold_signal": {
+        "confusion_matrix": {
+          "labels": [
+            "true_to_size",
+            "runs_small",
+            "runs_large",
+            "no_signal"
+          ],
+          "values": [
+            [
+              32,
+              0,
+              0,
+              30
+            ],
+            [
+              4,
+              18,
+              0,
+              16
+            ],
+            [
+              3,
+              0,
+              23,
+              19
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "macro_f1": 0.650997,
+        "note": "A no_signal prediction on a Gold signal row counts as a direction miss.",
+        "per_class": {
+          "runs_large": {
+            "f1": 0.676471,
+            "precision": 1.0,
+            "recall": 0.511111,
+            "support": 45
+          },
+          "runs_small": {
+            "f1": 0.642857,
+            "precision": 1.0,
+            "recall": 0.473684,
+            "support": 38
+          },
+          "true_to_size": {
+            "f1": 0.633663,
+            "precision": 0.820513,
+            "recall": 0.516129,
+            "support": 62
+          }
+        },
+        "rows": 145
+      },
+      "four_class_secondary": {
+        "accuracy": 0.665217,
+        "confusion_matrix": {
+          "labels": [
+            "no_signal",
+            "true_to_size",
+            "runs_small",
+            "runs_large"
+          ],
+          "values": [
+            [
+              80,
+              2,
+              2,
+              1
+            ],
+            [
+              30,
+              32,
+              0,
+              0
+            ],
+            [
+              16,
+              4,
+              18,
+              0
+            ],
+            [
+              19,
+              3,
+              0,
+              23
+            ]
+          ]
+        },
+        "macro_f1": 0.651092,
+        "per_class": {
+          "no_signal": {
+            "f1": 0.695652,
+            "precision": 0.551724,
+            "recall": 0.941176,
+            "support": 85
+          },
+          "runs_large": {
+            "f1": 0.666667,
+            "precision": 0.958333,
+            "recall": 0.511111,
+            "support": 45
+          },
+          "runs_small": {
+            "f1": 0.62069,
+            "precision": 0.9,
+            "recall": 0.473684,
+            "support": 38
+          },
+          "true_to_size": {
+            "f1": 0.621359,
+            "precision": 0.780488,
+            "recall": 0.516129,
+            "support": 62
+          }
+        }
+      },
+      "rows": 230,
+      "scope": "keyword_selected_development_corpus",
+      "signal_detection": {
+        "accuracy": 0.695652,
+        "confusion_matrix": {
+          "labels": [
+            "no_signal",
+            "signal"
+          ],
+          "values": [
+            [
+              80,
+              5
+            ],
+            [
+              65,
+              80
+            ]
+          ]
+        },
+        "f1": 0.695652,
+        "positive_class": "signal",
+        "precision": 0.941176,
+        "recall": 0.551724
+      }
+    },
+    "4": {
+      "direction_on_gold_signal": {
+        "confusion_matrix": {
+          "labels": [
+            "true_to_size",
+            "runs_small",
+            "runs_large",
+            "no_signal"
+          ],
+          "values": [
+            [
+              33,
+              1,
+              0,
+              37
+            ],
+            [
+              1,
+              14,
+              0,
+              22
+            ],
+            [
+              0,
+              0,
+              24,
+              18
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "macro_f1": 0.631435,
+        "note": "A no_signal prediction on a Gold signal row counts as a direction miss.",
+        "per_class": {
+          "runs_large": {
+            "f1": 0.727273,
+            "precision": 1.0,
+            "recall": 0.571429,
+            "support": 42
+          },
+          "runs_small": {
+            "f1": 0.538462,
+            "precision": 0.933333,
+            "recall": 0.378378,
+            "support": 37
+          },
+          "true_to_size": {
+            "f1": 0.628571,
+            "precision": 0.970588,
+            "recall": 0.464789,
+            "support": 71
+          }
+        },
+        "rows": 150
+      },
+      "four_class_secondary": {
+        "accuracy": 0.659751,
+        "confusion_matrix": {
+          "labels": [
+            "no_signal",
+            "true_to_size",
+            "runs_small",
+            "runs_large"
+          ],
+          "values": [
+            [
+              88,
+              2,
+              1,
+              0
+            ],
+            [
+              37,
+              33,
+              1,
+              0
+            ],
+            [
+              22,
+              1,
+              14,
+              0
+            ],
+            [
+              18,
+              0,
+              0,
+              24
+            ]
+          ]
+        },
+        "macro_f1": 0.639974,
+        "per_class": {
+          "no_signal": {
+            "f1": 0.6875,
+            "precision": 0.533333,
+            "recall": 0.967033,
+            "support": 91
+          },
+          "runs_large": {
+            "f1": 0.727273,
+            "precision": 1.0,
+            "recall": 0.571429,
+            "support": 42
+          },
+          "runs_small": {
+            "f1": 0.528302,
+            "precision": 0.875,
+            "recall": 0.378378,
+            "support": 37
+          },
+          "true_to_size": {
+            "f1": 0.616822,
+            "precision": 0.916667,
+            "recall": 0.464789,
+            "support": 71
+          }
+        }
+      },
+      "rows": 241,
+      "scope": "keyword_selected_development_corpus",
+      "signal_detection": {
+        "accuracy": 0.66805,
+        "confusion_matrix": {
+          "labels": [
+            "no_signal",
+            "signal"
+          ],
+          "values": [
+            [
+              88,
+              3
+            ],
+            [
+              77,
+              73
+            ]
+          ]
+        },
+        "f1": 0.646018,
+        "positive_class": "signal",
+        "precision": 0.960526,
+        "recall": 0.486667
+      }
+    },
+    "5": {
+      "direction_on_gold_signal": {
+        "confusion_matrix": {
+          "labels": [
+            "true_to_size",
+            "runs_small",
+            "runs_large",
+            "no_signal"
+          ],
+          "values": [
+            [
+              37,
+              0,
+              1,
+              32
+            ],
+            [
+              0,
+              23,
+              0,
+              16
+            ],
+            [
+              1,
+              0,
+              20,
+              16
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "macro_f1": 0.705592,
+        "note": "A no_signal prediction on a Gold signal row counts as a direction miss.",
+        "per_class": {
+          "runs_large": {
+            "f1": 0.689655,
+            "precision": 0.952381,
+            "recall": 0.540541,
+            "support": 37
+          },
+          "runs_small": {
+            "f1": 0.741935,
+            "precision": 1.0,
+            "recall": 0.589744,
+            "support": 39
+          },
+          "true_to_size": {
+            "f1": 0.685185,
+            "precision": 0.973684,
+            "recall": 0.528571,
+            "support": 70
+          }
+        },
+        "rows": 146
+      },
+      "four_class_secondary": {
+        "accuracy": 0.700422,
+        "confusion_matrix": {
+          "labels": [
+            "no_signal",
+            "true_to_size",
+            "runs_small",
+            "runs_large"
+          ],
+          "values": [
+            [
+              86,
+              4,
+              1,
+              0
+            ],
+            [
+              32,
+              37,
+              0,
+              1
+            ],
+            [
+              16,
+              0,
+              23,
+              0
+            ],
+            [
+              16,
+              1,
+              0,
+              20
+            ]
+          ]
+        },
+        "macro_f1": 0.698555,
+        "per_class": {
+          "no_signal": {
+            "f1": 0.713693,
+            "precision": 0.573333,
+            "recall": 0.945055,
+            "support": 91
+          },
+          "runs_large": {
+            "f1": 0.689655,
+            "precision": 0.952381,
+            "recall": 0.540541,
+            "support": 37
+          },
+          "runs_small": {
+            "f1": 0.730159,
+            "precision": 0.958333,
+            "recall": 0.589744,
+            "support": 39
+          },
+          "true_to_size": {
+            "f1": 0.660714,
+            "precision": 0.880952,
+            "recall": 0.528571,
+            "support": 70
+          }
+        }
+      },
+      "rows": 237,
+      "scope": "keyword_selected_development_corpus",
+      "signal_detection": {
+        "accuracy": 0.708861,
+        "confusion_matrix": {
+          "labels": [
+            "no_signal",
+            "signal"
+          ],
+          "values": [
+            [
+              86,
+              5
+            ],
+            [
+              64,
+              82
+            ]
+          ]
+        },
+        "f1": 0.703863,
+        "positive_class": "signal",
+        "precision": 0.942529,
+        "recall": 0.561644
+      }
+    }
+  },
+  "runtime": {
+    "inference_seconds": 0.03383941698120907,
+    "training_seconds": 0.0
+  },
+  "thresholds": [
+    {
+      "accuracy": 0.676667,
+      "coverage": 1.0,
+      "direction_macro_f1": 0.664953,
+      "four_class_macro_f1": 0.667389,
+      "rows": 1200,
+      "signal_f1": 0.683805,
+      "threshold": 0.5
+    },
+    {
+      "accuracy": 0.676667,
+      "coverage": 1.0,
+      "direction_macro_f1": 0.664953,
+      "four_class_macro_f1": 0.667389,
+      "rows": 1200,
+      "signal_f1": 0.683805,
+      "threshold": 0.6
+    },
+    {
+      "accuracy": 0.676667,
+      "coverage": 1.0,
+      "direction_macro_f1": 0.664953,
+      "four_class_macro_f1": 0.667389,
+      "rows": 1200,
+      "signal_f1": 0.683805,
+      "threshold": 0.7
+    },
+    {
+      "accuracy": 0.676667,
+      "coverage": 1.0,
+      "direction_macro_f1": 0.664953,
+      "four_class_macro_f1": 0.667389,
+      "rows": 1200,
+      "signal_f1": 0.683805,
+      "threshold": 0.8
+    }
+  ]
+}

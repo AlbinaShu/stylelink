@@ -1,0 +1,23 @@
+{
+  "accuracy_metrics_computed": false,
+  "different_verdict_groups": 3,
+  "direction_probabilities": "four-class probabilities renormalized over the three direction classes",
+  "directional_evidence_rule": "review confidence >= 0.60 and predicted class != no_signal",
+  "equal_abstain_groups": 23,
+  "equal_mean_confidence": 0.582556,
+  "groups": 40,
+  "inference_seconds_for_two_review_models": 4.25536,
+  "interpretation": "exploratory_without_item_level_gold",
+  "item_level_threshold": 0.6,
+  "mean_directional_evidence_reviews": 95.075,
+  "pilot_version": "item_level_pilot_v1",
+  "review_level_threshold": 0.6,
+  "review_rows_total": 40474,
+  "review_rows_with_text": 27384,
+  "same_decision_groups": 37,
+  "same_verdict_groups": 37,
+  "verdict_agreement_rate": 0.925,
+  "weighted_abstain_groups": 24,
+  "weighted_mean_confidence": 0.564565,
+  "winner_selected": false
+}
