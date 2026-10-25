@@ -1,0 +1,39 @@
+{
+  "adjudicator": "codex_ai_adjudicator_v1",
+  "audit_recommended_rows": 0,
+  "date": "2026-10-20",
+  "decision_rows": 849,
+  "final_explicitness_counts": {
+    "explicit": 233,
+    "implicit": 248,
+    "none": 368
+  },
+  "final_fit_counts": {
+    "no_signal": 368,
+    "runs_large": 137,
+    "runs_small": 118,
+    "true_to_size": 226
+  },
+  "final_informativeness_counts": {
+    "high": 198,
+    "low": 508,
+    "medium": 143
+  },
+  "manual_fit_review_rows": 56,
+  "method": "Approved deterministic rules, manual contextual review of all non-trivial fit disagreements, and TF-IDF logistic-regression fallback trained only on rows where both human annotators agreed.",
+  "output": {
+    "path": "adjudication_decisions_ai_v1.jsonl",
+    "sha256": "72cf72123f190367459a8b52e1bf302a84dc9b6c1877327b8dff3c71a1f22b24"
+  },
+  "rules": {
+    "path": "adjudication_rules_v1.json",
+    "sha256": "8d24b4b024da9a9a7b5ae60fa2ca22aad73b961c5e8912d3ed56985608da327d"
+  },
+  "script_sha256": "de8308c4c70fd8c3a79f902cd5fd2fceabb838e429b1e5ceef0be90f753186ac",
+  "source_queue": {
+    "path": "adjudication_queue_v1.jsonl",
+    "sha256": "ea1c9163c4159ee7d51116272137df11eaa3f5bcf94c3d73f692e93584c65988"
+  },
+  "status": "ai_adjudicated_pending_human_audit",
+  "training_rows_with_fit_agreement": 845
+}

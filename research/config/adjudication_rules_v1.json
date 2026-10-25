@@ -1,0 +1,46 @@
+{
+  "rules_version": "adjudication_rules_v1",
+  "status": "approved",
+  "approved_by": "project_researcher",
+  "approved_at": "2026-10-20",
+  "primary_fields": [
+    "fit_label",
+    "signal_explicitness",
+    "informativeness"
+  ],
+  "fit_label": {
+    "runs_small": "The text explicitly says the item runs small or clearly shows that a larger-than-usual size was required.",
+    "true_to_size": "The text explicitly states true-to-size, size-to-size equivalence, or compares usual and ordered sizes and shows they match.",
+    "runs_large": "The text explicitly says the item runs large or clearly shows that a smaller-than-usual size was required.",
+    "no_signal": "The text does not establish direction relative to the size chart or the buyer's usual size. Phrases such as fits well, sat perfectly, tight, loose, or did not fit are insufficient by themselves."
+  },
+  "signal_explicitness": {
+    "explicit": "The direction is directly stated: runs small, true to size, runs large, size to size, or an equivalent unambiguous formulation.",
+    "implicit": "The direction follows from an explicit comparison of usual and ordered sizes or another unambiguous relation, but is not directly named.",
+    "none": "Required whenever fit_label is no_signal."
+  },
+  "informativeness": {
+    "low": "No usable fit direction, or only a bare fit statement without supporting context.",
+    "medium": "The fit direction is usable and supported by exactly one independent element: size comparison, fit zone, body parameter, or explicit action caused by fit.",
+    "high": "The review contains an explicit usual-size versus ordered-size comparison or at least two independent supporting elements. Repetition of the same fact does not increase the level."
+  },
+  "user_action": {
+    "rule": "Use kept_ordered_size only when the text explicitly states that the buyer kept, collected, purchased, or wears the ordered item. A positive rating or the phrase fits well alone is not an action."
+  },
+  "internal_consistency": {
+    "consistent": "All usable directional fit cues point in the same direction.",
+    "contradictory": "Usable directional cues point in incompatible directions and the conflict cannot be resolved by distinct fit zones.",
+    "unclear": "There is no usable directional fit cue, or the relation cannot be assessed reliably. Under this provisional rule, no_signal normally maps to unclear."
+  },
+  "adjudication": {
+    "evidence_scope": "Use only review_text and ordered_size shown in the workbook. Do not open the product card or marketplace signals.",
+    "required_reason": true,
+    "do_not_overwrite_sources": true,
+    "decision_order": [
+      "fit_label",
+      "signal_explicitness",
+      "informativeness"
+    ]
+  }
+}
+

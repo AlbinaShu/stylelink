@@ -1,0 +1,577 @@
+{
+  "agreement": [
+    {
+      "cohen_kappa": 0.5907395701036218,
+      "field": "fit_label",
+      "kappa_type": "unweighted",
+      "labels": [
+        "runs_small",
+        "true_to_size",
+        "runs_large",
+        "no_signal"
+      ],
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1200,
+      "observed_agreement": 0.7041666666666667,
+      "scope": "all"
+    },
+    {
+      "cohen_kappa": 0.43219181546866303,
+      "field": "signal_explicitness",
+      "kappa_type": "unweighted",
+      "labels": [
+        "explicit",
+        "implicit",
+        "none"
+      ],
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1200,
+      "observed_agreement": 0.6258333333333334,
+      "scope": "all"
+    },
+    {
+      "cohen_kappa": 0.21028639529254026,
+      "field": "user_action",
+      "kappa_type": "unweighted",
+      "labels": [
+        "not_specified",
+        "kept_ordered_size",
+        "chose_another_size",
+        "exchanged",
+        "returned",
+        "ordered_multiple_sizes",
+        "other"
+      ],
+      "missing_annotator_1": 2,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1198,
+      "observed_agreement": 0.4090150250417362,
+      "scope": "all"
+    },
+    {
+      "cohen_kappa": 0.08239987724413032,
+      "field": "internal_consistency",
+      "kappa_type": "unweighted",
+      "labels": [
+        "consistent",
+        "contradictory",
+        "unclear"
+      ],
+      "missing_annotator_1": 3,
+      "missing_annotator_2": 1,
+      "n_total": 1200,
+      "n_used": 1196,
+      "observed_agreement": 0.8578595317725752,
+      "scope": "all"
+    },
+    {
+      "cohen_kappa": 0.2908095554080956,
+      "field": "informativeness",
+      "kappa_type": "unweighted",
+      "labels": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "missing_annotator_1": 3,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1197,
+      "observed_agreement": 0.5405179615705932,
+      "scope": "all"
+    },
+    {
+      "cohen_kappa": 0.5113911603145113,
+      "field": "informativeness",
+      "kappa_type": "quadratic_weighted",
+      "labels": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "missing_annotator_1": 3,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1197,
+      "observed_agreement": 0.5405179615705932,
+      "scope": "all"
+    },
+    {
+      "cohen_kappa": 0.3887070376432078,
+      "field": "fit_signal",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1200,
+      "observed_agreement": 0.7925,
+      "scope": "all"
+    },
+    {
+      "cohen_kappa": 0.7985218538646784,
+      "field": "fit_label",
+      "kappa_type": "unweighted",
+      "labels": [
+        "runs_small",
+        "true_to_size",
+        "runs_large"
+      ],
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 824,
+      "n_used": 824,
+      "observed_agreement": 0.8713592233009708,
+      "scope": "both_annotators_signal"
+    },
+    {
+      "cohen_kappa": 0.5762932927326323,
+      "field": "body_parameters",
+      "kappa_type": "unweighted",
+      "labels": null,
+      "missing_annotator_1": 2,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1198,
+      "observed_agreement": 0.7754590984974958,
+      "scope": "exact_set"
+    },
+    {
+      "cohen_kappa": 0.972239425997784,
+      "field": "body_parameters",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 2,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1198,
+      "observed_agreement": 0.9908180300500835,
+      "scope": "binary:height"
+    },
+    {
+      "cohen_kappa": 0.1800228899710508,
+      "field": "body_parameters",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 2,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1198,
+      "observed_agreement": 0.7963272120200334,
+      "scope": "binary:bust"
+    },
+    {
+      "cohen_kappa": 0.9339735728949946,
+      "field": "body_parameters",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 2,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1198,
+      "observed_agreement": 0.993322203672788,
+      "scope": "binary:waist"
+    },
+    {
+      "cohen_kappa": 0.8975816707096834,
+      "field": "body_parameters",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 2,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1198,
+      "observed_agreement": 0.986644407345576,
+      "scope": "binary:hips"
+    },
+    {
+      "cohen_kappa": -0.0028701267639452176,
+      "field": "body_parameters",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 2,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1198,
+      "observed_agreement": 0.9941569282136895,
+      "scope": "binary:other"
+    },
+    {
+      "cohen_kappa": 0.5856041034151125,
+      "field": "fit_zones",
+      "kappa_type": "unweighted",
+      "labels": null,
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1200,
+      "observed_agreement": 0.7558333333333334,
+      "scope": "exact_set"
+    },
+    {
+      "cohen_kappa": 0.30446488669508603,
+      "field": "fit_zones",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1200,
+      "observed_agreement": 0.9483333333333334,
+      "scope": "binary:bust"
+    },
+    {
+      "cohen_kappa": 0.5933165195460277,
+      "field": "fit_zones",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1200,
+      "observed_agreement": 0.9283333333333333,
+      "scope": "binary:waist"
+    },
+    {
+      "cohen_kappa": 0.6363412228796845,
+      "field": "fit_zones",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1200,
+      "observed_agreement": 0.9508333333333333,
+      "scope": "binary:hips"
+    },
+    {
+      "cohen_kappa": 0.6043315285297777,
+      "field": "fit_zones",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1200,
+      "observed_agreement": 0.9841666666666666,
+      "scope": "binary:shoulders"
+    },
+    {
+      "cohen_kappa": 0.8566919730444418,
+      "field": "fit_zones",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1200,
+      "observed_agreement": 0.9883333333333333,
+      "scope": "binary:sleeves"
+    },
+    {
+      "cohen_kappa": 0.7573786893446723,
+      "field": "fit_zones",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1200,
+      "observed_agreement": 0.9191666666666667,
+      "scope": "binary:length"
+    },
+    {
+      "cohen_kappa": 0.11392405063291529,
+      "field": "fit_zones",
+      "kappa_type": "unweighted",
+      "labels": [
+        false,
+        true
+      ],
+      "missing_annotator_1": 0,
+      "missing_annotator_2": 0,
+      "n_total": 1200,
+      "n_used": 1200,
+      "observed_agreement": 0.9766666666666667,
+      "scope": "binary:other"
+    }
+  ],
+  "confusion_matrices": {
+    "fit_label": {
+      "labels": [
+        "runs_small",
+        "true_to_size",
+        "runs_large",
+        "no_signal"
+      ],
+      "matrix": {
+        "no_signal": {
+          "no_signal": 127,
+          "runs_large": 8,
+          "runs_small": 6,
+          "true_to_size": 187
+        },
+        "runs_large": {
+          "no_signal": 8,
+          "runs_large": 190,
+          "runs_small": 4,
+          "true_to_size": 16
+        },
+        "runs_small": {
+          "no_signal": 6,
+          "runs_large": 3,
+          "runs_small": 188,
+          "true_to_size": 49
+        },
+        "true_to_size": {
+          "no_signal": 34,
+          "runs_large": 26,
+          "runs_small": 8,
+          "true_to_size": 340
+        }
+      },
+      "n_used": 1200
+    },
+    "informativeness": {
+      "labels": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "matrix": {
+        "high": {
+          "high": 129,
+          "low": 15,
+          "medium": 81
+        },
+        "low": {
+          "high": 38,
+          "low": 344,
+          "medium": 214
+        },
+        "medium": {
+          "high": 118,
+          "low": 84,
+          "medium": 174
+        }
+      },
+      "n_used": 1197
+    },
+    "internal_consistency": {
+      "labels": [
+        "consistent",
+        "contradictory",
+        "unclear"
+      ],
+      "matrix": {
+        "consistent": {
+          "consistent": 1015,
+          "contradictory": 57,
+          "unclear": 58
+        },
+        "contradictory": {
+          "consistent": 19,
+          "contradictory": 6,
+          "unclear": 0
+        },
+        "unclear": {
+          "consistent": 32,
+          "contradictory": 4,
+          "unclear": 5
+        }
+      },
+      "n_used": 1196
+    },
+    "signal_explicitness": {
+      "labels": [
+        "explicit",
+        "implicit",
+        "none"
+      ],
+      "matrix": {
+        "explicit": {
+          "explicit": 348,
+          "implicit": 147,
+          "none": 4
+        },
+        "implicit": {
+          "explicit": 54,
+          "implicit": 275,
+          "none": 44
+        },
+        "none": {
+          "explicit": 6,
+          "implicit": 194,
+          "none": 128
+        }
+      },
+      "n_used": 1200
+    },
+    "user_action": {
+      "labels": [
+        "not_specified",
+        "kept_ordered_size",
+        "chose_another_size",
+        "exchanged",
+        "returned",
+        "ordered_multiple_sizes",
+        "other"
+      ],
+      "matrix": {
+        "chose_another_size": {
+          "chose_another_size": 26,
+          "exchanged": 0,
+          "kept_ordered_size": 3,
+          "not_specified": 14,
+          "ordered_multiple_sizes": 3,
+          "other": 1,
+          "returned": 1
+        },
+        "exchanged": {
+          "chose_another_size": 0,
+          "exchanged": 0,
+          "kept_ordered_size": 0,
+          "not_specified": 0,
+          "ordered_multiple_sizes": 0,
+          "other": 0,
+          "returned": 0
+        },
+        "kept_ordered_size": {
+          "chose_another_size": 28,
+          "exchanged": 0,
+          "kept_ordered_size": 62,
+          "not_specified": 440,
+          "ordered_multiple_sizes": 7,
+          "other": 1,
+          "returned": 1
+        },
+        "not_specified": {
+          "chose_another_size": 8,
+          "exchanged": 0,
+          "kept_ordered_size": 7,
+          "not_specified": 320,
+          "ordered_multiple_sizes": 0,
+          "other": 0,
+          "returned": 0
+        },
+        "ordered_multiple_sizes": {
+          "chose_another_size": 34,
+          "exchanged": 12,
+          "kept_ordered_size": 3,
+          "not_specified": 41,
+          "ordered_multiple_sizes": 10,
+          "other": 4,
+          "returned": 6
+        },
+        "other": {
+          "chose_another_size": 1,
+          "exchanged": 0,
+          "kept_ordered_size": 3,
+          "not_specified": 9,
+          "ordered_multiple_sizes": 0,
+          "other": 2,
+          "returned": 5
+        },
+        "returned": {
+          "chose_another_size": 3,
+          "exchanged": 0,
+          "kept_ordered_size": 1,
+          "not_specified": 69,
+          "ordered_multiple_sizes": 1,
+          "other": 2,
+          "returned": 70
+        }
+      },
+      "n_used": 1198
+    }
+  },
+  "missing_policy": {
+    "fit_code": "Derive from normalized fit_label.",
+    "fit_zones_all_blank": "Convert all-blank fit-zone slots to an empty list because annotator 1 systematically used this convention.",
+    "multilabel_neutral_values": "Convert нет/не указана to an empty list.",
+    "other_missing_values": "Keep null and use pairwise-complete Kappa.",
+    "signal_explicitness": "Impute none only when fit_label is no_signal."
+  },
+  "normalization": {
+    "annotator_1": {
+      "normalization_flags": {
+        "body_parameters_canonical_order_applied": 52,
+        "fit_code_recomputed_from_fit_label": 1,
+        "fit_zones_blank_normalized_to_empty": 686,
+        "fit_zones_canonical_order_applied": 73,
+        "missing_body_parameters": 2,
+        "missing_informativeness": 3,
+        "missing_internal_consistency": 3,
+        "missing_user_action": 2
+      },
+      "records": 1200,
+      "remaining_missing": {
+        "body_parameters": 2,
+        "informativeness": 3,
+        "internal_consistency": 3,
+        "user_action": 2
+      }
+    },
+    "annotator_2": {
+      "normalization_flags": {
+        "body_parameters_canonical_order_applied": 3,
+        "body_parameters_neutral_marker_removed": 5,
+        "fit_zones_canonical_order_applied": 30,
+        "fit_zones_neutral_marker_removed": 23,
+        "missing_internal_consistency": 1,
+        "signal_explicitness_imputed_none_from_no_signal": 29
+      },
+      "records": 1200,
+      "remaining_missing": {
+        "internal_consistency": 1
+      }
+    }
+  },
+  "records_per_annotator": 1200,
+  "schema_version": "review_annotation_v3",
+  "source_files": {
+    "annotator_1": "annotation_annotator_1_v3.xlsm",
+    "annotator_2": "annotation_annotator_2_v3.xlsx"
+  }
+}

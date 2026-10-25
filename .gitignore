@@ -4,6 +4,7 @@ __pycache__/
 .env
 .pytest_cache/
 .DS_Store
+research/.cache/
 alembic/versions/*.py
 !alembic/versions/.gitkeep
 

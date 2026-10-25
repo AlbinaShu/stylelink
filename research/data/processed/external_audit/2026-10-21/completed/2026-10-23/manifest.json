@@ -1,0 +1,65 @@
+{
+  "dataset": "yandex_market_external_audit_labeled_v1",
+  "completed_at": "2026-10-23",
+  "source_google_sheet": "https://docs.google.com/spreadsheets/d/180uZg85rI86OHn5q4jdA8PzRBe8J8cvf-VnyT_Rl5zs/edit",
+  "annotation_protocol": "single-annotator external audit using ANNOTATION_GUIDE_V4",
+  "rows": 300,
+  "unique_review_ids": 300,
+  "validation_status": "passed",
+  "source_validation_status": "passed",
+  "normalized_validation_status": "passed",
+  "issue_count": 0,
+  "automatic_corrections_applied": 0,
+  "distributions": {
+    "fit_label": {
+      "no_signal": 197,
+      "runs_large": 32,
+      "runs_small": 37,
+      "true_to_size": 34
+    },
+    "signal_explicitness": {
+      "explicit": 74,
+      "implicit": 29,
+      "none": 197
+    },
+    "informativeness": {
+      "high": 16,
+      "low": 242,
+      "medium": 42
+    },
+    "user_action": {
+      "chose_another_size": 1,
+      "kept_ordered_size": 126,
+      "not_specified": 164,
+      "ordered_multiple_sizes": 4,
+      "returned": 5
+    },
+    "internal_consistency": {
+      "consistent": 283,
+      "contradictory": 3,
+      "unclear": 14
+    }
+  },
+  "files": {
+    "yandex_market_audit_300_labeled.xlsx": {
+      "bytes": 54125,
+      "sha256": "1f4e09009826b9555ab3c29652efd3b099fd0b15e56919c8fc2738e8c0ddc0df"
+    },
+    "yandex_market_audit_300_labeled_ru.csv": {
+      "bytes": 128375,
+      "sha256": "c394778021a3ef7578ab283388fabfe072ad4198a4f3053b12fac3742a898a66"
+    },
+    "yandex_market_audit_300_labeled_v4.csv": {
+      "bytes": 207903,
+      "sha256": "387f9d0c022cba798723c34f2daecc9acfb9db7085ec458abb0b846f06e6fd82"
+    },
+    "yandex_market_audit_300_labeled_v4.jsonl": {
+      "bytes": 334771,
+      "sha256": "074026cc77f0cb5437a81f96fa35cc636781db07ad74584cd5f5584a251faa9e"
+    },
+    "validation_report.json": {
+      "bytes": 999,
+      "sha256": "d52ef776cbb82b070307c8ca7c054bdd50326ee953f5802b8a394248fe80013f"
+    }
+  }
+}

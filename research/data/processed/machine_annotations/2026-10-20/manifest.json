@@ -1,0 +1,92 @@
+{
+  "counts": {
+    "explicitness:explicit": 2486,
+    "explicitness:implicit": 81,
+    "explicitness:none": 24817,
+    "fit_label:no_signal": 24817,
+    "fit_label:runs_large": 376,
+    "fit_label:runs_small": 510,
+    "fit_label:true_to_size": 1681,
+    "informativeness:high": 299,
+    "informativeness:low": 26235,
+    "informativeness:medium": 850,
+    "status:predicted": 27384,
+    "status:skipped_empty_text": 13090
+  },
+  "created_at_utc": "2026-10-24T13:22:18.412020+00:00",
+  "dataset_version": "wildberries_machine_annotations_v4_v1",
+  "group_cv_metrics_on_1200_gold": {
+    "explicitness": {
+      "group_cv_accuracy": 0.729167,
+      "group_cv_macro_f1": 0.723813
+    },
+    "fit": {
+      "classifier_only": {
+        "group_cv_accuracy": 0.716667,
+        "group_cv_macro_f1": 0.717004
+      },
+      "end_to_end_after_v4_rules": {
+        "group_cv_accuracy": 0.685,
+        "group_cv_macro_f1": 0.677073
+      }
+    },
+    "informativeness": {
+      "group_cv_accuracy": 0.599167,
+      "group_cv_macro_f1": 0.489465
+    }
+  },
+  "method": [
+    "TF-IDF word and character n-grams with class-balanced logistic regression.",
+    "Five-fold GroupKFold diagnostics use item_group_id and prevent item leakage.",
+    "Conservative v4 rules require a direct size-grid statement or an unambiguous usual-versus-chosen size comparison; bare fit adjectives remain no_signal.",
+    "Marketplace source_signals are retained but not used as model inputs.",
+    "Auxiliary span-like fields use deterministic text-only extraction rules."
+  ],
+  "model": {
+    "name": "stylelink_tfidf_logreg_v4",
+    "random_state": 42,
+    "version": "1.0.0"
+  },
+  "model_artifacts": {
+    "explicitness": {
+      "path": "outputs/models/review_annotation_v4/2026-10-20/explicitness_classifier.joblib",
+      "sha256": "e5b1a94a872628bbde581ae782fb13a804b4402fe7b9af0b21fb116b78006a81"
+    },
+    "fit": {
+      "path": "outputs/models/review_annotation_v4/2026-10-20/fit_classifier.joblib",
+      "sha256": "a3dbfeddc3318ea244c0450af6ae4eb2dd8f80fc9e688e95ce3ff97e28110550"
+    },
+    "informativeness": {
+      "path": "outputs/models/review_annotation_v4/2026-10-20/informativeness_classifier.joblib",
+      "sha256": "31b1332a18a46c7c92e17ec4f66ba1dabfb596d79dd6422bd7db2d6b55fd6d8a"
+    }
+  },
+  "output": {
+    "path": "reviews_machine_annotated_v4.jsonl",
+    "sha256": "ce6964f6b5bf2775619b424d0d4ac098f381e975a734294cb5250e423533855c"
+  },
+  "records": 40474,
+  "role": "machine-generated pseudo-labels; not Gold Standard",
+  "schema_version": "review_annotation_v4",
+  "script_sha256": "aad1fc15684477e5f1277683227c6429215760db83a2af345e41a70b49e9511c",
+  "sources": {
+    "gold": {
+      "path": "data/processed/review_level/2026-10-20/review_level_dataset_v1.jsonl",
+      "sha256": "b9232e570c5cddb5e9049fc638c865a53d5c34c5d0144286f821c059e65f7aff"
+    },
+    "input": {
+      "path": "data/interim/wildberries/2026-09-12/reviews_for_model_annotation_v3.jsonl",
+      "sha256": "cf948c51c34599e1e33688405591986cbd2fe5db7969d6345bd99ffab9738eac"
+    },
+    "instruction": {
+      "path": "docs/research/ANNOTATION_GUIDE_V4.md",
+      "sha256": "99fbac6f164a2d41c4ee1a6cf41a81d53adb01bc44e3e85591106cb2328e0fe9"
+    },
+    "schema": {
+      "path": "config/review_annotation_schema_v4.json",
+      "sha256": "f695225529fbc1d92be6361cf52024d90779b33c61fbb67470b93ebb0eeb8087"
+    }
+  },
+  "status": "complete",
+  "unique_review_ids": 40474
+}
