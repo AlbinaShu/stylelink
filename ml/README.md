@@ -1,5 +1,13 @@
 # ML API
 
+This directory contains the ML service currently used by the product. Its size-shift endpoint is an integration prototype based on a pretrained zero-shot NLI model, keyword filtering, equal-count aggregation, and fixed evidence thresholds.
+
+The offline review-level comparison is complete: B0, B1, TF-IDF + Logistic Regression (B2), frozen ruBERT and frozen DistilRuBERT were evaluated on the same five frozen group folds. B2 was selected and frozen with a confidence/abstain threshold of `0.60`; it was then evaluated on 300 Yandex Market reviews. The item-level equal-weight versus informativeness-weighted comparison was also run as an exploratory pilot on 40 products. It did not select a winner because there is no independent item-level Gold Standard yet.
+
+These research artifacts are **not integrated into this service yet**. Therefore, local website results still come from the zero-shot prototype described below, not from the selected B2 model.
+
+Research results, limitations, and reproducibility links are maintained in [`../docs/research/`](../docs/research/README.md).
+
 This service runs pretrained models without fine-tuning:
 
 - [FashionCLIP 2.0](https://huggingface.co/patrickjohncyh/fashion-clip) embeds product images and compares them to the user's request. It was trained mainly on English fashion descriptions.
