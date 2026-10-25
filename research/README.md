@@ -53,4 +53,6 @@ Snapshot публичных отзывов Яндекс Маркета от 21 �
 
 Exploratory item-level pilot на 40 development-группах сохранён в [`outputs/item_level_pilot/2026-10-24/`](outputs/item_level_pilot/2026-10-24/ITEM_LEVEL_PILOT_REPORT.md): equal-weight и informativeness-weighted совпали в 37/40 случаях; 3 решения изменились, победитель без item-level Gold не выбирался.
 
+С 25 октября frozen B2 встроена в продуктовый ML API как backend по умолчанию с equal-weight aggregation; zero-shot сохранён как fallback. Это отдельная интеграция поверх замороженного исследования и не меняет его метрики. Для активации на локальном сайте требуется пересборка ML-контейнера.
+
 Исторический вход для машинной разметки сохранён в `data/interim/wildberries/2026-09-12/reviews_for_model_annotation_v3.jsonl`. Полный результат по канонической схеме v4 находится в [`data/processed/machine_annotations/2026-10-24/`](data/processed/machine_annotations/2026-10-24/manifest.json): 27 384 текста получили machine-generated pseudo-labels, 13 090 пустых записей сохранены как `skipped_empty_text`. Модель, правила, групповые диагностические метрики и контрольные суммы зафиксированы воспроизводимо.

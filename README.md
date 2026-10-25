@@ -8,10 +8,10 @@
 * Python 3 + FastAPI;
 * PostgreSQL, SQLAlchemy 2 и Alembic;
 * JWT и Gmail SMTP;
-* отдельный ML API с FashionCLIP 2.0, переводом OPUS-MT и zero-shot классификацией fit-сигналов;
+* отдельный ML API с FashionCLIP 2.0, переводом OPUS-MT и B2-классификацией fit-сигналов;
 * Docker Compose.
 
-Backend, frontend и ML API связаны общим сценарием генерации. Текущий size-shift endpoint использует продуктовый zero-shot прототип. В офлайн-исследовании уже выбрана B2 (TF-IDF + Logistic Regression), но она пока не интегрирована в сайт; item-level сравнение агрегаций остаётся exploratory.
+Backend, frontend и ML API связаны общим сценарием генерации. В код size-shift endpoint интегрирована выбранная в исследовании B2 (TF-IDF + Logistic Regression) с equal-weight aggregation; она включается по умолчанию после пересборки ML-контейнера. Прежний zero-shot вариант доступен как fallback, а item-level агрегация остаётся exploratory.
 
 ## Исследовательская документация
 
@@ -590,7 +590,7 @@ http://127.0.0.1:8000/docs
 9. Проверка, что старый JWT больше не работает
 10. Password reset
 
-AI-интеграция и платежи не входят в текущий этап тестирования backend.
+Полный ML-flow проверяется отдельно по [FULL_FLOW_TESTING.md](FULL_FLOW_TESTING.md); платежи не входят в текущий этап тестирования backend.
 
 ---
 
@@ -615,4 +615,6 @@ Backend готов к локальному запуску и ручному те
 * Alembic;
 * Gmail SMTP.
 
-Исследовательская B2 и персональная рекомендация размера в текущий backend не интегрированы. Остальные продуктовые задачи ведутся отдельно от зафиксированного ML-эксперимента.
+B2 интегрирована в size-shift endpoint. Персональная рекомендация S/M/L пока не реализована: для неё нужны параметры пользователя и размерная сетка товара.
+
+Активный fit-backend задаётся через `FIT_MODEL_BACKEND=b2|zero_shot` и отображается в поле `fit_backend` ответа `GET /health`. После изменения настройки ML-контейнер нужно пересобрать и перезапустить.
