@@ -15,7 +15,7 @@ export interface ISurveyOption<T extends string> {
 export const ORDER_PLACED_OPTIONS: readonly ISurveyOption<OrderPlaced>[] = [
     { value: 'yes', label: 'Да' },
     { value: 'no', label: 'Нет' },
-    { value: 'pending', label: 'Ещё не получил(а) / не примерил(а)' },
+    { value: 'pending', label: 'Пока не оформил(а)' },
 ];
 
 export const COUNT_OPTIONS: readonly ISurveyOption<CountChoice>[] = [
@@ -36,9 +36,11 @@ export const YES_NO_OPTIONS: readonly ISurveyOption<'yes' | 'no'>[] = [
 
 export const FIT_OPTIONS: readonly ISurveyOption<FitResult>[] = [
     { value: 'perfect', label: 'Идеально' },
-    { value: 'small', label: 'Маломерит' },
-    { value: 'large', label: 'Большемерит' },
-    { value: 'unknown', label: 'Затрудняюсь ответить' },
+    { value: 'small', label: 'Оказался мал' },
+    { value: 'large', label: 'Оказался велик' },
+    { value: 'unknown', label: 'Примерил(а), но затрудняюсь оценить' },
+    { value: 'in_transit', label: 'Товар ещё в пути' },
+    { value: 'not_tried', label: 'Получил(а), но ещё не примерил(а)' },
 ];
 
 export const ACTION_OPTIONS: readonly ISurveyOption<SurveyAction>[] = [

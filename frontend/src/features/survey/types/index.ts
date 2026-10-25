@@ -2,7 +2,7 @@ export type SurveyStatus = 'not_answered' | 'answered';
 export type OrderPlaced = 'yes' | 'no' | 'pending';
 export type CountChoice = '1' | '2' | '3+';
 export type SizeChoice = 'recommended' | 'other';
-export type FitResult = 'perfect' | 'small' | 'large' | 'unknown';
+export type FitResult = 'perfect' | 'small' | 'large' | 'unknown' | 'in_transit' | 'not_tried';
 export type SurveyAction = 'kept' | 'returned' | 'undecided';
 export type ReturnReason = 'size' | 'quality' | 'color' | 'other';
 
@@ -14,6 +14,8 @@ export interface ISurveyItem {
   selected_size: string | null;
   status: SurveyStatus;
   clicked_at: string;
+  buy_click_id: string | null;
+  answer?: ISurveyAnswerItem | null;
 }
 
 export interface ISurveyItemsResponse {
@@ -26,7 +28,7 @@ export interface ISurveyItemsResponse {
 export interface ISurveyPopupResponse {
   show: boolean;
   survey_id: string | null;
-  reason: 'available' | 'already_shown' | 'skip_cooldown' | 'no_survey';
+  reason: 'available' | 'same_session' | 'already_shown' | 'skip_cooldown' | 'no_survey';
 }
 
 export interface ISurveyAnswerItem {
@@ -38,6 +40,7 @@ export interface ISurveyAnswerItem {
   sizes_in_cart?: CountChoice | null;
   cart_size?: SizeChoice | null;
   fit_result?: FitResult | null;
+  tried_size?: SizeChoice | null;
   action?: SurveyAction | null;
   return_reason?: ReturnReason | null;
   return_reason_text?: string | null;
@@ -52,6 +55,7 @@ export interface ISurveyAnswersRequest {
 export interface ISurveyAnswersResponse {
   status: 'ok';
   answered_count: number;
+  continuation_path?: string | null;
 }
 
 export interface ISurveySkipRequest {
@@ -75,4 +79,11 @@ export interface IEmailSurveyAnswersResponse {
   status: 'saved';
   survey_id: string;
   answers_created: number;
+}
+
+export interface ISurveyProgress {
+  questionsAnswered: number;
+  lastProductId: string | null;
+  lastQuestionKey: string | null;
+  lastQuestionValue: string | null;
 }

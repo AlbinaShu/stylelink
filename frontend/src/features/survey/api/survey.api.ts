@@ -24,9 +24,9 @@ export async function getSurveyPopup(sessionId: string): Promise<ISurveyPopupRes
   return data;
 }
 
-export async function getSurveyItems(offset = 0, limit = 10): Promise<ISurveyItemsResponse> {
+export async function getSurveyItems(offset = 0, limit = 10, surveyId?: string): Promise<ISurveyItemsResponse> {
   const { data } = await http.get<ISurveyItemsResponse>('/api/v1/survey/items', {
-    params: { offset, limit },
+    params: { offset, limit, survey_id: surveyId },
   });
 
   return data;

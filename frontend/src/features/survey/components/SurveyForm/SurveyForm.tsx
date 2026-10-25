@@ -8,16 +8,24 @@ import {
   CheckCircleFilled,
   QuestionCircleOutlined,
 } from '@ant-design/icons';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type {
   ISurveyAnswerItem,
   ISurveyItem,
+  ISurveyProgress,
 } from '../../types';
 import { isSurveyAnswerValid } from '../../configurations/survey-validation';
 import SurveyProduct from '../SurveyProduct/SurveyProduct';
 
 import styles from './SurveyForm.module.css';
+import { useVisibleOnce } from '../../../../shared/hooks/useVisibleOnce';
+import type { ReactNode } from 'react';
+
+function VisibleHeader({ productId, onVisible, children }: { productId: string; onVisible?: (id: string) => void; children: ReactNode }) {
+  const ref = useVisibleOnce<HTMLDivElement>(productId, () => onVisible?.(productId));
+  return <div ref={ref}>{children}</div>;
+}
 
 const { Text, Title } = Typography;
 
@@ -34,17 +42,9 @@ interface ISurveyFormProps {
     answers: ISurveyAnswerItem[],
   ) => Promise<void>;
 
-  onSkip?: (meta: {
-    questionsAnswered: number;
-    lastQuestionKey: string | null;
-    lastQuestionValue: string | null;
-  }) => Promise<void> | void;
-
-  onProgress?: (meta: {
-    questionsAnswered: number;
-    lastQuestionKey: string | null;
-    lastQuestionValue: string | null;
-  }) => void;
+  onSkip?: (meta: ISurveyProgress) => Promise<void> | void;
+  onProgress?: (meta: ISurveyProgress) => void;
+  onItemVisible?: (productId: string) => void;
 }
 
 type DraftMap = Record<
@@ -53,6 +53,7 @@ type DraftMap = Record<
 >;
 
 type LastQuestion = {
+  productId: string;
   key: string;
   value: string;
 };
@@ -67,6 +68,7 @@ function SurveyForm({
   onSubmit,
   onSkip,
   onProgress,
+  onItemVisible,
 }: ISurveyFormProps) {
   const [drafts, setDrafts] =
     useState<DraftMap>({});
@@ -108,9 +110,10 @@ function SurveyForm({
     key: keyof ISurveyAnswerItem,
     value: string | null,
   ) => {
+    setSaved((current) => { const next = { ...current }; delete next[productId]; return next; });
     setDrafts((current) => {
       const previous =
-        current[productId] ?? {
+        current[productId] ?? items.find((item) => item.product_id === productId)?.answer ?? {
           product_id: productId,
         };
 
@@ -151,8 +154,9 @@ function SurveyForm({
 
       if (
         key === 'fit_result' &&
-        value === 'unknown'
+        (value === 'in_transit' || value === 'not_tried')
       ) {
+        delete next.tried_size;
         delete next.action;
         delete next.return_reason;
         delete next.return_reason_text;
@@ -181,25 +185,29 @@ function SurveyForm({
 
     if (value !== null) {
       const nextLastQuestion = {
+        productId,
         key,
         value,
       };
 
       setLastQuestion(nextLastQuestion);
 
-      onProgress?.({
-        questionsAnswered:
-          questionsAnswered + 1,
-        lastQuestionKey:
-          nextLastQuestion.key,
-        lastQuestionValue:
-          nextLastQuestion.value,
-      });
+
     }
   };
 
+  useEffect(() => {
+    if (!lastQuestion) return;
+    onProgress?.({
+      questionsAnswered,
+      lastProductId: lastQuestion.productId,
+      lastQuestionKey: lastQuestion.key,
+      lastQuestionValue: lastQuestion.value,
+    });
+  }, [lastQuestion, questionsAnswered, onProgress]);
+
   const saveProduct = (productId: string) => {
-    const answer = drafts[productId];
+    const answer = drafts[productId] ?? items.find((item) => item.product_id === productId)?.answer;
 
     if (!isSurveyAnswerValid(answer)) {
       void message.warning(
@@ -220,7 +228,7 @@ function SurveyForm({
   const collapseItems = items.map((item) => {
     const answer =
       drafts[item.product_id] ??
-      saved[item.product_id] ?? {
+      saved[item.product_id] ?? item.answer ?? {
         product_id: item.product_id,
       };
 
@@ -232,6 +240,7 @@ function SurveyForm({
       key: item.product_id,
 
       label: (
+        <VisibleHeader productId={item.product_id} onVisible={onItemVisible}>
         <div className={styles.itemHeader}>
           <span
             className={
@@ -275,6 +284,7 @@ function SurveyForm({
             )}
           </div>
         </div>
+        </VisibleHeader>
       ),
 
       children: (
@@ -361,6 +371,7 @@ function SurveyForm({
             onClick={() =>
               void onSkip({
                 questionsAnswered,
+                lastProductId: lastQuestion?.productId ?? null,
                 lastQuestionKey:
                   lastQuestion?.key ?? null,
                 lastQuestionValue:

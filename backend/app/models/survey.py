@@ -111,6 +111,9 @@ class Survey(Base):
         index=True,
     )
 
+    period_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    period_ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
     scheduled_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
@@ -148,6 +151,8 @@ class SurveyItem(Base):
     """
 
     __tablename__ = "survey_items"
+
+    buy_click_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("survey_buy_clicks.id", ondelete="SET NULL"), nullable=True)
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -202,6 +207,9 @@ class SurveyAnswer(Base):
     """
 
     __tablename__ = "survey_answers"
+
+    tried_size: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),

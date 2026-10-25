@@ -6,11 +6,12 @@ import {
 } from '@ant-design/icons';
 import { Collapse, Image, Tag, Typography, message } from 'antd';
 import type { MouseEvent, ReactNode } from 'react';
-import { useEffect, useState } from 'react';
-import { sendBuyClick, sendSizeChanged, sendTooltipOpen } from '../../../experiment-events/api/experiment-events.api';
-import { getSessionId } from '../../../../shared/utils/session';
+import { useState } from 'react';
+import { sendBuyClick, sendSizeChanged, sendTooltipOpen, sendRecommendationView, sendExplanationView } from '../../../experiment-events/api/experiment-events.api';
+import { getDeviceType, getSessionId } from '../../../../shared/utils/session';
 import type { IOutfitItem } from '../../types';
 import styles from './GenerationResultProduct.module.css';
+import { isHalfVisible, useVisibleOnce } from '../../../../shared/hooks/useVisibleOnce';
 
 const { Text } = Typography;
 
@@ -96,7 +97,6 @@ function GenerationResultProduct({
 
   const showFit = item.fit != null;
   const showSizes = !isAccessory && Boolean(item.available_sizes?.length);
-  const recommendedSize = !isAccessory ? item.recommended_size : null;
 
   // Нормализация нужна, чтобы 39.0 совпадал с "39",
   // а 38.5 продолжал совпадать с "38.5".
@@ -110,15 +110,28 @@ function GenerationResultProduct({
         ) ?? null
       : null;
 
-  const initialSize = shoeSizeFromAvailable ?? recommendedSize;
+  const recommendedSize = isAccessory ? null : (item.recommended_size ?? shoeSizeFromAvailable);
+  const initialSize = recommendedSize && item.available_sizes?.includes(recommendedSize) ? recommendedSize : null;
+  const fitViewRef = useVisibleOnce<HTMLDivElement>(item.id + ':fit', () => {
+    if (!showFit || !item.product_id) return;
+    void sendExplanationView({
+      session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
+      outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
+        initial_selected_size: initialSize, explanation_visible: true }],
+    }).catch(() => undefined);
+  });
+  const viewRef = useVisibleOnce<HTMLDivElement>(item.id, () => {
+    if (!item.product_id) return;
+    void sendRecommendationView({
+      session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
+      outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
+        initial_selected_size: initialSize, explanation_visible: showFit && isHalfVisible(fitViewRef.current) }],
+    }).catch(() => undefined);
+  });
 
-  const [selectedSize, setSelectedSize] = useState<string | null>(
-    initialSize,
-  );
-
-  useEffect(() => {
-    setSelectedSize(initialSize);
-  }, [item.id, initialSize]);
+  const selectionKey = item.id + ':' + initialSize;
+  const [selection, setSelection] = useState({ key: selectionKey, value: initialSize });
+  const selectedSize = selection.key === selectionKey ? selection.value : initialSize;
 
   const fitConfig = item.fit?.fit_signal != null ? FIT_CONFIG[item.fit.fit_signal] : undefined;
   const isInsufficientFit = item.fit?.status === 'insufficient_evidence';
@@ -130,14 +143,16 @@ function GenerationResultProduct({
 
   const changeSize = (size: string) => {
     const previousSize = selectedSize;
-    setSelectedSize(size);
+    setSelection({ key: selectionKey, value: size });
 
     if (!previousSize || previousSize === size) return;
 
     void sendSizeChanged({
       session_id: getSessionId(),
       timestamp: new Date().toISOString(),
-      item_id: item.id,
+      product_id: item.product_id,
+      outfit_id: outfitId,
+      outfit_item_id: item.id,
       recommended_size: recommendedSize,
       previous_size: previousSize,
       selected_size: size,
@@ -153,6 +168,8 @@ function GenerationResultProduct({
       session_id: getSessionId(),
       product_id: item.product_id,
       tooltip_type: 'fit',
+      outfit_id: outfitId,
+      outfit_item_id: item.id,
       timestamp: new Date().toISOString(),
     }).catch(() => undefined);
   };
@@ -185,7 +202,7 @@ function GenerationResultProduct({
           <Image src={item.image || undefined} alt={item.name} preview={false} className={styles.image} />
         </div>
 
-        <div className={styles.content}>
+        <div ref={viewRef} className={styles.content}>
           <div className={styles.productHeader}>
             <div className={styles.productInfo}>
               <div className={styles.meta}>
@@ -213,9 +230,6 @@ function GenerationResultProduct({
               {item.available_sizes!.map((size) => {
                 const isRecommended = recommendedSize !== null && size === recommendedSize;
                 const isSelected = selectedSize === size;
-                const isPreselectedShoeSize =
-                  shoeSizeFromAvailable !== null &&
-                  size === shoeSizeFromAvailable;
                 return (
                   <Tag
                     key={size}
@@ -225,7 +239,7 @@ function GenerationResultProduct({
                     onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') changeSize(size); }}
                     className={[
                       styles.size,
-                      (isRecommended || isPreselectedShoeSize)
+                      isRecommended
                         ? styles.recommendedSize
                         : '',
                       isSelected ? styles.selectedSize : '',
@@ -243,6 +257,7 @@ function GenerationResultProduct({
           )}
 
           {showFit && (
+            <div ref={fitViewRef}>
             <Collapse
               ghost
               expandIconPosition="end"
@@ -275,6 +290,7 @@ function GenerationResultProduct({
                 ),
               }]}
             />
+            </div>
           )}
         </div>
       </div>

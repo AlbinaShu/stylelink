@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     size_shift_url: str = "http://127.0.0.1:8002"
     size_shift_timeout_seconds: float = 60.0
 
-    survey_test_mode: bool = True
+    survey_test_mode: bool = False
     survey_test_period_minutes: int = 10
     survey_period_days: int = 14
     survey_test_email_delay_minutes: int = 15
