@@ -93,7 +93,7 @@ function SurveyForm({
           draft,
         ).filter(
           ([key, value]) =>
-            key !== 'product_id' &&
+            !['product_id', 'fit_scope', 'tried_size'].includes(key) &&
             value !== null &&
             value !== undefined &&
             value !== '',
@@ -115,6 +115,7 @@ function SurveyForm({
       const previous =
         current[productId] ?? items.find((item) => item.product_id === productId)?.answer ?? {
           product_id: productId,
+          fit_scope: 'recommended_only',
         };
 
       let next: Partial<ISurveyAnswerItem> = {
@@ -154,7 +155,7 @@ function SurveyForm({
 
       if (
         key === 'fit_result' &&
-        (value === 'in_transit' || value === 'not_tried')
+        (value === 'in_transit' || value === 'not_tried' || value === 'not_ordered')
       ) {
         delete next.tried_size;
         delete next.action;
@@ -209,7 +210,8 @@ function SurveyForm({
   const saveProduct = (productId: string) => {
     const answer = drafts[productId] ?? items.find((item) => item.product_id === productId)?.answer;
 
-    if (!isSurveyAnswerValid(answer)) {
+    const recommendedSize = items.find((item) => item.product_id === productId)?.recommended_size ?? null;
+    if (!isSurveyAnswerValid(answer, recommendedSize)) {
       void message.warning(
         'Заполните обязательные вопросы по этому товару.',
       );
@@ -219,7 +221,7 @@ function SurveyForm({
 
     setSaved((current) => ({
       ...current,
-      [productId]: answer,
+      [productId]: { ...answer, fit_scope: 'recommended_only' },
     }));
 
     setActiveKey([]);
@@ -290,6 +292,7 @@ function SurveyForm({
       children: (
         <SurveyProduct
           answer={answer}
+          recommendedSize={item.recommended_size}
           onChange={(key, value) =>
             updateDraft(
               item.product_id,

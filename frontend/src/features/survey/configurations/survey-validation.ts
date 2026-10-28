@@ -2,6 +2,7 @@ import type { ISurveyAnswerItem } from '../types';
 
 export function isSurveyAnswerValid(
   answer: Partial<ISurveyAnswerItem> | undefined,
+  recommendedSize: string | null,
 ): answer is ISurveyAnswerItem {
   if (!answer?.product_id || !answer.order_placed) return false;
   if (answer.order_placed !== 'yes') {
@@ -10,10 +11,10 @@ export function isSurveyAnswerValid(
       (answer.sizes_in_cart && (answer.sizes_in_cart !== '1' || answer.cart_size))
     ));
   }
-  if (!answer.sizes_ordered || !answer.fit_result) return false;
-  if (answer.sizes_ordered === '1' && !answer.purchased_size) return false;
-  if (answer.fit_result === 'in_transit') return true;
-  if (answer.fit_result !== 'not_tried' && !answer.tried_size) return false;
+  if (!answer.sizes_ordered) return false;
+  if (!recommendedSize) return true;
+  if (!answer.fit_result) return false;
+  if (['in_transit', 'not_ordered'].includes(answer.fit_result)) return true;
   if (!answer.action) return false;
   return answer.action !== 'returned' || Boolean(answer.return_reason);
 }

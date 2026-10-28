@@ -40,13 +40,18 @@ class SurveyService:
         fields = set(SurveyAnswerItem.model_fields) - {"product_id"}
         items = []
         for item, product, answer in result.all():
+            saved = {"product_id": str(product.id), **{key: getattr(answer, key) for key in fields}} if answer else None
+            if saved and answer.fit_scope != "recommended_only":
+                # Do not relabel a historical assessment of another size as the recommendation.
+                saved.update(fit_scope="recommended_only", fit_result=None, tried_size=None,
+                             action=None, return_reason=None, return_reason_text=None)
             items.append({
                 "product_id": product.id, "name": product.name, "image_url": product.image_url,
                 "recommended_size": item.recommended_size, "selected_size": item.selected_size,
                 "buy_click_id": item.buy_click_id,
                 "status": "answered" if answer is not None else "not_answered",
                 "clicked_at": item.clicked_at,
-                "answer": {"product_id": str(product.id), **{key: getattr(answer, key) for key in fields}} if answer else None,
+                "answer": saved,
             })
         return items, total
 
@@ -61,15 +66,22 @@ class SurveyService:
         if len(product_ids) != len(set(product_ids)):
             raise ValueError("Duplicate products in answer batch")
         allowed_result = await session.execute(
-            select(SurveyItem.product_id).where(SurveyItem.survey_id == survey.id, SurveyItem.product_id.in_(product_ids))
+            select(SurveyItem).where(SurveyItem.survey_id == survey.id, SurveyItem.product_id.in_(product_ids))
         )
-        if set(product_ids) - set(allowed_result.scalars().all()):
+        allowed = {item.product_id: item for item in allowed_result.scalars().all()}
+        if set(product_ids) - set(allowed):
             raise ValueError("One or more products do not belong to this survey")
         result = await session.execute(
             select(SurveyAnswer).where(SurveyAnswer.survey_id == survey.id, SurveyAnswer.product_id.in_(product_ids))
         )
         existing = {answer.product_id: answer for answer in result.scalars().all()}
         for answer in answers:
+            recommended = allowed[answer.product_id].recommended_size
+            if answer.order_placed == "yes":
+                if recommended is not None and answer.fit_result is None:
+                    raise ValueError("Please assess the saved recommended size")
+                if recommended is None and answer.fit_result is not None:
+                    raise ValueError("No recommended size exists for this item")
             row = existing.get(answer.product_id)
             if row is None:
                 row = SurveyAnswer(survey_id=survey.id, product_id=answer.product_id)

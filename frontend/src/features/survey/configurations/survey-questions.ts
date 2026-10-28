@@ -39,6 +39,7 @@ export const FIT_OPTIONS: readonly ISurveyOption<FitResult>[] = [
     { value: 'small', label: 'Оказался мал' },
     { value: 'large', label: 'Оказался велик' },
     { value: 'unknown', label: 'Примерил(а), но затрудняюсь оценить' },
+    { value: 'not_ordered', label: 'Этот размер не заказывал(а)' },
     { value: 'in_transit', label: 'Товар ещё в пути' },
     { value: 'not_tried', label: 'Получил(а), но ещё не примерил(а)' },
 ];

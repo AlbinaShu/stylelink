@@ -14,6 +14,7 @@ import styles from './SurveyProduct.module.css';
 
 interface ISurveyProductProps {
     answer: Partial<ISurveyAnswerItem>;
+    recommendedSize: string | null;
     onChange: (
         key: keyof ISurveyAnswerItem,
         value: string | null,
@@ -23,6 +24,7 @@ interface ISurveyProductProps {
 
 function SurveyProduct({
     answer,
+    recommendedSize,
     onChange,
     onSave,
 }: ISurveyProductProps) {
@@ -44,14 +46,6 @@ function SurveyProduct({
                         onChange={(value) => onChange('sizes_ordered', value)}
                     />
 
-                    {answer.sizes_ordered === '1' && (
-                        <SurveyQuestion
-                            title="Какой размер заказали?"
-                            value={answer.purchased_size}
-                            options={SIZE_CHOICE_OPTIONS}
-                            onChange={(value) => onChange('purchased_size', value)}
-                        />
-                    )}
                 </>
             )}
 
@@ -86,29 +80,19 @@ function SurveyProduct({
                 </>
             )}
 
-            {answer.order_placed === 'yes' && (
-                    <SurveyQuestion
-                        title="Как подошёл размер?"
-                        value={answer.fit_result}
-                        options={FIT_OPTIONS}
-                        onChange={(value) => onChange('fit_result', value)}
-                    />
-                )}
+            {answer.order_placed === 'yes' && recommendedSize && (
+                <SurveyQuestion
+                    title={'Как подошёл рекомендованный нами размер ' + recommendedSize + '?'}
+                    value={answer.fit_result}
+                    options={FIT_OPTIONS}
+                    onChange={(value) => onChange('fit_result', value)}
+                />
+            )}
 
             {answer.order_placed === 'yes' && answer.fit_result &&
-                !['in_transit', 'not_tried'].includes(answer.fit_result) && (
+                recommendedSize && !['in_transit', 'not_ordered'].includes(answer.fit_result) && (
                     <SurveyQuestion
-                        title="Какой размер примерили и оцениваете?"
-                        value={answer.tried_size}
-                        options={SIZE_CHOICE_OPTIONS}
-                        onChange={(value) => onChange('tried_size', value)}
-                    />
-                )}
-
-            {answer.order_placed === 'yes' && answer.fit_result &&
-                answer.fit_result !== 'in_transit' && (
-                    <SurveyQuestion
-                        title="Что сделали с товаром?"
+                        title={'Что вы сделали с рекомендованным размером ' + recommendedSize + '?'}
                         value={answer.action}
                         options={ACTION_OPTIONS}
                         onChange={(value) => onChange('action', value)}
@@ -118,7 +102,7 @@ function SurveyProduct({
             {answer.action === 'returned' && (
                 <>
                     <SurveyQuestion
-                        title="Почему вернули?"
+                        title={'Почему вернули рекомендованный размер ' + recommendedSize + '?'}
                         value={answer.return_reason}
                         options={RETURN_REASON_OPTIONS}
                         onChange={(value) =>

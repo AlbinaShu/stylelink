@@ -208,6 +208,8 @@ class SurveyAnswer(Base):
 
     __tablename__ = "survey_answers"
 
+    fit_scope: Mapped[str] = mapped_column(String(30), nullable=False, server_default="legacy_selected")
+
     tried_size: Mapped[str | None] = mapped_column(String(20), nullable=True)
     updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 

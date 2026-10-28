@@ -28,13 +28,14 @@ class SurveyItemsResponse(BaseModel):
 
 class SurveyAnswerItem(BaseModel):
     product_id: UUID
+    fit_scope: Literal["recommended_only"]
     order_placed: Literal["yes", "no", "pending"]
     sizes_ordered: Literal["1", "2", "3+"] | None = None
     purchased_size: Literal["recommended", "other"] | None = None
     added_to_cart: Literal["yes", "no"] | None = None
     sizes_in_cart: Literal["1", "2", "3+"] | None = None
     cart_size: Literal["recommended", "other"] | None = None
-    fit_result: Literal["perfect", "small", "large", "unknown", "in_transit", "not_tried"] | None = None
+    fit_result: Literal["perfect", "small", "large", "unknown", "in_transit", "not_tried", "not_ordered"] | None = None
     tried_size: Literal["recommended", "other"] | None = None
     action: Literal["kept", "returned", "undecided"] | None = None
     return_reason: Literal["size", "quality", "color", "other"] | None = None
@@ -60,19 +61,17 @@ class SurveyAnswerItem(BaseModel):
         self.added_to_cart = self.sizes_in_cart = self.cart_size = None
         if self.sizes_ordered is None:
             raise ValueError("sizes_ordered is required for an order")
-        if self.sizes_ordered == "1" and self.purchased_size is None:
-            raise ValueError("purchased_size is required for one ordered size")
-        if self.sizes_ordered != "1":
-            self.purchased_size = None
-        if self.fit_result is None:
-            raise ValueError("fit_result is required for an order")
-        if self.fit_result == "in_transit":
+        self.purchased_size = (
+            ("other" if self.fit_result == "not_ordered" else "recommended")
+            if self.sizes_ordered == "1" and self.fit_result is not None else None
+        )
+        # The service checks whether a saved recommendation exists for this item.
+        if self.fit_result is None or self.fit_result in {"in_transit", "not_ordered"}:
             self.tried_size = self.action = self.return_reason = self.return_reason_text = None
             return self
-        if self.fit_result == "not_tried":
-            self.tried_size = None
-        elif self.tried_size is None:
-            raise ValueError("tried_size is required after a fitting")
+        if self.tried_size not in {None, "recommended"}:
+            raise ValueError("Only the recommended size is assessed in this survey")
+        self.tried_size = None if self.fit_result == "not_tried" else "recommended"
         if self.action is None:
             raise ValueError("action is required for a received product")
         if self.action == "returned" and self.return_reason is None:

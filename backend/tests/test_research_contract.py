@@ -21,7 +21,7 @@ from app.services.survey_service import SurveyService
 
 def answer(**changes):
     return SurveyAnswerItem(**{
-        "product_id": uuid4(), "order_placed": "yes", "sizes_ordered": "1",
+        "product_id": uuid4(), "fit_scope": "recommended_only", "order_placed": "yes", "sizes_ordered": "1",
         "purchased_size": "recommended", "fit_result": "in_transit", **changes,
     })
 
@@ -34,10 +34,10 @@ def test_unassessed_fit_is_not_a_failed_fitting(status):
 
 
 def test_only_a_received_tried_size_enters_fit_denominator():
-    value = answer(fit_result="perfect", tried_size="other", action="kept")
+    value = answer(fit_result="perfect", action="kept")
     assert survey_outcomes(value) == {
         "received": True, "tried": True, "fit_evaluable": True,
-        "fit_success": True, "tried_size": "other",
+        "fit_success": True, "tried_size": "recommended",
     }
 
 
@@ -48,9 +48,11 @@ def test_no_order_does_not_require_or_keep_a_fit_answer():
     assert not survey_outcomes(value)["fit_evaluable"]
 
 
-def test_multiple_ordered_sizes_require_identification_of_the_tried_size():
-    with pytest.raises(ValidationError):
-        answer(sizes_ordered="2", fit_result="perfect", action="kept")
+@pytest.mark.parametrize("count", ["1", "2", "3+"])
+def test_order_count_does_not_change_which_size_is_assessed(count):
+    value = answer(sizes_ordered=count, fit_result="perfect", action="kept")
+    assert value.tried_size == "recommended"
+    assert survey_outcomes(value)["fit_evaluable"]
 
 
 def test_unknown_fit_can_still_have_a_quality_return():
@@ -234,4 +236,53 @@ def test_migration_has_one_head():
     from alembic.script import ScriptDirectory
     config = Config()
     config.set_main_option("script_location", "alembic")
-    assert ScriptDirectory.from_config(config).get_heads() == ["e4f2c6b8a901"]
+    assert ScriptDirectory.from_config(config).get_heads() == ["f6a1c2d3e4b5"]
+
+def test_recommended_size_not_ordered_is_not_a_fit_failure():
+    value = answer(sizes_ordered="2", fit_result="not_ordered", action="returned")
+    assert not survey_outcomes(value)["fit_evaluable"]
+    assert not survey_outcomes(value)["received"]
+    assert value.action is None
+
+
+def test_explicit_other_size_cannot_be_submitted_as_recommended():
+    with pytest.raises(ValidationError):
+        answer(fit_result="perfect", tried_size="other", action="kept")
+
+
+def test_legacy_fit_does_not_enter_the_recommended_size_metric():
+    old = SimpleNamespace(fit_scope="legacy_selected", order_placed="yes",
+                          fit_result="perfect", tried_size="other")
+    assert not survey_outcomes(old)["fit_evaluable"]
+
+
+def test_old_client_without_scope_is_rejected_instead_of_reinterpreted():
+    with pytest.raises(ValidationError):
+        SurveyAnswerItem(product_id=uuid4(), order_placed="yes", sizes_ordered="1",
+                         fit_result="perfect", action="kept")
+
+
+@pytest.mark.asyncio
+async def test_item_without_recommendation_keeps_order_count_only(db):
+    _, product, survey = await seed(db)
+    item = (await db.execute(select(SurveyItem))).scalar_one()
+    item.recommended_size = None
+    await db.commit()
+    await SurveyService.save_answers(db, survey, [answer(product_id=product.id, fit_result=None)])
+    row = (await db.execute(select(SurveyAnswer))).scalar_one()
+    assert row.sizes_ordered == "1" and row.fit_result is None
+    assert not survey_outcomes(row)["fit_evaluable"]
+
+
+@pytest.mark.asyncio
+async def test_legacy_answer_is_not_prefilled_as_a_recommended_size_assessment(db):
+    _, product, survey = await seed(db)
+    row = SurveyAnswer(survey_id=survey.id, product_id=product.id, order_placed="yes",
+                       sizes_ordered="2", fit_scope="legacy_selected", fit_result="perfect",
+                       tried_size="other", action="kept")
+    db.add(row)
+    await db.commit()
+    items, _ = await SurveyService.get_items(db, survey, 0, 10)
+    assert items[0]["answer"]["fit_result"] is None
+    assert items[0]["answer"]["fit_scope"] == "recommended_only"
+    assert row.fit_result == "perfect" and row.fit_scope == "legacy_selected"

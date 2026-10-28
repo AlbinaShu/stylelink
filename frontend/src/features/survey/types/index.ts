@@ -2,7 +2,7 @@ export type SurveyStatus = 'not_answered' | 'answered';
 export type OrderPlaced = 'yes' | 'no' | 'pending';
 export type CountChoice = '1' | '2' | '3+';
 export type SizeChoice = 'recommended' | 'other';
-export type FitResult = 'perfect' | 'small' | 'large' | 'unknown' | 'in_transit' | 'not_tried';
+export type FitResult = 'perfect' | 'small' | 'large' | 'unknown' | 'in_transit' | 'not_tried' | 'not_ordered';
 export type SurveyAction = 'kept' | 'returned' | 'undecided';
 export type ReturnReason = 'size' | 'quality' | 'color' | 'other';
 
@@ -33,6 +33,7 @@ export interface ISurveyPopupResponse {
 
 export interface ISurveyAnswerItem {
   product_id: string;
+  fit_scope?: 'recommended_only';
   order_placed: OrderPlaced;
   sizes_ordered?: CountChoice | null;
   purchased_size?: SizeChoice | null;
