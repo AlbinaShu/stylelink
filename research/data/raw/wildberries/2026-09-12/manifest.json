@@ -1,0 +1,48 @@
+{
+  "collected_at_utc": "2026-09-12T10:25:58.080962+00:00",
+  "counts": {
+    "annotation_candidates": 2500,
+    "failures": 0,
+    "product_size_rows": 3611,
+    "products_collected": 40,
+    "reviews_with_fit_keyword": 2979,
+    "reviews_with_ordered_size": 40452,
+    "reviews_with_text": 27384,
+    "reviews_with_wb_structured_fit": 5999,
+    "selected_roots": 40,
+    "unique_reviews_collected": 40474
+  },
+  "failures": [],
+  "limitations": [
+    "The feedback endpoint returns a recent window (up to about 1000 reviews per root), not every historical review.",
+    "wb_structured_fit and WB AI tags are marketplace signals, not manually verified Gold Standard labels.",
+    "Search ranking and product availability change over time.",
+    "A root_id can contain several nm_id color or product variants."
+  ],
+  "queries": [
+    "белая женская футболка",
+    "вечернее платье женское",
+    "джинсы женские прямые",
+    "брюки женские классические",
+    "пиджак женский",
+    "рубашка женская оверсайз",
+    "свитер женский",
+    "юбка женская миди"
+  ],
+  "seed_nm_ids": [
+    103643821
+  ],
+  "selection": {
+    "deduplicated_by": "root_id",
+    "minimum_reported_feedbacks": 3000,
+    "pages_per_query": 1,
+    "products_per_query": 5,
+    "sort": "popular"
+  },
+  "source": "Wildberries public web APIs",
+  "wb_structured_fit_counts": {
+    "bigger": 448,
+    "ok": 5175,
+    "smaller": 376
+  }
+}

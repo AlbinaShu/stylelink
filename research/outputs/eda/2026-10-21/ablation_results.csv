@@ -1,0 +1,7 @@
+model,accuracy,macro_f1,note
+text_plus_informativeness,0.7683333333333333,0.7447378849529589,diagnostic upper bound; human auxiliary labels are not production inputs
+text_plus_all_auxiliary,0.7566666666666667,0.7329724643463325,diagnostic upper bound; human auxiliary labels are not production inputs
+text_only,0.685,0.691840854734389,text baseline
+text_plus_action_and_consistency,0.6766666666666666,0.6804872009936275,diagnostic upper bound; human auxiliary labels are not production inputs
+text_plus_body_and_zones,0.6791666666666667,0.6785645467097691,diagnostic upper bound; human auxiliary labels are not production inputs
+auxiliary_only,0.5083333333333333,0.4193129280905401,diagnostic upper bound; human auxiliary labels are not production inputs

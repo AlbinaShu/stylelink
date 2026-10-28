@@ -1,0 +1,8 @@
+metric,value
+nonempty_reviews,28030.0
+wildberries_reviews,27384.0
+yandex_market_reviews,646.0
+exact_duplicate_rows,2615.0
+exact_texts_shared_between_sources,0.0
+median_words,8.0
+mean_words,11.339921512665002

@@ -1,0 +1,42 @@
+{
+  "output_files": {
+    "annotator_1": {
+      "path": "annotator_1_normalized_v3.csv",
+      "sha256": "c5354b3e698e8f609a0961e4194a6b650c21842e836765a2a3dc594235e35835"
+    },
+    "annotator_2": {
+      "path": "annotator_2_normalized_v3.csv",
+      "sha256": "05560bdd0f8046dcc3240489a9e642182510a943d00d1d574fcb0407bf07e27d"
+    },
+    "paired": {
+      "path": "paired_annotations_v3.csv",
+      "sha256": "81c23609882f454a1260d46a09bf2d4e313b4ea8dc0859edd780f30cd5d764a3"
+    }
+  },
+  "records_per_annotator": 1200,
+  "rules": [
+    "Raw workbooks are never modified.",
+    "fit_code is derived from normalized fit_label.",
+    "Missing signal_explicitness is imputed as none only for no_signal.",
+    "Other missing categorical values remain null.",
+    "Multi-label values are deduplicated and written in canonical order.",
+    "All-blank fit-zone slots are normalized to an empty list because annotator 1 systematically used blank for no zone.",
+    "Kappa uses pairwise-complete records for each field."
+  ],
+  "schema": {
+    "path": "review_annotation_schema_v3.json",
+    "sha256": "2d44d4d0854e45070c966147e874d605215f1ad1492025f1ca3f9166cf0b40f7"
+  },
+  "schema_version": "review_annotation_v3",
+  "script_sha256": "d27875b1b25a113db667159d87c5c806d716e6979a4b8ab1aea34a48559ce5cc",
+  "source_files": {
+    "annotator_1": {
+      "path": "annotation_annotator_1_v3.xlsm",
+      "sha256": "db461a0886555348214e9465708db92b7695e6b9fd4bd38dced03b6cee57c72a"
+    },
+    "annotator_2": {
+      "path": "annotation_annotator_2_v3.xlsx",
+      "sha256": "e6a071cf638362883da2ded0a25a54255c007fe049ece1dea10a06aa80bf18f1"
+    }
+  }
+}

@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir torch==2.6.0 --index-url https://download.pytorch
     && pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
+COPY models ./models
 
 RUN mkdir -p /models/huggingface
 

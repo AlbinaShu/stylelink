@@ -28,7 +28,7 @@ export function getSessionStartedAt(): number {
 export function getDeviceType(): string {
   if (window.innerWidth < 768) return 'mobile';
   if (window.innerWidth < 1024) return 'tablet';
-  
+
   return 'desktop';
 }
 

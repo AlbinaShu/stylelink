@@ -1,0 +1,139 @@
+{
+  "annotation_protocol": "single-annotator external audit using ANNOTATION_GUIDE_V4",
+  "blind_annotation_fields": [
+    "review_id",
+    "заказанный размер",
+    "текст отзыва",
+    "метка посадки",
+    "код метки",
+    "явность сигнала",
+    "параметры тела 1",
+    "параметры тела 2",
+    "параметры тела 3",
+    "зона посадки 1",
+    "зона посадки 2",
+    "зона посадки 3",
+    "действие пользователя",
+    "согласованность внутри отзыва",
+    "информативность",
+    "комментарий"
+  ],
+  "categories": {
+    "jeans": 70,
+    "jumper": 45,
+    "outerwear": 45,
+    "sports_tshirt": 70,
+    "sweatshirt": 45,
+    "trousers": 25
+  },
+  "cohens_kappa_applicable": false,
+  "created_at": "2026-10-21",
+  "dataset": "yandex_market_external_audit_v1",
+  "annotation_status": "completed",
+  "annotation_completed_at": "2026-10-23",
+  "latest_completed_snapshot": "completed/2026-10-23/manifest.json",
+  "field_naming_rule": "Russian headers and label values in annotation CSV/XLSX; English snake_case keys in code, JSONL, schemas, and model datasets.",
+  "files": {
+    "yandex_market_audit_300_for_annotation.csv": {
+      "bytes": 92251,
+      "sha256": "fcb950a9dbfaa5329803ab02a4f8ef0893f3000fe83948ee05ee045ae135f955"
+    },
+    "yandex_market_audit_300_source.jsonl": {
+      "bytes": 89999,
+      "sha256": "be41293bd160918daea44c7412defc4d9ee94b0c0555e801bcc921c47a5937e3"
+    },
+    "yandex_market_audit_300_for_annotation.xlsx": {
+      "bytes": 49750,
+      "sha256": "813ecdd830a7e7ce90e526cbc3e20d629588fb611a124ec20dad3e6b02e94d54"
+    }
+  },
+  "hidden_source_fields": [
+    "audit_id",
+    "review_id",
+    "product_id",
+    "category",
+    "selection_stratum",
+    "source_page_url"
+  ],
+  "human_facing_language": "ru",
+  "limitations": [
+    "One annotator will label the set; inter-annotator agreement and adjudication are not applicable.",
+    "The fit-keyword stratum is deliberately oversampled for error analysis, so aggregate prevalence must not be interpreted as marketplace prevalence.",
+    "Product coverage is limited to six cards and six clothing categories."
+  ],
+  "manual_label_values": {
+    "действие пользователя": [
+      "не указано",
+      "оставил заказанный размер",
+      "взял другой размер",
+      "обменял",
+      "вернул",
+      "заказал несколько размеров",
+      "другое"
+    ],
+    "зона посадки": [
+      "не указана",
+      "грудь",
+      "талия",
+      "бёдра",
+      "плечи",
+      "рукава",
+      "длина",
+      "другое"
+    ],
+    "информативность": [
+      "низкая",
+      "средняя",
+      "высокая"
+    ],
+    "метка посадки": [
+      "маломерит",
+      "соответствует",
+      "большемерит",
+      "нет сигнала"
+    ],
+    "параметры тела": [
+      "нет",
+      "рост",
+      "грудь",
+      "талия",
+      "бёдра",
+      "другое"
+    ],
+    "согласованность внутри отзыва": [
+      "согласованный",
+      "противоречивый",
+      "неясно"
+    ],
+    "явность сигнала": [
+      "explicit",
+      "implicit",
+      "none"
+    ]
+  },
+  "not_a_gold_standard": true,
+  "rows": 300,
+  "selection": {
+    "algorithm": "FNV-1a deterministic ordering within category",
+    "category_quotas": {
+      "jeans": 70,
+      "jumper": 45,
+      "outerwear": 45,
+      "sports_tshirt": 70,
+      "sweatshirt": 45,
+      "trousers": 25
+    },
+    "rule": "Include all fit-keyword rows available within each quota, then fill with deterministic random-no-keyword rows.",
+    "seed": "20261021",
+    "strata": {
+      "fit_keyword": 89,
+      "random_no_keyword": 211
+    }
+  },
+  "text_length_words": {
+    "max": 182,
+    "mean": 20.456666666666667,
+    "min": 2
+  },
+  "unit": "review"
+}

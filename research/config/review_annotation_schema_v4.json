@@ -1,0 +1,54 @@
+{
+  "schema_version": "review_annotation_v4",
+  "instruction_version": "ANNOTATION_GUIDE_V4",
+  "unit": "review",
+  "primary_key": "review_id",
+  "evidence_scope": ["review_text", "ordered_size"],
+  "targets": {
+    "fit_label": {
+      "values": ["runs_small", "true_to_size", "runs_large", "no_signal"],
+      "constraints": {
+        "true_to_size": "Direct true-to-size statement or explicit usual-size versus ordered-size equality is required.",
+        "no_signal": "Use when direction relative to the size grid or usual size is not established; fits well or sat perfectly alone is insufficient."
+      }
+    },
+    "fit_code": {
+      "mapping": {"runs_small": -1, "true_to_size": 0, "runs_large": 1, "no_signal": null}
+    },
+    "signal_explicitness": {
+      "values": ["explicit", "implicit", "none"],
+      "constraint": "none is required when fit_label is no_signal"
+    },
+    "body_parameters": {
+      "values": ["height", "bust", "waist", "hips", "other"],
+      "max_items": 3
+    },
+    "fit_zones": {
+      "values": ["bust", "waist", "hips", "shoulders", "sleeves", "length", "other"],
+      "max_items": 3
+    },
+    "user_action": {
+      "values": ["not_specified", "kept_ordered_size", "chose_another_size", "exchanged", "returned", "ordered_multiple_sizes", "other"],
+      "constraint": "kept_ordered_size requires an explicit action such as kept, collected, purchased, or wears"
+    },
+    "internal_consistency": {
+      "values": ["consistent", "contradictory", "unclear"],
+      "constraint": "no_signal normally maps to unclear"
+    },
+    "informativeness": {
+      "values": ["low", "medium", "high"],
+      "constraints": {
+        "low": "No usable direction or only a bare fit claim.",
+        "medium": "One independent supporting element.",
+        "high": "Explicit usual-size comparison or at least two independent supporting elements."
+      }
+    }
+  },
+  "label_order": ["fit_label", "signal_explicitness", "body_parameters", "fit_zones", "user_action", "internal_consistency", "informativeness"],
+  "research_role": {
+    "primary_comparison": "equal-weight versus informativeness-weighted aggregation",
+    "separate_ablation": "consistency-aware aggregation",
+    "item_key": "item_group_id",
+    "abstention": "same decision rule for the primary baseline and proposed method"
+  }
+}

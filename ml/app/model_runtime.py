@@ -1,8 +1,11 @@
 import io
+import hashlib
 import os
 import re
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from functools import lru_cache
+from pathlib import Path
 from urllib.parse import urlparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
@@ -15,6 +18,9 @@ TRANSLATION_MODEL = "Helsinki-NLP/opus-mt-ru-en"
 TRANSLATION_REVISION = "fbd6dc73284f95536648512cc21d57f19191961a"
 FIT_MODEL = "MoritzLaurer/multilingual-MiniLMv2-L6-mnli-xnli"
 FIT_REVISION = "0a71e92a985b6e1ad1828cf67ce9c459639c1dca"
+B2_MODEL_SHA256 = "eafa3939077a2a3e5b28b611bea4e330fc6ccd14341e0fe13a260803fdb7891e"
+B2_MODEL_FILENAME = "B2_tfidf_logistic_regression.joblib"
+B2_LABELS = {"no_signal", "runs_large", "runs_small", "true_to_size"}
 FIT_LABELS = {
     "маломерит": "runs_small",
     "идет размер в размер": "true_to_size",
@@ -155,7 +161,16 @@ class OutfitModels:
         return vectors, query_vector
 
 
-class FitModel:
+@dataclass(frozen=True)
+class FitClassification:
+    label: str
+    confidence: float
+    probabilities: dict[str, float]
+
+
+class ZeroShotFitModel:
+    backend = "zero_shot"
+
     def __init__(self) -> None:
         from transformers import pipeline
 
@@ -164,7 +179,7 @@ class FitModel:
             revision=FIT_REVISION, device=-1,
         )
 
-    def classify(self, texts: list[str]) -> list[tuple[str, float]]:
+    def classify(self, texts: list[str]) -> list[FitClassification]:
         if not texts:
             return []
         output = self.classifier(
@@ -176,10 +191,77 @@ class FitModel:
         )
         if isinstance(output, dict):
             output = [output]
-        return [
-            (FIT_LABELS[result["labels"][0]], float(result["scores"][0]))
-            for result in output
-        ]
+        predictions = []
+        for result in output:
+            probabilities = {
+                FIT_LABELS[label]: float(score)
+                for label, score in zip(result["labels"], result["scores"])
+            }
+            winner = max(probabilities, key=probabilities.get)
+            predictions.append(
+                FitClassification(winner, probabilities[winner], probabilities)
+            )
+        return predictions
+
+
+def _default_b2_model_path() -> Path:
+    configured = os.getenv("B2_MODEL_PATH")
+    if configured:
+        return Path(configured).expanduser()
+    container_path = Path("/app/models") / B2_MODEL_FILENAME
+    if container_path.exists():
+        return container_path
+    project_root = Path(__file__).resolve().parents[2]
+    return (
+        project_root
+        / "research/outputs/benchmarks/review_level/2026-10-24/models"
+        / B2_MODEL_FILENAME
+    )
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+class B2FitModel:
+    backend = "b2"
+
+    def __init__(self) -> None:
+        import joblib
+
+        self.path = _default_b2_model_path()
+        if not self.path.is_file():
+            raise RuntimeError(f"Frozen B2 model not found: {self.path}")
+        actual_hash = _sha256(self.path)
+        if actual_hash != B2_MODEL_SHA256:
+            raise RuntimeError(
+                "Frozen B2 model hash mismatch: "
+                f"expected {B2_MODEL_SHA256}, got {actual_hash}"
+            )
+        self.classifier = joblib.load(self.path)
+        classes = set(self.classifier.classes_)
+        if classes != B2_LABELS:
+            raise RuntimeError(f"Frozen B2 model has unexpected classes: {sorted(classes)}")
+
+    def classify(self, texts: list[str]) -> list[FitClassification]:
+        if not texts:
+            return []
+        matrix = self.classifier.predict_proba(texts)
+        classes = list(self.classifier.classes_)
+        predictions = []
+        for values in matrix:
+            probabilities = {
+                label: float(values[classes.index(label)]) for label in classes
+            }
+            winner = max(probabilities, key=probabilities.get)
+            predictions.append(
+                FitClassification(winner, probabilities[winner], probabilities)
+            )
+        return predictions
 
 
 @lru_cache(maxsize=1)
@@ -188,8 +270,16 @@ def get_outfit_models() -> OutfitModels:
 
 
 @lru_cache(maxsize=1)
-def get_fit_model() -> FitModel:
-    return FitModel()
+def get_fit_model() -> ZeroShotFitModel | B2FitModel:
+    backend = os.getenv("FIT_MODEL_BACKEND", "b2").strip().lower()
+    if backend == "b2":
+        return B2FitModel()
+    if backend == "zero_shot":
+        return ZeroShotFitModel()
+    raise RuntimeError(
+        "FIT_MODEL_BACKEND must be either 'b2' or 'zero_shot', "
+        f"got {backend!r}"
+    )
 
 
 def preload_models() -> None:

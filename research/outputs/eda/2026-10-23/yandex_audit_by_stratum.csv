@@ -1,0 +1,3 @@
+selection_stratum,reviews,signal_share,explicit_or_implicit_share,medium_or_high_informativeness_share,median_words
+fit_keyword,89,0.898876404494382,0.898876404494382,0.3707865168539326,20.0
+random_no_keyword,211,0.10900473933649289,0.10900473933649289,0.11848341232227488,14.0

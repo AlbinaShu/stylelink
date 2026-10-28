@@ -1,0 +1,69 @@
+{
+  "auxiliary_consensus_policy": "Keep a consensus value only when both source annotators agree; otherwise store null plus source values and an auxiliary_disagreements flag.",
+  "auxiliary_disagreement_counts": {
+    "body_parameters": 271,
+    "fit_zones": 293,
+    "internal_consistency": 174,
+    "user_action": 710
+  },
+  "dataset_version": "review_level_dataset_v1",
+  "fit_label_counts": {
+    "no_signal": 449,
+    "runs_large": 204,
+    "runs_small": 195,
+    "true_to_size": 352
+  },
+  "informativeness_counts": {
+    "high": 270,
+    "low": 698,
+    "medium": 232
+  },
+  "outputs": {
+    "csv": {
+      "path": "review_level_dataset_v1.csv",
+      "sha256": "c6a8285cd5e287f1a21872277054947dfe8398f451cc38e92e00c62c7e682af9"
+    },
+    "jsonl": {
+      "path": "review_level_dataset_v1.jsonl",
+      "sha256": "b9232e570c5cddb5e9049fc638c865a53d5c34c5d0144286f821c059e65f7aff"
+    }
+  },
+  "primary_label_source_counts": {
+    "adjudication_v1": 849,
+    "annotator_agreement": 351
+  },
+  "primary_targets_complete": true,
+  "rows": 1200,
+  "schema": {
+    "path": "config/review_annotation_schema_v4.json",
+    "sha256": "f695225529fbc1d92be6361cf52024d90779b33c61fbb67470b93ebb0eeb8087"
+  },
+  "schema_version": "review_annotation_v4",
+  "script_sha256": "1e4bb92a915c0f79b8f3b7c07453a8c9784166745bae64eff781ec20b8ae084e",
+  "signal_explicitness_counts": {
+    "explicit": 406,
+    "implicit": 345,
+    "none": 449
+  },
+  "sources": {
+    "annotator_1": {
+      "path": "data/processed/annotations/2026-10-20/annotator_1_normalized_v3.csv",
+      "sha256": "c5354b3e698e8f609a0961e4194a6b650c21842e836765a2a3dc594235e35835"
+    },
+    "annotator_2": {
+      "path": "data/processed/annotations/2026-10-20/annotator_2_normalized_v3.csv",
+      "sha256": "05560bdd0f8046dcc3240489a9e642182510a943d00d1d574fcb0407bf07e27d"
+    },
+    "decision_manifest": {
+      "path": "data/processed/annotations/2026-10-20/adjudication_decisions_ai_v1_manifest.json",
+      "sha256": "dd2e9a21705e803bb7ae03f02dc19390f5dc91a2f4683019bc215c1839c35526"
+    },
+    "decisions": {
+      "path": "data/processed/annotations/2026-10-20/adjudication_decisions_ai_v1.jsonl",
+      "sha256": "72cf72123f190367459a8b52e1bf302a84dc9b6c1877327b8dff3c71a1f22b24"
+    }
+  },
+  "status": "ready_for_split",
+  "unique_item_group_ids": 40,
+  "unique_review_ids": 1200
+}

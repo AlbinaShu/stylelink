@@ -31,6 +31,29 @@ class FakeFitModel:
         ]
 
 
+class FakeB2FitModel:
+    backend = "b2"
+
+    def __init__(self):
+        self.seen_texts = []
+
+    def classify(self, texts):
+        self.seen_texts.extend(texts)
+        return [
+            {
+                "label": "runs_small",
+                "confidence": 0.8,
+                "probabilities": {
+                    "no_signal": 0.1,
+                    "runs_large": 0.05,
+                    "runs_small": 0.8,
+                    "true_to_size": 0.05,
+                },
+            }
+            for _ in texts
+        ]
+
+
 class MlApiTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -233,6 +256,32 @@ class MlApiTest(unittest.TestCase):
             },
         )
         self.assertEqual(response.status_code, 422)
+
+    def test_b2_uses_all_review_texts_and_equal_weight_aggregation(self):
+        model = FakeB2FitModel()
+        with patch("app.size_shift.get_fit_model", return_value=model):
+            response = self.client.post(
+                "/v1/size-shift/predict",
+                json={
+                    "generation_id": self.generation_id,
+                    "products": [
+                        {
+                            "product_id": str(uuid4()),
+                            "reviews": [
+                                {"text": "Прекрасная ткань", "size": "M"},
+                                {"text": "Очень удобная вещь"},
+                            ],
+                        }
+                    ],
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        prediction = response.json()["predictions"][0]
+        self.assertEqual(prediction["status"], "predicted")
+        self.assertEqual(prediction["fit_signal"], "runs_small")
+        self.assertEqual(prediction["num_fit_reviews"], 2)
+        self.assertIn("Прекрасная ткань [ORDERED_SIZE=M]", model.seen_texts)
 
 
 if __name__ == "__main__":

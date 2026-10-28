@@ -1,0 +1,69 @@
+{
+  "batch_size": 16,
+  "benchmark_version": "frozen_transformer_benchmark_v1",
+  "created_on": "2026-10-24",
+  "environment": {
+    "device": "cpu",
+    "numpy": "2.1.3",
+    "platform": "macOS-14.4.1-arm64-arm-64bit",
+    "python": "3.12.6",
+    "scikit_learn": "1.8.0",
+    "torch": "2.11.0",
+    "transformers": "5.8.0"
+  },
+  "fold_counts": {
+    "1": 254,
+    "2": 238,
+    "3": 230,
+    "4": 241,
+    "5": 237
+  },
+  "folds": {
+    "path": "data/processed/splits/2026-10-24/review_group_folds_v1_1.csv",
+    "sha256": "6129e8bff7780217c251ad8d3ad925cb77d3f008f842db0472a597946ff4aac0"
+  },
+  "max_length": 128,
+  "models": {
+    "DistilRuBERT": {
+      "checkpoint": "DeepPavlov/distilrubert-tiny-cased-conversational-v1",
+      "embeddings": "embeddings/DistilRuBERT_cls_embeddings.npz",
+      "head": "models/DistilRuBERT_frozen_head.joblib",
+      "metrics": "DistilRuBERT_metrics.json",
+      "predictions": "DistilRuBERT_oof_predictions.csv"
+    },
+    "ruBERT": {
+      "checkpoint": "DeepPavlov/rubert-base-cased",
+      "embeddings": "embeddings/ruBERT_cls_embeddings.npz",
+      "head": "models/ruBERT_frozen_head.joblib",
+      "metrics": "ruBERT_metrics.json",
+      "predictions": "ruBERT_oof_predictions.csv"
+    }
+  },
+  "outputs": {
+    "DistilRuBERT_metrics.json": "a25aa0059dfe56ecab7ce3c65af7733bf6eb8fb29bdce836a9c6f57a8f9a75c3",
+    "DistilRuBERT_oof_predictions.csv": "ea7ac715c78b1bca652e7e81d7c962e28698af8c549f7b07cc40c47f90b433db",
+    "embeddings/DistilRuBERT_cls_embeddings.npz": "7fb93cf30cc4935ce9259ccb2d4b18497dea9478e9dfe825bc22da6060d73972",
+    "embeddings/ruBERT_cls_embeddings.npz": "ae24f436c92c2ec3125dab28c1c31ae5ed77cdbc5ee62b8a2b4e05d984c70466",
+    "models/DistilRuBERT_frozen_head.joblib": "0d7df40f9c420fae30b77758c1fc8d5d377d59a0ddd421582f195340705bca50",
+    "models/ruBERT_frozen_head.joblib": "3740e102f926e457e95a256f582dd711560960db2cd45a95ea0e6c0d4054f839",
+    "ruBERT_metrics.json": "8181737a3a206cff4b844b833f535522412fc220d870fcd4a4b4f0ae2d4921da",
+    "ruBERT_oof_predictions.csv": "1ab0bce0bad3c608fa8b628d29dc372339343db2c03f7c48d0ca2529305ea393",
+    "transformer_summary.csv": "a3e073585e803aa074eb52d983935d6a8eb61774e9d70c1591cdc85db418e864"
+  },
+  "protocol": {
+    "path": "config/simple_experiment_protocol_v1_1.json",
+    "sha256": "93b24d479beb69ebf47ef3e3b8536c89d5df0fa0458512476d29a18bc2038c00"
+  },
+  "random_seed": 42,
+  "rows": 1200,
+  "script": {
+    "path": "src/models/run_frozen_transformer_benchmark_v1.py",
+    "sha256": "c5e380ce6ea7afd0f75e06955b8327f1ec8b25751ade8f4fc08281fb1120cf6d"
+  },
+  "source": {
+    "path": "data/processed/review_level/2026-10-24/review_level_dataset_v1_1.csv",
+    "sha256": "6940d9609953d767fd50c545881588da2e7036d7e799a48aafd2d848733652ab"
+  },
+  "status": "complete",
+  "training_regime": "frozen_encoder_cls_embeddings_plus_class_balanced_logistic_regression"
+}

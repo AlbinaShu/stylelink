@@ -1,0 +1,44 @@
+{
+  "field_disagreements": {
+    "fit_label": 355,
+    "informativeness": 553,
+    "signal_explicitness": 449
+  },
+  "issue_combinations": {
+    "fit_label": 45,
+    "fit_label+informativeness": 38,
+    "fit_label+signal_explicitness": 152,
+    "fit_label+signal_explicitness+informativeness": 120,
+    "informativeness": 317,
+    "signal_explicitness": 99,
+    "signal_explicitness+informativeness": 78
+  },
+  "priority_counts": {
+    "P1_fit_label": 355,
+    "P2_signal_explicitness": 177,
+    "P3_informativeness": 317
+  },
+  "queue_file": {
+    "path": "adjudication_queue_v1.jsonl",
+    "sha256": "ea1c9163c4159ee7d51116272137df11eaa3f5bcf94c3d73f692e93584c65988"
+  },
+  "queue_rows": 849,
+  "rules_file": {
+    "path": "adjudication_rules_v1.json",
+    "sha256": "8d24b4b024da9a9a7b5ae60fa2ca22aad73b961c5e8912d3ed56985608da327d"
+  },
+  "rules_version": "adjudication_rules_v1",
+  "script_sha256": "bcb511c9968f66cf51dc1decdaecadde4893ef8c432fe025fa4237bd5a085a68",
+  "source_files": {
+    "annotator_1": {
+      "path": "annotator_1_normalized_v3.csv",
+      "sha256": "c5354b3e698e8f609a0961e4194a6b650c21842e836765a2a3dc594235e35835"
+    },
+    "annotator_2": {
+      "path": "annotator_2_normalized_v3.csv",
+      "sha256": "05560bdd0f8046dcc3240489a9e642182510a943d00d1d574fcb0407bf07e27d"
+    }
+  },
+  "source_rows_per_annotator": 1200,
+  "status": "pending_human_adjudication"
+}

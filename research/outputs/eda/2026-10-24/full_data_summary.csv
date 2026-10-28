@@ -1,0 +1,13 @@
+metric,value
+rows,40474.0
+unique_review_ids,40474.0
+duplicate_review_ids,0.0
+item_groups,40.0
+nm_ids,531.0
+reviews_with_text,27384.0
+reviews_without_text,13090.0
+reviews_with_ordered_size,40452.0
+reviews_with_fit_keyword,2979.0
+duplicate_nonempty_texts,2605.0
+median_words_nonempty,8.0
+mean_words_nonempty,11.159801343850424

@@ -1,0 +1,230 @@
+{
+  "fold_summary": {
+    "accuracy": {
+      "mean": 0.775817,
+      "standard_deviation": 0.013717,
+      "values": [
+        0.775591,
+        0.752101,
+        0.773913,
+        0.784232,
+        0.793249
+      ]
+    },
+    "high_f1": {
+      "mean": 0.524908,
+      "standard_deviation": 0.015626,
+      "values": [
+        0.544,
+        0.512397,
+        0.509434,
+        0.54386,
+        0.514851
+      ]
+    },
+    "high_precision": {
+      "mean": 0.504132,
+      "standard_deviation": 0.026179,
+      "values": [
+        0.492754,
+        0.484375,
+        0.482143,
+        0.508197,
+        0.553191
+      ]
+    },
+    "high_recall": {
+      "mean": 0.551478,
+      "standard_deviation": 0.04314,
+      "values": [
+        0.607143,
+        0.54386,
+        0.54,
+        0.584906,
+        0.481481
+      ]
+    },
+    "macro_f1": {
+      "mean": 0.688996,
+      "standard_deviation": 0.010436,
+      "values": [
+        0.697587,
+        0.6731,
+        0.681271,
+        0.701278,
+        0.691742
+      ]
+    },
+    "pr_auc_high": {
+      "mean": 0.524475,
+      "standard_deviation": 0.03002,
+      "values": [
+        0.473148,
+        0.554311,
+        0.508231,
+        0.541702,
+        0.544983
+      ]
+    }
+  },
+  "model": "I1_tfidf_logistic_regression",
+  "overall": {
+    "accuracy": 0.775833,
+    "confusion_matrix": {
+      "labels": [
+        "not_high",
+        "high"
+      ],
+      "values": [
+        [
+          782,
+          148
+        ],
+        [
+          121,
+          149
+        ]
+      ]
+    },
+    "high_f1": 0.525573,
+    "high_precision": 0.501684,
+    "high_recall": 0.551852,
+    "high_support": 270,
+    "macro_f1": 0.68941,
+    "pr_auc_high": 0.51096
+  },
+  "per_fold": {
+    "1": {
+      "accuracy": 0.775591,
+      "confusion_matrix": {
+        "labels": [
+          "not_high",
+          "high"
+        ],
+        "values": [
+          [
+            163,
+            35
+          ],
+          [
+            22,
+            34
+          ]
+        ]
+      },
+      "high_f1": 0.544,
+      "high_precision": 0.492754,
+      "high_recall": 0.607143,
+      "high_support": 56,
+      "macro_f1": 0.697587,
+      "pr_auc_high": 0.473148
+    },
+    "2": {
+      "accuracy": 0.752101,
+      "confusion_matrix": {
+        "labels": [
+          "not_high",
+          "high"
+        ],
+        "values": [
+          [
+            148,
+            33
+          ],
+          [
+            26,
+            31
+          ]
+        ]
+      },
+      "high_f1": 0.512397,
+      "high_precision": 0.484375,
+      "high_recall": 0.54386,
+      "high_support": 57,
+      "macro_f1": 0.6731,
+      "pr_auc_high": 0.554311
+    },
+    "3": {
+      "accuracy": 0.773913,
+      "confusion_matrix": {
+        "labels": [
+          "not_high",
+          "high"
+        ],
+        "values": [
+          [
+            151,
+            29
+          ],
+          [
+            23,
+            27
+          ]
+        ]
+      },
+      "high_f1": 0.509434,
+      "high_precision": 0.482143,
+      "high_recall": 0.54,
+      "high_support": 50,
+      "macro_f1": 0.681271,
+      "pr_auc_high": 0.508231
+    },
+    "4": {
+      "accuracy": 0.784232,
+      "confusion_matrix": {
+        "labels": [
+          "not_high",
+          "high"
+        ],
+        "values": [
+          [
+            158,
+            30
+          ],
+          [
+            22,
+            31
+          ]
+        ]
+      },
+      "high_f1": 0.54386,
+      "high_precision": 0.508197,
+      "high_recall": 0.584906,
+      "high_support": 53,
+      "macro_f1": 0.701278,
+      "pr_auc_high": 0.541702
+    },
+    "5": {
+      "accuracy": 0.793249,
+      "confusion_matrix": {
+        "labels": [
+          "not_high",
+          "high"
+        ],
+        "values": [
+          [
+            162,
+            21
+          ],
+          [
+            28,
+            26
+          ]
+        ]
+      },
+      "high_f1": 0.514851,
+      "high_precision": 0.553191,
+      "high_recall": 0.481481,
+      "high_support": 54,
+      "macro_f1": 0.691742,
+      "pr_auc_high": 0.544983
+    }
+  },
+  "runtime": {
+    "artifact_bytes": 457439,
+    "artifact_sha256": "feb093311c8fbdde8b33ce78a45b84104d87250bd9e891361be1aefb8f3240bf",
+    "final_full_training_seconds": 0.2817812919965945,
+    "inference_seconds": 0.22557770897401497,
+    "training_seconds": 1.2658601669827476
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "freeze_config": {
+    "path": "config/frozen_review_model_v1.json",
+    "sha256": "acddc1e49d8366693dcf83dea07092f4a48b1204dcb98edc3f8d47de9f43e7b8"
+  },
+  "outputs": {
+    "YANDEX_EXTERNAL_AUDIT_REPORT.md": "b40fb98fd4684e508fba2661caed967a7894eb280771db15de75d2b93edfcea3",
+    "yandex_external_audit_metrics.json": "def5124d74950bcb9bcbd82d2f7c473d9bdaff9b9af9b253244b040bdbce3929",
+    "yandex_frozen_B2_predictions.csv": "7e2c61fc86fcb296aaee1b9d58181f0470ffa5c1ab7ccf33be72800c9f415a67"
+  },
+  "source": {
+    "path": "data/processed/external_audit/2026-10-21/completed/2026-10-23/yandex_market_audit_300_labeled_v4.jsonl",
+    "sha256": "074026cc77f0cb5437a81f96fa35cc636781db07ad74584cd5f5584a251faa9e"
+  },
+  "status": "complete_frozen_external_audit"
+}

@@ -1,0 +1,157 @@
+{
+  "artifact_version": "review_group_folds_v1",
+  "cross_validation_protocol": "For round k, fold k is validation and the union of the other four folds is train.",
+  "fold_id_base": 1,
+  "folds": [
+    {
+      "fold_id": 1,
+      "n_train_groups": 32,
+      "n_train_reviews": 906,
+      "n_validation_groups": 8,
+      "n_validation_reviews": 294,
+      "validation_fit_label_counts": {
+        "no_signal": 130,
+        "runs_large": 48,
+        "runs_small": 46,
+        "true_to_size": 70
+      },
+      "validation_fit_label_shares": {
+        "no_signal": 0.442177,
+        "runs_large": 0.163265,
+        "runs_small": 0.156463,
+        "true_to_size": 0.238095
+      },
+      "validation_group_ids": [
+        "174739639",
+        "185183781",
+        "381819078",
+        "541389563",
+        "541699300",
+        "757226987",
+        "778091055",
+        "794847715"
+      ]
+    },
+    {
+      "fold_id": 2,
+      "n_train_groups": 33,
+      "n_train_reviews": 920,
+      "n_validation_groups": 7,
+      "n_validation_reviews": 280,
+      "validation_fit_label_counts": {
+        "no_signal": 105,
+        "runs_large": 68,
+        "runs_small": 29,
+        "true_to_size": 78
+      },
+      "validation_fit_label_shares": {
+        "no_signal": 0.375,
+        "runs_large": 0.242857,
+        "runs_small": 0.103571,
+        "true_to_size": 0.278571
+      },
+      "validation_group_ids": [
+        "211261530",
+        "218618206",
+        "220185184",
+        "408870952",
+        "463140581",
+        "656127251",
+        "2016829365"
+      ]
+    },
+    {
+      "fold_id": 3,
+      "n_train_groups": 32,
+      "n_train_reviews": 1018,
+      "n_validation_groups": 8,
+      "n_validation_reviews": 182,
+      "validation_fit_label_counts": {
+        "no_signal": 53,
+        "runs_large": 29,
+        "runs_small": 35,
+        "true_to_size": 65
+      },
+      "validation_fit_label_shares": {
+        "no_signal": 0.291209,
+        "runs_large": 0.159341,
+        "runs_small": 0.192308,
+        "true_to_size": 0.357143
+      },
+      "validation_group_ids": [
+        "20299166",
+        "63075993",
+        "116550064",
+        "241598125",
+        "370483458",
+        "807500966",
+        "3195188981",
+        "3864116729"
+      ]
+    },
+    {
+      "fold_id": 4,
+      "n_train_groups": 31,
+      "n_train_reviews": 946,
+      "n_validation_groups": 9,
+      "n_validation_reviews": 254,
+      "validation_fit_label_counts": {
+        "no_signal": 84,
+        "runs_large": 39,
+        "runs_small": 50,
+        "true_to_size": 81
+      },
+      "validation_fit_label_shares": {
+        "no_signal": 0.330709,
+        "runs_large": 0.153543,
+        "runs_small": 0.19685,
+        "true_to_size": 0.318898
+      },
+      "validation_group_ids": [
+        "13456309",
+        "151343340",
+        "168629057",
+        "209600505",
+        "311428364",
+        "359853277",
+        "468325164",
+        "503948731",
+        "512008395"
+      ]
+    },
+    {
+      "fold_id": 5,
+      "n_train_groups": 32,
+      "n_train_reviews": 1010,
+      "n_validation_groups": 8,
+      "n_validation_reviews": 190,
+      "validation_fit_label_counts": {
+        "no_signal": 77,
+        "runs_large": 20,
+        "runs_small": 35,
+        "true_to_size": 58
+      },
+      "validation_fit_label_shares": {
+        "no_signal": 0.405263,
+        "runs_large": 0.105263,
+        "runs_small": 0.184211,
+        "true_to_size": 0.305263
+      },
+      "validation_group_ids": [
+        "5244293",
+        "120046718",
+        "187325306",
+        "208538786",
+        "320743306",
+        "465849214",
+        "948936376",
+        "2216330140"
+      ]
+    }
+  ],
+  "group_column": "item_group_id",
+  "n_splits": 5,
+  "random_state": 42,
+  "shuffle": true,
+  "stratification_target": "fit_label"
+}

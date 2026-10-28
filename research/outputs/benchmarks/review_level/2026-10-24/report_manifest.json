@@ -1,0 +1,38 @@
+{
+  "report": "outputs/benchmarks/review_level/2026-10-24/BENCHMARK_REPORT.md",
+  "sha256": "e132ed7b675f79908d77e04d6c07c81caf80b2b532a7a243d0613affdfbd4f36",
+  "figures": {
+    "comparison": {
+      "path": "outputs/benchmarks/review_level/2026-10-24/figures/model_metric_comparison.png",
+      "sha256": "176dc7d8e14a0117194bd231f9d686ce5a8bbfcc74ec21f564daede8a01f7617"
+    },
+    "reliability": {
+      "path": "outputs/benchmarks/review_level/2026-10-24/figures/B2_reliability.png",
+      "sha256": "c2a3d0d45d220b42e65c351145f6fd2c3043bb829d41da4ff0207a6e35312b3c"
+    },
+    "threshold": {
+      "path": "outputs/benchmarks/review_level/2026-10-24/figures/B2_threshold_coverage.png",
+      "sha256": "edee51b1803eb10543c5b80a884a5a1fb0738013aee65e71fd1e9523e9c43be3"
+    },
+    "confusion_B0_always_no_signal": {
+      "path": "outputs/benchmarks/review_level/2026-10-24/figures/B0_always_no_signal_confusion_matrix.png",
+      "sha256": "5ab1e2b07275b9ef5f74e7eccb5aa61a46994f9f9f78736ee9c9ce3f327e7fe3"
+    },
+    "confusion_B1_dictionary_rules": {
+      "path": "outputs/benchmarks/review_level/2026-10-24/figures/B1_dictionary_rules_confusion_matrix.png",
+      "sha256": "41ba68dedbaface53681c8b2178f99422735b0509790a18b1d5d3275418e4ccb"
+    },
+    "confusion_B2_tfidf_logistic_regression": {
+      "path": "outputs/benchmarks/review_level/2026-10-24/figures/B2_tfidf_logistic_regression_confusion_matrix.png",
+      "sha256": "96bd795d1eebeaccbd80ec1a288250fbccb26d755ce66898ce3830f9123bdcd4"
+    },
+    "confusion_ruBERT": {
+      "path": "outputs/benchmarks/review_level/2026-10-24/figures/ruBERT_confusion_matrix.png",
+      "sha256": "93040ab814011e76809c6ee0cec251c6e35f3969dfd82fc4a3a5aad3a882518a"
+    },
+    "confusion_DistilRuBERT": {
+      "path": "outputs/benchmarks/review_level/2026-10-24/figures/DistilRuBERT_confusion_matrix.png",
+      "sha256": "2dc03fff60308783cbb8a193502aa707d15e6499a5d69082725c25cc3594267b"
+    }
+  }
+}

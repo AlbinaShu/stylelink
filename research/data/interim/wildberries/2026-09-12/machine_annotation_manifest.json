@@ -1,0 +1,27 @@
+{
+  "counts": {
+    "eligible_for_text_model": 27384,
+    "records": 40474,
+    "with_ordered_size": 40452,
+    "with_text": 27384,
+    "without_text": 13090
+  },
+  "created_at_utc": "2026-10-20T15:04:44.314191+00:00",
+  "output_path": "data/interim/wildberries/2026-09-12/reviews_for_model_annotation_v3.jsonl",
+  "rules": [
+    "All source reviews are retained for coverage accounting.",
+    "Rows without review_text are marked skipped_empty_text.",
+    "Marketplace signals are kept under source_signals and are not Gold labels.",
+    "Prediction fields follow review_annotation_v3 and start empty.",
+    "Consistency is retained for a separate ablation, not the primary weighting comparison."
+  ],
+  "schema_path": "config/review_annotation_schema_v3.json",
+  "schema_version": "review_annotation_v3",
+  "sha256": {
+    "output": "cf948c51c34599e1e33688405591986cbd2fe5db7969d6345bd99ffab9738eac",
+    "schema": "2d44d4d0854e45070c966147e874d605215f1ad1492025f1ca3f9166cf0b40f7",
+    "source": "7930476827410b83022761cbbf65cc1ffc8aa94c858f4cd6a5be8e874b505702"
+  },
+  "source_path": "data/raw/wildberries/2026-09-12/reviews.jsonl",
+  "source_snapshot": "2026-09-12"
+}
