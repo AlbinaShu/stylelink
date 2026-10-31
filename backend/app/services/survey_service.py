@@ -22,19 +22,26 @@ class SurveyService:
                 Survey.user_id == user_id,
                 Survey.status.notin_(["answered", "expired"]),
                 Survey.expires_at > now,
+                select(SurveyItem.id).where(
+                    SurveyItem.survey_id == Survey.id, SurveyItem.recommended_size.is_not(None),
+                    func.trim(SurveyItem.recommended_size) != "",
+                    SurveyItem.selected_size.is_distinct_from("not_applicable"),
+                ).exists(),
             ).order_by(Survey.created_at.desc()).limit(1)
         )
         return result.scalar_one_or_none()
 
     @staticmethod
     async def get_items(session, survey, offset, limit):
-        count_result = await session.execute(select(func.count(SurveyItem.id)).where(SurveyItem.survey_id == survey.id))
+        eligible = (SurveyItem.survey_id == survey.id, SurveyItem.recommended_size.is_not(None),
+                    func.trim(SurveyItem.recommended_size) != "", SurveyItem.selected_size.is_distinct_from("not_applicable"))
+        count_result = await session.execute(select(func.count(SurveyItem.id)).where(*eligible))
         total = count_result.scalar_one()
         result = await session.execute(
             select(SurveyItem, Product, SurveyAnswer)
             .join(Product, Product.id == SurveyItem.product_id)
             .outerjoin(SurveyAnswer, (SurveyAnswer.survey_id == SurveyItem.survey_id) & (SurveyAnswer.product_id == SurveyItem.product_id))
-            .where(SurveyItem.survey_id == survey.id)
+            .where(*eligible)
             .order_by(SurveyItem.clicked_at.desc()).offset(offset).limit(limit)
         )
         fields = set(SurveyAnswerItem.model_fields) - {"product_id"}
@@ -44,7 +51,7 @@ class SurveyService:
             if saved and answer.fit_scope != "recommended_only":
                 # Do not relabel a historical assessment of another size as the recommendation.
                 saved.update(fit_scope="recommended_only", fit_result=None, tried_size=None,
-                             action=None, return_reason=None, return_reason_text=None)
+                             action=None, return_reasons=None, return_reason=None, return_reason_text=None)
             items.append({
                 "product_id": product.id, "name": product.name, "image_url": product.image_url,
                 "recommended_size": item.recommended_size, "selected_size": item.selected_size,
@@ -77,6 +84,8 @@ class SurveyService:
         existing = {answer.product_id: answer for answer in result.scalars().all()}
         for answer in answers:
             recommended = allowed[answer.product_id].recommended_size
+            if not recommended or not recommended.strip() or allowed[answer.product_id].selected_size == "not_applicable":
+                raise ValueError("Items without a recommended size are excluded from this survey")
             if answer.order_placed == "yes":
                 if recommended is not None and answer.fit_result is None:
                     raise ValueError("Please assess the saved recommended size")

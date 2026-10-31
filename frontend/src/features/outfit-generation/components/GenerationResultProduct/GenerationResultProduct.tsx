@@ -112,27 +112,6 @@ function GenerationResultProduct({
 
   const recommendedSize = isAccessory ? null : (item.recommended_size ?? shoeSizeFromAvailable);
   const initialSize = recommendedSize && item.available_sizes?.includes(recommendedSize) ? recommendedSize : null;
-  const fitViewRef = useVisibleOnce<HTMLDivElement>(item.id + ':fit', () => {
-    if (!showFit || !item.product_id) return;
-    void sendExplanationView({
-      session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
-      outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
-        initial_selected_size: initialSize, explanation_visible: true }],
-    }).catch(() => undefined);
-  });
-  const viewRef = useVisibleOnce<HTMLDivElement>(item.id, () => {
-    if (!item.product_id) return;
-    void sendRecommendationView({
-      session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
-      outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
-        initial_selected_size: initialSize, explanation_visible: showFit && isHalfVisible(fitViewRef.current) }],
-    }).catch(() => undefined);
-  });
-
-  const selectionKey = item.id + ':' + initialSize;
-  const [selection, setSelection] = useState({ key: selectionKey, value: initialSize });
-  const selectedSize = selection.key === selectionKey ? selection.value : initialSize;
-
   const fitConfig = item.fit?.fit_signal != null ? FIT_CONFIG[item.fit.fit_signal] : undefined;
   const isInsufficientFit = item.fit?.status === 'insufficient_evidence';
   const fitTitle = isInsufficientFit
@@ -140,6 +119,30 @@ function GenerationResultProduct({
     : (fitConfig?.label ?? 'Есть информация о посадке');
   const confidenceLabel = getConfidenceLabel(item.fit?.confidence_level);
   const reviewsLabel = item.fit ? getReviewsLabel(item.fit.num_reviews) : null;
+
+
+  const fitViewRef = useVisibleOnce<HTMLDivElement>(item.id + ':fit', () => {
+    if (!showFit || !item.product_id) return;
+    void sendExplanationView({
+      session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
+      outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
+        initial_selected_size: initialSize, explanation_visible: true, explanation_summary: 'По отзывам: ' + fitTitle }],
+    }).catch(() => undefined);
+  });
+  const viewRef = useVisibleOnce<HTMLDivElement>(item.id, () => {
+    if (!item.product_id) return;
+    void sendRecommendationView({
+      session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
+      outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
+        initial_selected_size: initialSize, explanation_visible: showFit && isHalfVisible(fitViewRef.current),
+        explanation_summary: showFit && isHalfVisible(fitViewRef.current) ? 'По отзывам: ' + fitTitle : null }],
+    }).catch(() => undefined);
+  });
+
+  const selectionKey = item.id + ':' + initialSize;
+  const [selection, setSelection] = useState({ key: selectionKey, value: initialSize });
+  const selectedSize = selection.key === selectionKey ? selection.value : initialSize;
+
 
   const changeSize = (size: string) => {
     const previousSize = selectedSize;
@@ -168,6 +171,9 @@ function GenerationResultProduct({
       session_id: getSessionId(),
       product_id: item.product_id,
       tooltip_type: 'fit',
+      explanation_summary: 'По отзывам: ' + fitTitle,
+      explanation_text: item.fit?.explanation ?? null,
+      explanation_meta: confidenceLabel ? `${confidenceLabel} · ${reviewsLabel}` : reviewsLabel,
       outfit_id: outfitId,
       outfit_item_id: item.id,
       timestamp: new Date().toISOString(),

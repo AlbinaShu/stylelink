@@ -16,8 +16,8 @@ test('a multi-size order assesses the recommendation without asking tried size',
   assert.equal(isSurveyAnswerValid({ ...base, sizes_ordered: '2', fit_result: 'perfect', action: 'kept' }), true);
   assert.equal(isSurveyAnswerValid({ ...base, sizes_ordered: '3+', fit_result: 'not_ordered' }), true);
 });
-test('an item without a recommendation collects the number of ordered sizes', () => {
-  assert.equal(validateSurveyAnswer({ ...base, sizes_ordered: '2' }, null), true);
+test('an item without a recommendation cannot enter the survey', () => {
+  assert.equal(validateSurveyAnswer({ ...base, sizes_ordered: '2' }, null), false);
 });
 test('unknown fit can independently report a quality return', () => {
   assert.equal(isSurveyAnswerValid({ ...base, fit_result: 'unknown', tried_size: 'recommended', action: 'returned', return_reason: 'quality' }), true);
@@ -34,4 +34,22 @@ test('visibility counts only half-visible blocks in the active tab', () => {
   assert.equal(isHalfVisible(element(50, 150)), true);
   globalThis.document.visibilityState = 'hidden';
   assert.equal(isHalfVisible(element(0, 100)), false);
+});
+
+
+test('no order with multiple cart sizes requires whether the recommendation was included', () => {
+  for (const order_placed of ['no', 'pending']) {
+    for (const sizes_in_cart of ['1', '2', '3+']) {
+      const value = { product_id: 'product', order_placed, added_to_cart: 'yes', sizes_in_cart };
+      assert.equal(isSurveyAnswerValid(value), false);
+      assert.equal(isSurveyAnswerValid({ ...value, cart_size: 'recommended' }), true);
+      assert.equal(isSurveyAnswerValid({ ...value, cart_size: 'other' }), true);
+    }
+  }
+});
+
+test('a return requires at least one reason and accepts several', () => {
+  const value = { ...base, fit_result: 'small', action: 'returned' };
+  assert.equal(isSurveyAnswerValid({ ...value, return_reasons: [] }), false);
+  assert.equal(isSurveyAnswerValid({ ...value, return_reasons: ['size', 'quality'] }), true);
 });

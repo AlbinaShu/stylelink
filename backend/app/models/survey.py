@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -281,7 +281,9 @@ class SurveyAnswer(Base):
         nullable=True,
     )
 
-    # size / quality / color / other
+    return_reasons: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
+
+    # Legacy single reason; new clients use return_reasons.
     return_reason: Mapped[str | None] = mapped_column(
         String(20),
         nullable=True,

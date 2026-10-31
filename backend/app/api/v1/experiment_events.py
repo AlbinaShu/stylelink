@@ -80,7 +80,7 @@ async def save_recommendation_event(data, current_user, session, event_type):
         payload={
             "device_type": data.device_type,
             "outfitItems": snapshots,
-            "schema_version": 2,
+            "schema_version": 3,
         },
         current_user=current_user,
         session=session,
@@ -99,6 +99,11 @@ async def tooltip_open(
         payload={
             "product_id": data.product_id,
             "tooltip_type": data.tooltip_type,
+            "explanation_summary": data.explanation_summary,
+            "explanation_text": data.explanation_text,
+            "explanation_meta": data.explanation_meta,
+            "explanation_stage": "details",
+            "schema_version": 3,
             "outfit_id": data.outfit_id,
             "outfit_item_id": data.outfit_item_id,
         },

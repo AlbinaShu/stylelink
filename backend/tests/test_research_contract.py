@@ -236,7 +236,7 @@ def test_migration_has_one_head():
     from alembic.script import ScriptDirectory
     config = Config()
     config.set_main_option("script_location", "alembic")
-    assert ScriptDirectory.from_config(config).get_heads() == ["f6a1c2d3e4b5"]
+    assert ScriptDirectory.from_config(config).get_heads() == ["a7b8c9d0e1f2"]
 
 def test_recommended_size_not_ordered_is_not_a_fit_failure():
     value = answer(sizes_ordered="2", fit_result="not_ordered", action="returned")
@@ -268,10 +268,11 @@ async def test_item_without_recommendation_keeps_order_count_only(db):
     item = (await db.execute(select(SurveyItem))).scalar_one()
     item.recommended_size = None
     await db.commit()
-    await SurveyService.save_answers(db, survey, [answer(product_id=product.id, fit_result=None)])
-    row = (await db.execute(select(SurveyAnswer))).scalar_one()
-    assert row.sizes_ordered == "1" and row.fit_result is None
-    assert not survey_outcomes(row)["fit_evaluable"]
+    items, total = await SurveyService.get_items(db, survey, 0, 10)
+    assert items == [] and total == 0
+    assert await SurveyService.get_active_survey_for_user(db, survey.user_id) is None
+    with pytest.raises(ValueError, match="without a recommended size"):
+        await SurveyService.save_answers(db, survey, [answer(product_id=product.id, fit_result=None)])
 
 
 @pytest.mark.asyncio
@@ -286,3 +287,81 @@ async def test_legacy_answer_is_not_prefilled_as_a_recommended_size_assessment(d
     assert items[0]["answer"]["fit_result"] is None
     assert items[0]["answer"]["fit_scope"] == "recommended_only"
     assert row.fit_result == "perfect" and row.fit_scope == "legacy_selected"
+
+
+@pytest.mark.parametrize("order", ["no", "pending"])
+@pytest.mark.parametrize("count", ["1", "2", "3+"])
+@pytest.mark.asyncio
+async def test_cart_answers_save_and_reload_without_a_fit(db, order, count):
+    _, product, survey = await seed(db)
+    value = answer(product_id=product.id, order_placed=order, added_to_cart="yes",
+                   sizes_in_cart=count, cart_size="recommended")
+    await SurveyService.save_answers(db, survey, [value])
+    items, _ = await SurveyService.get_items(db, survey, 0, 10)
+    saved = items[0]["answer"]
+    assert saved["added_to_cart"] == "yes" and saved["sizes_in_cart"] == count
+    assert saved["cart_size"] == "recommended"
+    assert saved["fit_result"] is None and saved["fit_scope"] == "recommended_only"
+
+
+def test_multi_size_cart_requires_recommendation_membership():
+    with pytest.raises(ValidationError, match="cart_size"):
+        answer(order_placed="pending", added_to_cart="yes", sizes_in_cart="2")
+
+
+@pytest.mark.asyncio
+async def test_multiple_return_reasons_survive_save_reload_and_branch_change(db):
+    _, product, survey = await seed(db)
+    value = answer(product_id=product.id, fit_result="small", action="returned",
+                   return_reasons=["size", "quality", "other", "size"], return_reason_text="Ткань")
+    await SurveyService.save_answers(db, survey, [value])
+    items, _ = await SurveyService.get_items(db, survey, 0, 10)
+    assert items[0]["answer"]["return_reasons"] == ["size", "quality", "other"]
+    assert items[0]["answer"]["return_reason_text"] == "Ткань"
+    assert items[0]["answer"]["return_reason"] is None
+    await SurveyService.save_answers(db, survey, [answer(product_id=product.id, fit_result="perfect", action="kept",
+        return_reasons=["size", "quality"])])
+    items, _ = await SurveyService.get_items(db, survey, 0, 10)
+    assert items[0]["answer"]["return_reasons"] is None
+
+
+@pytest.mark.asyncio
+async def test_only_sizeless_clicks_do_not_create_an_invitation(db):
+    user, product, survey = await seed(db)
+    click = (await db.execute(select(SurveyBuyClick))).scalar_one()
+    click.recommended_size = None
+    click.selected_size = "not_applicable"
+    click.clicked_at = datetime.now(timezone.utc) - timedelta(days=40)
+    await db.commit()
+    assert await SurveyGenerationService.generate_ready_surveys(db) == []
+
+
+@pytest.mark.asyncio
+async def test_explanation_event_preserves_visible_summary(db):
+    from app.api.v1.experiment_events import router
+    from app.api.deps import get_current_user
+    from app.core.database import get_db
+    from app.models import Generation, Outfit, OutfitItem as ModelItem
+    user, product, _ = await seed(db)
+    generation = Generation(user_id=user.id, status="completed")
+    db.add(generation); await db.flush()
+    outfit = Outfit(generation_id=generation.id, title="Test", occasion="office", style="casual", total_price=1000)
+    item = ModelItem(product_id=product.id, category="top", brand="Test", name="Test", price=1000,
+                     marketplace="test", url="https://example.org", available_sizes=["M"], recommended_size="M")
+    outfit.items = [item]; db.add(outfit); await db.commit()
+    app = FastAPI(); app.include_router(router)
+    async def override_db(): yield db
+    app.dependency_overrides[get_db] = override_db
+    app.dependency_overrides[get_current_user] = lambda: user
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post("/explanation-view", json={"session_id":"view", "timestamp":datetime.now(timezone.utc).isoformat(),
+            "device_type":"desktop", "outfitItems":[{"product_id":str(product.id), "outfit_id":str(outfit.id),
+            "outfit_item_id":str(item.id), "initial_selected_size":"M", "explanation_visible":True, "explanation_summary":"По отзывам: Маломерит"}]})
+        assert response.status_code == 200, response.text
+        response = await client.post("/tooltip-open", json={"session_id":"view", "timestamp":datetime.now(timezone.utc).isoformat(),
+            "product_id":str(product.id), "outfit_id":str(outfit.id), "outfit_item_id":str(item.id), "tooltip_type":"fit",
+            "explanation_summary":"По отзывам: Маломерит", "explanation_text":"Советуем размер больше", "explanation_meta":"35 отзывов"})
+        assert response.status_code == 200, response.text
+    rows = (await db.execute(select(ExperimentEvent).order_by(ExperimentEvent.created_at))).scalars().all()
+    assert rows[0].payload["outfitItems"][0]["explanation_summary"] == "По отзывам: Маломерит"
+    assert rows[1].payload["explanation_text"] == "Советуем размер больше"

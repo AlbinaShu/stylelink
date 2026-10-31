@@ -49,7 +49,7 @@ class SurveyGenerationService:
             for start, end, group in click_periods(clicks, cls.collection_period()):
                 first_by_product = {}
                 for click in group:
-                    if click.product_id not in seen_products:
+                    if click.recommended_size and click.recommended_size.strip() and click.selected_size != "not_applicable" and click.product_id not in seen_products:
                         seen_products.add(click.product_id)
                         first_by_product[click.product_id] = click
                 if end > now:

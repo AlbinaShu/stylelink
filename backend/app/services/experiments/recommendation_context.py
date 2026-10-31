@@ -83,5 +83,9 @@ async def recommendation_snapshots(session: AsyncSession, user_id: UUID, items):
         row = rows.get(client.outfit_item_id)
         if row is None or row[0].product_id != client.product_id or row[1].id != client.outfit_id:
             raise ValueError("Displayed item does not belong to this user/outfit/product")
-        snapshots.append(snapshot_item(*row, client.initial_selected_size, client.explanation_visible))
+        value = snapshot_item(*row, client.initial_selected_size, client.explanation_visible)
+        value["explanation_summary"] = client.explanation_summary if client.explanation_visible else None
+        value["explanation_stage"] = "summary" if client.explanation_visible else None
+        value["content_source"] = "client_rendered"
+        snapshots.append(value)
     return snapshots

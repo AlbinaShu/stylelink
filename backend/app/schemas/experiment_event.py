@@ -10,6 +10,7 @@ class OutfitItem(BaseModel):
     outfit_item_id: UUID
     initial_selected_size: str | None = None
     explanation_visible: bool = False
+    explanation_summary: str | None = Field(default=None, max_length=2000)
 
 
 class RecommendationViewEvent(BaseModel):
@@ -25,6 +26,9 @@ class TooltipOpenEvent(BaseModel):
     outfit_id: UUID | None = None
     outfit_item_id: UUID | None = None
     tooltip_type: str = Field(min_length=1)
+    explanation_summary: str | None = Field(default=None, max_length=2000)
+    explanation_text: str | None = Field(default=None, max_length=20000)
+    explanation_meta: str | None = Field(default=None, max_length=2000)
     timestamp: datetime
 
 

@@ -14,6 +14,7 @@ import type {
   ISurveyAnswerItem,
   ISurveyItem,
   ISurveyProgress,
+  ReturnReason,
 } from '../../types';
 import { isSurveyAnswerValid } from '../../configurations/survey-validation';
 import SurveyProduct from '../SurveyProduct/SurveyProduct';
@@ -108,7 +109,7 @@ function SurveyForm({
   const updateDraft = (
     productId: string,
     key: keyof ISurveyAnswerItem,
-    value: string | null,
+    value: string | ReturnReason[] | null,
   ) => {
     setSaved((current) => { const next = { ...current }; delete next[productId]; return next; });
     setDrafts((current) => {
@@ -126,6 +127,7 @@ function SurveyForm({
       if (key === 'order_placed') {
         next = {
           product_id: productId,
+          fit_scope: 'recommended_only',
           order_placed:
             value as ISurveyAnswerItem['order_placed'],
         };
@@ -159,6 +161,7 @@ function SurveyForm({
       ) {
         delete next.tried_size;
         delete next.action;
+        delete next.return_reasons;
         delete next.return_reason;
         delete next.return_reason_text;
       }
@@ -167,13 +170,16 @@ function SurveyForm({
         key === 'action' &&
         value !== 'returned'
       ) {
+        delete next.return_reasons;
         delete next.return_reason;
         delete next.return_reason_text;
       }
 
+      if (key === 'return_reasons') delete next.return_reason;
+
       if (
-        key === 'return_reason' &&
-        value !== 'other'
+        key === 'return_reasons' &&
+        (!Array.isArray(value) || !value.includes('other'))
       ) {
         delete next.return_reason_text;
       }
@@ -188,7 +194,7 @@ function SurveyForm({
       const nextLastQuestion = {
         productId,
         key,
-        value,
+        value: Array.isArray(value) ? value.join(',') : value,
       };
 
       setLastQuestion(nextLastQuestion);
@@ -225,6 +231,7 @@ function SurveyForm({
     }));
 
     setActiveKey([]);
+    void message.info("Ответ подготовлен. Нажмите «Отправить», чтобы сохранить его в системе.");
   };
 
   const collapseItems = items.map((item) => {

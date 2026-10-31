@@ -38,24 +38,29 @@ class SurveyAnswerItem(BaseModel):
     fit_result: Literal["perfect", "small", "large", "unknown", "in_transit", "not_tried", "not_ordered"] | None = None
     tried_size: Literal["recommended", "other"] | None = None
     action: Literal["kept", "returned", "undecided"] | None = None
+    return_reasons: list[Literal["size", "quality", "color", "other"]] | None = None
     return_reason: Literal["size", "quality", "color", "other"] | None = None
     return_reason_text: str | None = Field(default=None, max_length=2000)
 
     @model_validator(mode="after")
     def validate_branches(self):
+        if self.return_reasons is None and self.return_reason is not None:
+            self.return_reasons = [self.return_reason]
+        if self.return_reasons is not None:
+            self.return_reasons = list(dict.fromkeys(self.return_reasons))
         if self.order_placed != "yes":
             if self.added_to_cart is None:
                 raise ValueError("added_to_cart is required when no order was placed")
             if self.added_to_cart == "yes":
                 if self.sizes_in_cart is None:
                     raise ValueError("sizes_in_cart is required")
-                if self.sizes_in_cart == "1" and self.cart_size is None:
-                    raise ValueError("cart_size is required for one size in cart")
+                if self.cart_size is None:
+                    raise ValueError("cart_size must indicate whether the recommendation is in the cart")
             else:
                 self.sizes_in_cart = self.cart_size = None
             self.sizes_ordered = self.purchased_size = None
             self.fit_result = self.tried_size = self.action = None
-            self.return_reason = self.return_reason_text = None
+            self.return_reasons = self.return_reason = self.return_reason_text = None
             return self
 
         self.added_to_cart = self.sizes_in_cart = self.cart_size = None
@@ -67,19 +72,21 @@ class SurveyAnswerItem(BaseModel):
         )
         # The service checks whether a saved recommendation exists for this item.
         if self.fit_result is None or self.fit_result in {"in_transit", "not_ordered"}:
-            self.tried_size = self.action = self.return_reason = self.return_reason_text = None
+            self.tried_size = self.action = self.return_reasons = self.return_reason = self.return_reason_text = None
             return self
         if self.tried_size not in {None, "recommended"}:
             raise ValueError("Only the recommended size is assessed in this survey")
         self.tried_size = None if self.fit_result == "not_tried" else "recommended"
         if self.action is None:
             raise ValueError("action is required for a received product")
-        if self.action == "returned" and self.return_reason is None:
-            raise ValueError("return_reason is required for a return")
+        if self.action == "returned" and not self.return_reasons:
+            raise ValueError("return_reasons is required for a return")
         if self.action != "returned":
-            self.return_reason = self.return_reason_text = None
-        elif self.return_reason != "other":
-            self.return_reason_text = None
+            self.return_reasons = self.return_reason = self.return_reason_text = None
+        else:
+            self.return_reason = self.return_reasons[0] if len(self.return_reasons) == 1 else None
+            if "other" not in self.return_reasons:
+                self.return_reason_text = None
         return self
 
 

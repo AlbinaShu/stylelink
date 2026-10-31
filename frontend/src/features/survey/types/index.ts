@@ -43,6 +43,7 @@ export interface ISurveyAnswerItem {
   fit_result?: FitResult | null;
   tried_size?: SizeChoice | null;
   action?: SurveyAction | null;
+  return_reasons?: ReturnReason[] | null;
   return_reason?: ReturnReason | null;
   return_reason_text?: string | null;
 }

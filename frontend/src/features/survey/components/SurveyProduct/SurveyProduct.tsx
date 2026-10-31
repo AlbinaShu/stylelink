@@ -1,5 +1,5 @@
-import { Button, Input } from 'antd';
-import type { ISurveyAnswerItem } from '../../types';
+import { Button, Checkbox, Input, Typography } from 'antd';
+import type { ISurveyAnswerItem, ReturnReason } from '../../types';
 import {
     ACTION_OPTIONS,
     COUNT_OPTIONS,
@@ -17,7 +17,7 @@ interface ISurveyProductProps {
     recommendedSize: string | null;
     onChange: (
         key: keyof ISurveyAnswerItem,
-        value: string | null,
+        value: string | ReturnReason[] | null,
     ) => void;
     onSave: () => void;
 }
@@ -67,11 +67,11 @@ function SurveyProduct({
                                 onChange={(value) => onChange('sizes_in_cart', value)}
                             />
 
-                            {answer.sizes_in_cart === '1' && (
+                            {answer.sizes_in_cart && (
                                 <SurveyQuestion
-                                    title="Какой размер был в корзине?"
+                                    title={answer.sizes_in_cart === '1' ? 'Какой размер был в корзине?' : 'Среди добавленных размеров был рекомендованный размер ' + recommendedSize + '?'}
                                     value={answer.cart_size}
-                                    options={SIZE_CHOICE_OPTIONS}
+                                    options={answer.sizes_in_cart === '1' ? SIZE_CHOICE_OPTIONS : [{value: 'recommended', label: 'Да'}, {value: 'other', label: 'Нет'}]}
                                     onChange={(value) => onChange('cart_size', value)}
                                 />
                             )}
@@ -101,16 +101,16 @@ function SurveyProduct({
 
             {answer.action === 'returned' && (
                 <>
-                    <SurveyQuestion
-                        title={'Почему вернули рекомендованный размер ' + recommendedSize + '?'}
-                        value={answer.return_reason}
-                        options={RETURN_REASON_OPTIONS}
-                        onChange={(value) =>
-                            onChange('return_reason', value)
-                        }
+                    <Typography.Text strong>
+                        Почему вернули рекомендованный размер {recommendedSize}? Можно выбрать несколько причин.
+                    </Typography.Text>
+                    <Checkbox.Group
+                        options={[...RETURN_REASON_OPTIONS]}
+                        value={answer.return_reasons ?? (answer.return_reason ? [answer.return_reason] : [])}
+                        onChange={(values) => onChange('return_reasons', values)}
                     />
 
-                    {answer.return_reason === 'other' && (
+                    {(answer.return_reasons?.includes('other') || answer.return_reason === 'other') && (
                         <Input.TextArea
                             maxLength={2000}
                             rows={3}

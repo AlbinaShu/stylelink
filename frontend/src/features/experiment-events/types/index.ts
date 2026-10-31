@@ -8,6 +8,7 @@ export interface IRecommendationViewEvent {
     outfit_item_id: string;
     initial_selected_size: string | null;
     explanation_visible: boolean;
+    explanation_summary?: string | null;
   }>;
 }
 
@@ -17,6 +18,9 @@ export interface ITooltipOpenEvent {
   outfit_id?: string;
   outfit_item_id?: string;
   tooltip_type: string;
+  explanation_summary?: string | null;
+  explanation_text?: string | null;
+  explanation_meta?: string | null;
   timestamp: string;
 }
 
