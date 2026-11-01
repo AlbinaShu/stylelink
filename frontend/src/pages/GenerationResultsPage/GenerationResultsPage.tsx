@@ -20,6 +20,7 @@ import type {
     IGeneration,
     IOutfit,
 } from '../../features/outfit-generation/types';
+import GenerationFeedback from '../../features/feedback/components/GenerationFeedback/GenerationFeedback';
 import GenerationResults from '../../features/outfit-generation/components/GenerationResults/GenerationResults';
 import AppBottomNav from '../../shared/ui/AppBottomNav/AppBottomNav';
 import AppHeader from '../../shared/ui/AppHeader/AppHeader';
@@ -128,10 +129,12 @@ function GenerationResultsPage() {
                 {!isLoading &&
                     !error &&
                     outfits.length > 0 && (
-                        <GenerationResults
-                            outfits={outfits}
-                            shoeSize={generation?.shoe_size ?? null}
-                        />
+                        <GenerationFeedback key={generationId} generationId={generationId}>
+                            <GenerationResults
+                                outfits={outfits}
+                                shoeSize={generation?.shoe_size ?? null}
+                            />
+                        </GenerationFeedback>
                     )}
             </main>
 

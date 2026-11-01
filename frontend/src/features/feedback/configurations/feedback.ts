@@ -1,0 +1,1 @@
+export const SERVICE_INVITATION_DELAY_MS = 12_000;

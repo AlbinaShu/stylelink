@@ -236,7 +236,7 @@ def test_migration_has_one_head():
     from alembic.script import ScriptDirectory
     config = Config()
     config.set_main_option("script_location", "alembic")
-    assert ScriptDirectory.from_config(config).get_heads() == ["a7b8c9d0e1f2"]
+    assert ScriptDirectory.from_config(config).get_heads() == ["b8c9d0e1f2a3"]
 
 def test_recommended_size_not_ordered_is_not_a_fit_failure():
     value = answer(sizes_ordered="2", fit_result="not_ordered", action="returned")
