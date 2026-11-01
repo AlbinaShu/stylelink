@@ -125,6 +125,9 @@ function GenerationResultProduct({
   const fitTitle = isInsufficientFit
     ? 'Недостаточно данных о посадке'
     : (fitConfig?.label ?? 'Есть информация о посадке');
+  const fitExplanation = isInsufficientFit
+    ? `${item.fit?.explanation ?? ''} Размер подобран по размерной таблице.`.trim()
+    : item.fit?.explanation;
   const confidenceLabel = getConfidenceLabel(item.fit?.confidence_level);
   const reviewsLabel = item.fit ? getReviewsLabel(item.fit.num_reviews) : null;
 
@@ -266,9 +269,9 @@ function GenerationResultProduct({
                       </Text>
                     )}
 
-                    {item.fit?.explanation && (
+                    {fitExplanation && (
                       <Text className={styles.fitDescription}>
-                        {item.fit.explanation}
+                        {fitExplanation}
                       </Text>
                     )}
                   </div>
