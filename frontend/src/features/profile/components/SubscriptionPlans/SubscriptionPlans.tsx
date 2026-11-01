@@ -128,12 +128,12 @@ function SubscriptionPlans() {
                             <Button
                                 type={plan.current ? 'default' : 'primary'}
                                 block
-                                disabled={plan.current}
+                                disabled
                                 className={styles.button}
                             >
                                 {plan.current
                                     ? 'Ваш тариф'
-                                    : 'Подключить'}
+                                    : 'Скоро доступно'}
                             </Button>
                         </Space>
                     </Card>
