@@ -60,15 +60,27 @@ async def recommendation_view(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):
+    return await save_recommendation_event(data, current_user, session, "recommendation_view")
+
+
+@router.post("/explanation-view")
+async def explanation_view(data: RecommendationViewEvent, current_user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db)):
+    return await save_recommendation_event(data, current_user, session, "explanation_view")
+
+
+async def save_recommendation_event(data, current_user, session, event_type):
+    from app.services.experiments.recommendation_context import recommendation_snapshots
+    try:
+        snapshots = await recommendation_snapshots(session, current_user.id, data.outfitItems)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return await save_event(
         data=data,
-        event_type="recommendation_view",
+        event_type=event_type,
         payload={
             "device_type": data.device_type,
-            "outfitItems": [
-                item.model_dump(mode="json")
-                for item in data.outfitItems
-            ],
+            "outfitItems": snapshots,
+            "schema_version": 3,
         },
         current_user=current_user,
         session=session,
@@ -87,6 +99,13 @@ async def tooltip_open(
         payload={
             "product_id": data.product_id,
             "tooltip_type": data.tooltip_type,
+            "explanation_summary": data.explanation_summary,
+            "explanation_text": data.explanation_text,
+            "explanation_meta": data.explanation_meta,
+            "explanation_stage": "details",
+            "schema_version": 3,
+            "outfit_id": data.outfit_id,
+            "outfit_item_id": data.outfit_item_id,
         },
         current_user=current_user,
         session=session,
@@ -171,7 +190,9 @@ async def size_changed(
         data=data,
         event_type="size_changed",
         payload={
-            "item_id": data.item_id,
+            "product_id": data.product_id,
+            "outfit_id": data.outfit_id,
+            "outfit_item_id": data.outfit_item_id,
             "recommended_size": data.recommended_size,
             "previous_size": data.previous_size,
             "selected_size": data.selected_size,
@@ -181,46 +202,38 @@ async def size_changed(
     )
 
 
+
+async def save_survey_event(data, event_type, current_user, session):
+    from app.services.survey_service import SurveyService
+    from app.services.experiments.survey_event_service import record_survey_event
+
+    survey = await SurveyService.get_survey(session, data.survey_id, current_user.id)
+    if survey is None:
+        raise HTTPException(status_code=404, detail="Survey not found")
+    if data.survey_type != "popup":
+        raise HTTPException(status_code=400, detail="Email events require the invitation token endpoint")
+    try:
+        event = await record_survey_event(session, survey, data, event_type)
+        await session.commit()
+    except ValueError as exc:
+        await session.rollback()
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"event_id": event.id, "event_type": event.event_type, "status": "saved"}
+
+
 @router.post("/survey-opened")
-async def survey_opened(
-    data: SurveyOpenedEvent,
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
-):
-    return await save_event(
-        data=data,
-        event_type="survey_opened",
-        payload={
-            "survey_type": data.survey_type,
-            "items_count": data.items_count,
-            "device_type": data.device_type,
-        },
-        current_user=current_user,
-        session=session,
-    )
+async def survey_opened(data: SurveyOpenedEvent, current_user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db)):
+    return await save_survey_event(data, "survey_opened", current_user, session)
+
+
+@router.post("/survey-item-view")
+async def survey_item_view(data: SurveyOpenedEvent, current_user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db)):
+    return await save_survey_event(data, "survey_item_view", current_user, session)
 
 
 @router.post("/survey-skipped")
-async def survey_skipped(
-    data: SurveySkippedEvent,
-    current_user: User = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
-):
-    return await save_event(
-        data=data,
-        event_type="survey_skipped",
-        payload={
-            "survey_type": data.survey_type,
-            "questions_answered": data.questions_answered,
-            "last_question_key": data.last_question_key,
-            "last_question_value": data.last_question_value,
-            "time_spent_ms": data.time_spent_ms,
-            "skip_reason": data.skip_reason,
-            "device_type": data.device_type,
-        },
-        current_user=current_user,
-        session=session,
-    )
+async def survey_skipped(data: SurveySkippedEvent, current_user: User = Depends(get_current_user), session: AsyncSession = Depends(get_db)):
+    return await save_survey_event(data, "survey_skipped", current_user, session)
 
 
 @router.post("/session-end")

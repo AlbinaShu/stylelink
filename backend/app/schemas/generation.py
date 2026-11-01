@@ -3,6 +3,13 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 
+class GenerationUsageResponse(BaseModel):
+    used: int
+    limit: int
+    remaining: int
+    exhausted: bool
+
+
 class GenerationRequest(BaseModel):
     occasion: str | None = None
     style: str | None = None

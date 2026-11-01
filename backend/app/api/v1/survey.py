@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.user import User
+from app.models.survey import SurveyBuyClick, SurveyItem
 from app.schemas.survey import (
     SurveyAnswersRequest,
     SurveyAnswersResponse,
@@ -23,6 +25,7 @@ router = APIRouter()
 
 @router.get("/items", response_model=SurveyItemsResponse)
 async def get_survey_items(
+    survey_id: UUID | None = Query(default=None),
     offset: int = Query(default=0, ge=0),
     limit: int = Query(default=10, ge=1, le=100),
     current_user: User = Depends(get_current_user),
@@ -35,9 +38,9 @@ async def get_survey_items(
     авторизованный пользователь определяется по JWT.
     """
 
-    survey = await SurveyService.get_active_survey_for_user(
-        session=session,
-        user_id=current_user.id,
+    survey = (
+        await SurveyService.get_survey(session, survey_id, current_user.id)
+        if survey_id else await SurveyService.get_active_survey_for_user(session, current_user.id)
     )
 
     if survey is None:
@@ -86,12 +89,6 @@ async def submit_survey_answers(
             detail="Survey not found",
         )
 
-    if survey.status == "answered":
-        raise HTTPException(
-            status_code=409,
-            detail="Survey already answered",
-        )
-
     try:
         answered_count = await SurveyService.save_answers(
             session=session,
@@ -107,6 +104,7 @@ async def submit_survey_answers(
     return SurveyAnswersResponse(
         status="ok",
         answered_count=answered_count,
+        continuation_path="/survey?token=" + survey.token,
     )
 
 
@@ -218,6 +216,15 @@ async def survey_popup(
             show=False,
             reason="no_survey",
         )
+
+    previous_visit = await session.execute(
+        select(SurveyBuyClick.id)
+        .join(SurveyItem, SurveyItem.buy_click_id == SurveyBuyClick.id)
+        .where(SurveyItem.survey_id == survey.id, SurveyBuyClick.session_id == session_id)
+        .limit(1)
+    )
+    if previous_visit.scalar_one_or_none() is not None:
+        return SurveyPopupResponse(show=False, reason="same_session")
 
     show, reason = await SurveyPopupService.evaluate(
         session=session,

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
+from email.utils import formatdate, make_msgid, parseaddr
 
 import aiosmtplib
 from sqlalchemy import select
@@ -53,6 +54,9 @@ class SurveyEmailService:
         message["Subject"] = subject
         message["From"] = settings.smtp_from
         message["To"] = recipient
+        message["Date"] = formatdate(localtime=False)
+        sender_domain = parseaddr(settings.smtp_from)[1].partition("@")[2]
+        message["Message-ID"] = make_msgid(domain=sender_domain or None)
 
         message.set_content(body)
 
@@ -60,7 +64,8 @@ class SurveyEmailService:
             message,
             hostname=settings.smtp_host,
             port=settings.smtp_port,
-            start_tls=True,
+            use_tls=settings.smtp_port == 465,
+            start_tls=settings.smtp_port != 465,
             username=settings.smtp_user,
             password=settings.smtp_password,
             timeout=30,
@@ -122,9 +127,9 @@ class SurveyEmailService:
             if last_click is None:
                 continue
 
-            send_at = (
-                last_click
-                + cls.email_delay()
+            send_at = survey.scheduled_at or max(
+                survey.period_ended_at or survey.created_at,
+                last_click + cls.email_delay(),
             )
 
             # scheduled_at хранит реальный плановый момент email.
