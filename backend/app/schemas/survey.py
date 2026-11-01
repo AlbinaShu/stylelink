@@ -15,6 +15,8 @@ class SurveyItemResponse(BaseModel):
     selected_size: str | None = None
     status: Literal["not_answered", "answered"]
     clicked_at: datetime
+    buy_click_id: UUID | None = None
+    answer: dict | None = None
 
 
 class SurveyItemsResponse(BaseModel):
@@ -25,85 +27,66 @@ class SurveyItemsResponse(BaseModel):
 
 
 class SurveyAnswerItem(BaseModel):
-    """
-    Ответ по одному товару.
-
-    Поля валидируются с учётом ветвления анкеты:
-    заказ / корзина / посадка / возврат.
-    """
-
     product_id: UUID
-
+    fit_scope: Literal["recommended_only"]
     order_placed: Literal["yes", "no", "pending"]
-
     sizes_ordered: Literal["1", "2", "3+"] | None = None
     purchased_size: Literal["recommended", "other"] | None = None
-
     added_to_cart: Literal["yes", "no"] | None = None
     sizes_in_cart: Literal["1", "2", "3+"] | None = None
     cart_size: Literal["recommended", "other"] | None = None
-
-    fit_result: Literal["perfect", "small", "large", "unknown"] | None = None
+    fit_result: Literal["perfect", "small", "large", "unknown", "in_transit", "not_tried", "not_ordered"] | None = None
+    tried_size: Literal["recommended", "other"] | None = None
     action: Literal["kept", "returned", "undecided"] | None = None
-
+    return_reasons: list[Literal["size", "quality", "color", "other"]] | None = None
     return_reason: Literal["size", "quality", "color", "other"] | None = None
     return_reason_text: str | None = Field(default=None, max_length=2000)
 
     @model_validator(mode="after")
     def validate_branches(self):
-        # "Пока нет" завершает ветку по товару.
-        if self.order_placed == "pending":
-            return self
-
-        if self.order_placed == "yes":
-            if self.sizes_ordered is None:
-                raise ValueError(
-                    "sizes_ordered is required when order_placed=yes"
-                )
-
-            if self.sizes_ordered == "1" and self.purchased_size is None:
-                raise ValueError(
-                    "purchased_size is required when sizes_ordered=1"
-                )
-
-            if self.fit_result is None:
-                raise ValueError(
-                    "fit_result is required when order_placed=yes"
-                )
-
-        if self.order_placed == "no":
+        if self.return_reasons is None and self.return_reason is not None:
+            self.return_reasons = [self.return_reason]
+        if self.return_reasons is not None:
+            self.return_reasons = list(dict.fromkeys(self.return_reasons))
+        if self.order_placed != "yes":
             if self.added_to_cart is None:
-                raise ValueError(
-                    "added_to_cart is required when order_placed=no"
-                )
-
+                raise ValueError("added_to_cart is required when no order was placed")
             if self.added_to_cart == "yes":
                 if self.sizes_in_cart is None:
-                    raise ValueError(
-                        "sizes_in_cart is required when added_to_cart=yes"
-                    )
+                    raise ValueError("sizes_in_cart is required")
+                if self.cart_size is None:
+                    raise ValueError("cart_size must indicate whether the recommendation is in the cart")
+            else:
+                self.sizes_in_cart = self.cart_size = None
+            self.sizes_ordered = self.purchased_size = None
+            self.fit_result = self.tried_size = self.action = None
+            self.return_reasons = self.return_reason = self.return_reason_text = None
+            return self
 
-                if self.sizes_in_cart == "1" and self.cart_size is None:
-                    raise ValueError(
-                        "cart_size is required when sizes_in_cart=1"
-                    )
-
-            if self.fit_result is None:
-                raise ValueError(
-                    "fit_result is required when order_placed=no"
-                )
-
-        if self.fit_result in {"perfect", "small", "large"}:
-            if self.action is None:
-                raise ValueError(
-                    "action is required for perfect/small/large fit_result"
-                )
-
-        if self.action == "returned" and self.return_reason is None:
-            raise ValueError(
-                "return_reason is required when action=returned"
-            )
-
+        self.added_to_cart = self.sizes_in_cart = self.cart_size = None
+        if self.sizes_ordered is None:
+            raise ValueError("sizes_ordered is required for an order")
+        self.purchased_size = (
+            ("other" if self.fit_result == "not_ordered" else "recommended")
+            if self.sizes_ordered == "1" and self.fit_result is not None else None
+        )
+        # The service checks whether a saved recommendation exists for this item.
+        if self.fit_result is None or self.fit_result in {"in_transit", "not_ordered"}:
+            self.tried_size = self.action = self.return_reasons = self.return_reason = self.return_reason_text = None
+            return self
+        if self.tried_size not in {None, "recommended"}:
+            raise ValueError("Only the recommended size is assessed in this survey")
+        self.tried_size = None if self.fit_result == "not_tried" else "recommended"
+        if self.action is None:
+            raise ValueError("action is required for a received product")
+        if self.action == "returned" and not self.return_reasons:
+            raise ValueError("return_reasons is required for a return")
+        if self.action != "returned":
+            self.return_reasons = self.return_reason = self.return_reason_text = None
+        else:
+            self.return_reason = self.return_reasons[0] if len(self.return_reasons) == 1 else None
+            if "other" not in self.return_reasons:
+                self.return_reason_text = None
         return self
 
 
@@ -116,6 +99,7 @@ class SurveyAnswersRequest(BaseModel):
 class SurveyAnswersResponse(BaseModel):
     status: Literal["ok"]
     answered_count: int
+    continuation_path: str | None = None
 
 
 class SurveySkipRequest(BaseModel):
@@ -148,6 +132,7 @@ class SurveyPopupResponse(BaseModel):
     survey_id: UUID | None = None
     reason: Literal[
         "available",
+        "same_session",
         "already_shown",
         "skip_cooldown",
         "no_survey",

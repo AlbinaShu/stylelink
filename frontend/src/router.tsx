@@ -4,6 +4,7 @@ import LandingPage from './pages/LandingPage/LandingPage';
 import AuthPage from './pages/AuthPage/AuthPage';
 import MainPage from './pages/MainPage/MainPage';
 import OutfitsPage from './pages/OutfitsPage/OutfitsPage';
+import PlansPage from './pages/PlansPage/PlansPage';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import SupportPage from './pages/SupportPage/SupportPage';
 import OutfitGenerationPage from './pages/OutfitGenerationPage/OutfitGenerationPage';
@@ -123,6 +124,10 @@ export function AppRouter() {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/plans" element={
+        <ProtectedRoute><PlansPage /></ProtectedRoute>
+      } />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
