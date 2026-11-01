@@ -40,17 +40,12 @@ const FIT_CONFIG: Record<string, IFitConfig> = {
   },
 };
 
-function getConfidenceLabel(level: string | null | undefined): string | null {
-  switch (level) {
-    case 'low':
-      return 'Низкая уверенность';
-    case 'medium':
-      return 'Средняя уверенность';
-    case 'high':
-      return 'Высокая уверенность';
-    default:
-      return null;
+function getConfidenceLabel(confidence: number | null | undefined): string | null {
+  if (confidence == null || !Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+    return null;
   }
+
+  return `Уверенность: ${Math.round(confidence * 100)}%`;
 }
 
 function getReviewsLabel(count: number): string {
@@ -125,7 +120,7 @@ function GenerationResultProduct({
   const fitTitle = isInsufficientFit
     ? 'Недостаточно данных о посадке'
     : (fitConfig?.label ?? 'Есть информация о посадке');
-  const confidenceLabel = getConfidenceLabel(item.fit?.confidence_level);
+  const confidenceLabel = getConfidenceLabel(item.fit?.confidence);
   const reviewsLabel = item.fit ? getReviewsLabel(item.fit.num_reviews) : null;
 
   const changeSize = (size: string) => {
