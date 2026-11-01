@@ -126,7 +126,7 @@ function GenerationResultProduct({
     ? 'Недостаточно данных о посадке'
     : (fitConfig?.label ?? 'Есть информация о посадке');
   const confidenceLabel = getConfidenceLabel(item.fit?.confidence_level);
-  const reviewsLabel = item.fit ? getReviewsLabel(item.fit.num_reviews) : null;
+  const reviewsLabel = item.fit ? `Проанализировано: ${getReviewsLabel(item.fit.num_reviews)}` : null;
 
   const changeSize = (size: string) => {
     const previousSize = selectedSize;
