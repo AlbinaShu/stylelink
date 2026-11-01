@@ -1,0 +1,35 @@
+{
+  "artifact_version": "review_level_informativeness_binary_v1",
+  "binary_counts": {
+    "high": 270,
+    "not_high": 930
+  },
+  "created_on": "2026-10-24",
+  "frozen": true,
+  "mapping": {
+    "high": "high",
+    "low": "not_high",
+    "medium": "not_high"
+  },
+  "output": {
+    "path": "review_level_informativeness_binary_v1.csv",
+    "sha256": "0d9656779cdd2e549f2fc29b08f4621a5e4b5a6e0b9c6f7f426893493e1928cb"
+  },
+  "rows": 1200,
+  "script": {
+    "path": "src/data/build_binary_informativeness_target_v1.py",
+    "sha256": "c780bc52ccf389c631cf2f060b45ead25b3277c106527de6d5a51b072cda822b"
+  },
+  "source": {
+    "path": "data/processed/review_level/2026-10-24/review_level_dataset_v1_1.csv",
+    "sha256": "6940d9609953d767fd50c545881588da2e7036d7e799a48aafd2d848733652ab"
+  },
+  "source_counts": {
+    "high": 270,
+    "low": 698,
+    "medium": 232
+  },
+  "status": "frozen_derived_target",
+  "unique_review_ids": 1200,
+  "usage_policy": "The three-level Gold field remains unchanged. This binary target is used only by explicitly versioned experiments."
+}

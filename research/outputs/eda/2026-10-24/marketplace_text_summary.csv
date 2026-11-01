@@ -1,0 +1,3 @@
+source,nonempty_reviews,product_groups,mean_words,median_words,p90_words,shorter_than_10_words_share,ordered_size_coverage,common_fit_keyword_share,duplicate_text_share
+wildberries,27384,40,11.159801343850424,8.0,24.0,0.5965892491966112,0.9992331288343558,0.337532865907099,0.09512854221443179
+yandex_market,646,6,18.975232198142415,14.0,39.0,0.3235294117647059,1.0,0.3931888544891641,0.015479876160990712

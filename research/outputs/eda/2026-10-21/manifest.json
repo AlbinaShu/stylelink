@@ -1,0 +1,58 @@
+{
+  "analysis": "review_fit_eda_v1",
+  "analysis_date": "2026-10-21",
+  "counts": {
+    "gold_reviews": 1200,
+    "machine_predictions": 27384,
+    "raw_reviews": 40474
+  },
+  "limitations": [
+    "The 1,200-row Gold sample is keyword-selected and not representative of the full review stream.",
+    "Auxiliary-feature ablations use human labels and are diagnostic upper bounds, not production inference results.",
+    "Machine annotations are pseudo-labels and are not used as Gold Standard.",
+    "Yandex Market is not included until its snapshot and single-annotator audit are available."
+  ],
+  "outputs": {
+    "EDA_REPORT.md": "33db5b1cb49abed34495fc3236e69d8979d69eb16b56857f7278e2636513cc79",
+    "ablation_results.csv": "a95675d3fb205c58349ca06e3a39f6e65b7d05598581ad4d7bdab6aae98ca255",
+    "annotation_agreement.csv": "2c0d41d6e28ed2c34a4c0f7d6442efeed0b89299c340af3bb6b5c11058468196",
+    "feature_diagnostics.csv": "f1c2bf536f4733c855f8db5b4cbf5b3e6da005516b2d16894bf04b38398eccd4",
+    "figures/01_text_length_comparison.png": "fbe331c31758476b9647d68dd1f4e59321a026db94b3e4fc5acb4a489f518161",
+    "figures/02_gold_fit_distribution.png": "b387c83e639650d5f2093a2b73c6a9948f169479bf8d2b6a7b5fcd49f7707ad1",
+    "figures/03_machine_fit_distribution.png": "33413d71a4c0834b7d2fa811c6689d4e93dbff5350fc1fe212bc464ab12f0ac5",
+    "figures/04_auxiliary_feature_coverage.png": "49a6ff94d57e4e9894e77ca61e03dbf60d5cb8fb692de661d6a345f73fd5e64d",
+    "figures/05_feature_cramers_v.png": "b7359fc5a09c18f51210ddd09db0c595d6b6a92fd15a6913aada72e9681b8c64",
+    "figures/06_ablation_macro_f1.png": "ff851fd50394a4f4dc8f66f574f431fefea642cc014c216247d4a640761d6e18",
+    "figures/07_reviews_per_item_group.png": "abef4f14c916c7f141e457864c8de72ea3dac788137515e61cae9347e03e2d0b",
+    "figures/08_machine_confidence_by_label.png": "a38e2f9557c07d3062f7c822855fb1dfea6951dc089ed7c80ca3ef8dc5072702",
+    "full_data_summary.csv": "ccdbb455a2c10e7e07cb6b085924989d977185e6f664eca595d30308ea505045",
+    "gold_distribution.csv": "b0c57a75a9adf33fec74c3df7099716a8152a8dfbf7d9f14e93263bbbd30e60c",
+    "machine_distribution.csv": "1e627888e2137158eadfcf8ceb7051bcc2aba3825f51be6beb57085d7a936d90",
+    "selection_bias.csv": "bcea7c5d7fbdb876a78676719b08dda4e9cc78bab11c5b03533a40fa2ef67a0c",
+    "text_length_comparison.csv": "3848af4be778f74bdc1cf32be72d4fd74318cfdd4a77b079de1b02107897fc5c"
+  },
+  "scope": [
+    "full_wildberries_snapshot",
+    "review_level_gold",
+    "machine_pseudo_labels"
+  ],
+  "script": {
+    "path": "src/analysis/run_review_fit_eda.py",
+    "sha256": "03bcf5f917e47dfd2b2b39c00fd00243213857d106ff14970f0c52de9c5d1e70"
+  },
+  "sources": {
+    "machine_annotations": {
+      "path": "data/processed/machine_annotations/2026-10-20/reviews_machine_annotated_v4.jsonl",
+      "sha256": "6d50f4e83d62847f41ffafaff9767976be22a8db8acc6aafe6319b5f83a57031"
+    },
+    "raw_wildberries": {
+      "path": "data/raw/wildberries/2026-09-12/reviews.jsonl",
+      "sha256": "7930476827410b83022761cbbf65cc1ffc8aa94c858f4cd6a5be8e874b505702"
+    },
+    "review_level_gold": {
+      "path": "data/processed/review_level/2026-10-20/review_level_dataset_v1.jsonl",
+      "sha256": "6df2ee7b4be74b1e4053d6429a93a9923c4f9d1ef9a46e695b1cd14219dfda96"
+    }
+  },
+  "status": "complete"
+}

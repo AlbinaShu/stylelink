@@ -1,0 +1,11 @@
+field,value,count,share
+fit_label,no_signal,197,0.6566666666666666
+fit_label,true_to_size,34,0.11333333333333333
+fit_label,runs_small,37,0.12333333333333334
+fit_label,runs_large,32,0.10666666666666667
+signal_explicitness,none,197,0.6566666666666666
+signal_explicitness,implicit,29,0.09666666666666666
+signal_explicitness,explicit,74,0.24666666666666667
+informativeness,low,242,0.8066666666666666
+informativeness,medium,42,0.14
+informativeness,high,16,0.05333333333333334

@@ -1,0 +1,64 @@
+{
+  "candidate_pool_rows": 646,
+  "categories": {
+    "jeans": 164,
+    "jumper": 100,
+    "outerwear": 101,
+    "sports_tshirt": 157,
+    "sweatshirt": 85,
+    "trousers": 39
+  },
+  "collection_method": "Public review pages opened in an ordinary browser session; CAPTCHA was not bypassed.",
+  "files": {
+    "reviews_candidate_pool.jsonl": {
+      "bytes": 582818,
+      "sha256": "f09385bd9e209067db2334a4836a5b03d8f3a423786190ac9dc16f1b83ec0647"
+    }
+  },
+  "limitations": [
+    "The candidate pool contains six clothing product cards and is not a probability sample of the full marketplace.",
+    "Review dates are retained as displayed by the marketplace and may omit the year."
+  ],
+  "marketplace": "yandex_market",
+  "privacy": "Author names and profile identifiers were not retained.",
+  "products": [
+    {
+      "category": "trousers",
+      "product_name": "Брюки бананы укороченные",
+      "product_url": "https://marketapp.integration.market.yandex.ru/card/bryuki-zhenskiye-elaria/4798758891",
+      "reviews": 39
+    },
+    {
+      "category": "jumper",
+      "product_name": "Джемпер",
+      "product_url": "https://marketapp.integration.market.yandex.ru/card/dzhemper-chelebi-chelebi-tekstil-razmer-42-44-belyy/101805825475",
+      "reviews": 100
+    },
+    {
+      "category": "sports_tshirt",
+      "product_name": "Футболка спортивная из быстросохнущей ткани с антибактериальной пропиткой",
+      "product_url": "https://marketapp.integration.market.yandex.ru/card/futbolka-sportivnaya-temno-rozovyy--l-int/4695978883",
+      "reviews": 157
+    },
+    {
+      "category": "outerwear",
+      "product_name": "Куртка",
+      "product_url": "https://marketapp.integration.market.yandex.ru/card/kurtka-pukhovik-feelz-icebreaker-tsvet-seryy-razmer-s/103679524169",
+      "reviews": 101
+    },
+    {
+      "category": "sweatshirt",
+      "product_name": "Свитшот",
+      "product_url": "https://marketapp.integration.market.yandex.ru/card/svitshot-gosha-rubchinskiy/4301053938",
+      "reviews": 85
+    },
+    {
+      "category": "jeans",
+      "product_name": "Джинсы широкие",
+      "product_url": "https://marketapp.integration.market.yandex.ru/card/zarina-shirokiye-dzhinsy-s-vysokoy-posadkoy-tsvet-syroy-indigo-razmer-56-widelp0926cl106-106/5890418541",
+      "reviews": 164
+    }
+  ],
+  "snapshot_date": "2026-10-21",
+  "unique_review_ids": 646
+}

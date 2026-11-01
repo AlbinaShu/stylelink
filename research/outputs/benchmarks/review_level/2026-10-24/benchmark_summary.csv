@@ -1,0 +1,4 @@
+model,signal_f1,direction_macro_f1,four_class_macro_f1,accuracy,direction_macro_f1_fold_mean,direction_macro_f1_fold_std,ece_10_bins,multiclass_brier,training_seconds,inference_seconds,artifact_bytes
+B0_always_no_signal,0.0,0.0,0.136143,0.374167,0.0,0.0,0.625833,1.251667,0.0,0.002295,0
+B1_dictionary_rules,0.683805,0.664953,0.667389,0.676667,0.661499,0.034537,0.323333,0.646667,0.0,0.033839,0
+B2_tfidf_logistic_regression,0.822417,0.753522,0.702212,0.694167,0.752056,0.026926,0.091041,0.427044,2.558872,0.216578,995210

@@ -1,0 +1,38 @@
+{
+  "freeze_version": "frozen_review_model_v1",
+  "frozen_on": "2026-10-24",
+  "status": "frozen_before_external_audit",
+  "model": {
+    "name": "B2_tfidf_logistic_regression",
+    "training_data": "data/processed/review_level/2026-10-24/review_level_dataset_v1_1.csv",
+    "training_data_sha256": "6940d9609953d767fd50c545881588da2e7036d7e799a48aafd2d848733652ab",
+    "folds": "data/processed/splits/2026-10-24/review_group_folds_v1_1.csv",
+    "folds_sha256": "6129e8bff7780217c251ad8d3ad925cb77d3f008f842db0472a597946ff4aac0",
+    "artifact": "outputs/benchmarks/review_level/2026-10-24/models/B2_tfidf_logistic_regression.joblib",
+    "artifact_sha256": "eafa3939077a2a3e5b28b611bea4e330fc6ccd14341e0fe13a260803fdb7891e",
+    "oof_predictions": "outputs/benchmarks/review_level/2026-10-24/B2_tfidf_logistic_regression_oof_predictions.csv",
+    "oof_predictions_sha256": "862c0c80392094145054b7b0e85adf0d53a843e26afb5ded39ecb6bd30bf7fec"
+  },
+  "selection": {
+    "primary_metric": "direction_macro_f1_on_gold_signal_rows",
+    "primary_metric_value": 0.753522,
+    "signal_f1": 0.822417,
+    "four_class_macro_f1": 0.702212,
+    "reason": "Best primary metric among B0, B1, B2, frozen ruBERT and frozen DistilRuBERT; also smaller and faster than the transformer alternatives."
+  },
+  "confidence_and_abstain": {
+    "score": "raw_maximum_probability",
+    "calibrated_probability": false,
+    "confidence_threshold": 0.6,
+    "decision_rule": "accept the review-level prediction when raw maximum probability >= 0.6; otherwise abstain",
+    "oof_coverage": 0.53,
+    "oof_direction_macro_f1_on_accepted_rows": 0.879571,
+    "oof_signal_f1_on_accepted_rows": 0.896907,
+    "oof_accuracy_on_accepted_rows": 0.834906,
+    "reason": "Simplest middle trade-off from the predeclared grid: materially better accepted-row quality than 0.5, while retaining substantially more coverage than 0.7 or 0.8."
+  },
+  "external_audit_policy": {
+    "dataset": "data/processed/external_audit/2026-10-21/completed/2026-10-23/yandex_market_audit_300_labeled_v4.jsonl",
+    "may_change_model_or_threshold": false
+  }
+}

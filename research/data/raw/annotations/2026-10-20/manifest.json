@@ -1,0 +1,55 @@
+{
+  "snapshot_id": "annotation-v3-2026-10-20",
+  "exported_at": "2026-10-20",
+  "status": "raw_pre_adjudication",
+  "files": [
+    {
+      "path": "annotation_annotator_1_v3.xlsm",
+      "source_url": "https://docs.google.com/spreadsheets/d/1WpHsV-V4uZTcYoACNzCX-gpZVLMQl4ac/edit?gid=115702668#gid=115702668",
+      "drive_file_id": "1WpHsV-V4uZTcYoACNzCX-gpZVLMQl4ac",
+      "source_mime_type": "application/vnd.ms-excel.sheet.macroenabled.12",
+      "source_modified_at": "2026-10-12T07:19:17.148Z",
+      "local_size_bytes": 239035,
+      "sha256": "db461a0886555348214e9465708db92b7695e6b9fd4bd38dced03b6cee57c72a",
+      "sheets": ["Разметка", "Инструкция"],
+      "annotation_rows": 1200,
+      "annotation_columns": 18
+    },
+    {
+      "path": "annotation_annotator_2_v3.xlsx",
+      "source_url": "https://docs.google.com/spreadsheets/d/1eJFlmzWvcOcnVbTvBXqLlantHE9WybCCa2JJ22qtlKY/edit?gid=546480407#gid=546480407",
+      "drive_file_id": "1eJFlmzWvcOcnVbTvBXqLlantHE9WybCCa2JJ22qtlKY",
+      "source_mime_type": "application/vnd.google-apps.spreadsheet",
+      "export_mime_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "source_modified_at": "2026-10-04T08:43:56.696Z",
+      "local_size_bytes": 281872,
+      "sha256": "e6a071cf638362883da2ded0a25a54255c007fe049ece1dea10a06aa80bf18f1",
+      "sheets": ["Разметка", "Инструкция"],
+      "annotation_rows": 1200,
+      "annotation_columns": 19
+    }
+  ],
+  "validation": {
+    "workbooks_opened_successfully": true,
+    "same_review_id_set": true,
+    "same_review_order": true,
+    "unique_review_ids_per_file": 1200,
+    "schema_difference": "annotation_annotator_2_v3.xlsx contains an additional column: кто размечает",
+    "known_missing_values": {
+      "annotation_annotator_1_v3.xlsm": {
+        "действие пользователя": 2,
+        "согласованность внутри отзыва": 3,
+        "информативность": 3
+      },
+      "annotation_annotator_2_v3.xlsx": {
+        "явность сигнала": 29,
+        "согласованность внутри отзыва": 1
+      }
+    }
+  },
+  "notes": [
+    "Raw files are preserved without local edits.",
+    "The snapshot is not an adjudicated Gold Standard.",
+    "Cohen's Kappa for the v3 fields has not yet been recalculated."
+  ]
+}

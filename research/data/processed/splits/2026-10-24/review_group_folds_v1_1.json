@@ -1,0 +1,157 @@
+{
+  "artifact_version": "review_group_folds_v1_1",
+  "cross_validation_protocol": "For round k, fold k is validation and the union of the other four folds is train.",
+  "fold_id_base": 1,
+  "folds": [
+    {
+      "fold_id": 1,
+      "n_train_groups": 32,
+      "n_train_reviews": 946,
+      "n_validation_groups": 8,
+      "n_validation_reviews": 254,
+      "validation_fit_label_counts": {
+        "no_signal": 102,
+        "runs_large": 37,
+        "runs_small": 40,
+        "true_to_size": 75
+      },
+      "validation_fit_label_shares": {
+        "no_signal": 0.401575,
+        "runs_large": 0.145669,
+        "runs_small": 0.15748,
+        "true_to_size": 0.295276
+      },
+      "validation_group_ids": [
+        "120046718",
+        "187325306",
+        "208538786",
+        "211261530",
+        "220185184",
+        "359853277",
+        "541699300",
+        "794847715"
+      ]
+    },
+    {
+      "fold_id": 2,
+      "n_train_groups": 33,
+      "n_train_reviews": 962,
+      "n_validation_groups": 7,
+      "n_validation_reviews": 238,
+      "validation_fit_label_counts": {
+        "no_signal": 80,
+        "runs_large": 43,
+        "runs_small": 41,
+        "true_to_size": 74
+      },
+      "validation_fit_label_shares": {
+        "no_signal": 0.336134,
+        "runs_large": 0.180672,
+        "runs_small": 0.172269,
+        "true_to_size": 0.310924
+      },
+      "validation_group_ids": [
+        "13456309",
+        "218618206",
+        "370483458",
+        "541389563",
+        "656127251",
+        "948936376",
+        "3195188981"
+      ]
+    },
+    {
+      "fold_id": 3,
+      "n_train_groups": 32,
+      "n_train_reviews": 970,
+      "n_validation_groups": 8,
+      "n_validation_reviews": 230,
+      "validation_fit_label_counts": {
+        "no_signal": 85,
+        "runs_large": 45,
+        "runs_small": 38,
+        "true_to_size": 62
+      },
+      "validation_fit_label_shares": {
+        "no_signal": 0.369565,
+        "runs_large": 0.195652,
+        "runs_small": 0.165217,
+        "true_to_size": 0.269565
+      },
+      "validation_group_ids": [
+        "116550064",
+        "185183781",
+        "209600505",
+        "311428364",
+        "320743306",
+        "381819078",
+        "503948731",
+        "512008395"
+      ]
+    },
+    {
+      "fold_id": 4,
+      "n_train_groups": 31,
+      "n_train_reviews": 959,
+      "n_validation_groups": 9,
+      "n_validation_reviews": 241,
+      "validation_fit_label_counts": {
+        "no_signal": 91,
+        "runs_large": 42,
+        "runs_small": 37,
+        "true_to_size": 71
+      },
+      "validation_fit_label_shares": {
+        "no_signal": 0.377593,
+        "runs_large": 0.174274,
+        "runs_small": 0.153527,
+        "true_to_size": 0.294606
+      },
+      "validation_group_ids": [
+        "20299166",
+        "151343340",
+        "168629057",
+        "174739639",
+        "408870952",
+        "465849214",
+        "757226987",
+        "778091055",
+        "2216330140"
+      ]
+    },
+    {
+      "fold_id": 5,
+      "n_train_groups": 32,
+      "n_train_reviews": 963,
+      "n_validation_groups": 8,
+      "n_validation_reviews": 237,
+      "validation_fit_label_counts": {
+        "no_signal": 91,
+        "runs_large": 37,
+        "runs_small": 39,
+        "true_to_size": 70
+      },
+      "validation_fit_label_shares": {
+        "no_signal": 0.383966,
+        "runs_large": 0.156118,
+        "runs_small": 0.164557,
+        "true_to_size": 0.295359
+      },
+      "validation_group_ids": [
+        "5244293",
+        "63075993",
+        "241598125",
+        "463140581",
+        "468325164",
+        "807500966",
+        "2016829365",
+        "3864116729"
+      ]
+    }
+  ],
+  "group_column": "item_group_id",
+  "n_splits": 5,
+  "random_state": 42,
+  "shuffle": true,
+  "stratification_target": "fit_label"
+}

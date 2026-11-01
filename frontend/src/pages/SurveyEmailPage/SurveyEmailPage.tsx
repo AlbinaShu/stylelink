@@ -84,7 +84,7 @@ function SurveyEmailPage() {
     if (!token) return;
 
     setSubmitting(true);
-    
+
     try {
       await submitEmailSurveyAnswers(token, answers);
       tracking.finish();

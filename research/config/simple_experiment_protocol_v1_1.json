@@ -1,0 +1,81 @@
+{
+  "protocol_version": "simple_experiment_protocol_v1_1",
+  "status": "accepted_before_transformer_benchmark",
+  "inherits": "simple_experiment_protocol_v1",
+  "random_seed": 42,
+  "review_level": {
+    "gold": "data/processed/review_level/2026-10-24/review_level_dataset_v1_1.csv",
+    "folds": "data/processed/splits/2026-10-24/review_group_folds_v1_1.csv",
+    "models": [
+      "B0_always_no_signal",
+      "B1_dictionary_rules",
+      "B2_tfidf_logistic_regression",
+      "ruBERT",
+      "DistilRuBERT"
+    ],
+    "hyperparameter_policy": "No large search; use one fixed seed and a small predefined configuration only.",
+    "transformer_configuration": {
+      "training_regime": "frozen_encoder_cls_embeddings_plus_class_balanced_logistic_regression",
+      "reason": "CPU-feasible fixed protocol for a student project; no transformer fine-tuning or hyperparameter search.",
+      "max_length": 128,
+      "batch_size": 16,
+      "classifier_C": 1.0,
+      "ruBERT_checkpoint": "DeepPavlov/rubert-base-cased",
+      "DistilRuBERT_checkpoint": "DeepPavlov/distilrubert-tiny-cased-conversational-v1"
+    },
+    "primary_selection_metric": "direction_macro_f1_on_gold_signal_rows",
+    "required_metrics": [
+      "signal_f1",
+      "direction_macro_f1",
+      "per_class_precision_recall_f1",
+      "confusion_matrices",
+      "four_class_macro_f1_secondary",
+      "five_fold_mean_and_standard_deviation",
+      "inference_time",
+      "model_size"
+    ],
+    "predictions_policy": "Save out-of-fold predictions for every model."
+  },
+  "confidence": {
+    "score": "raw_maximum_probability",
+    "interpretation": "uncalibrated_model_score",
+    "threshold_candidates": [0.5, 0.6, 0.7, 0.8],
+    "selection_data": "wildberries_out_of_fold_predictions_only",
+    "diagnostics": ["reliability_diagram", "ece_or_brier_score"],
+    "separate_calibration_model": false
+  },
+  "informativeness": {
+    "target": "data/processed/derived_targets/2026-10-24/review_level_informativeness_binary_v1.csv",
+    "labels": ["high", "not_high"],
+    "weights": {"high": 2.0, "not_high": 1.0}
+  },
+  "external_audit": {
+    "dataset": "data/processed/external_audit/2026-10-21/completed/2026-10-23/yandex_market_audit_300_labeled_v4.jsonl",
+    "role": "single_annotator_external_audit",
+    "strata": ["fit_keyword", "random_no_keyword"],
+    "may_change_model_or_threshold": false,
+    "additional_manual_annotation": false
+  },
+  "item_level_pilot": {
+    "groups": "current_40_development_groups",
+    "equal_weight": 1.0,
+    "weighted": {"high": 2.0, "not_high": 1.0},
+    "reported_outputs": ["agreement_rate", "disagreement_cases", "confidence", "abstain_rate"],
+    "item_level_accuracy": false,
+    "winner_selected": false,
+    "interpretation": "exploratory"
+  },
+  "statistics": {
+    "required": ["per_fold_values", "mean", "standard_deviation"],
+    "mcnemar_required": false,
+    "bootstrap_required": false,
+    "permutation_test_required": false
+  },
+  "out_of_scope_for_current_project": [
+    "new_manual_annotations",
+    "new_item_groups",
+    "closed_item_level_test",
+    "confirmatory_item_level_accuracy_claim",
+    "large_hyperparameter_search"
+  ]
+}

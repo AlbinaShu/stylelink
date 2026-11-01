@@ -1,0 +1,42 @@
+{
+  "checked_at": "2026-10-23",
+  "source_google_sheet": "https://docs.google.com/spreadsheets/d/180uZg85rI86OHn5q4jdA8PzRBe8J8cvf-VnyT_Rl5zs/edit",
+  "rows": 300,
+  "unique_review_ids": 300,
+  "validation_status": "passed",
+  "source_validation_status": "passed",
+  "normalized_validation_status": "passed",
+  "issue_count": 0,
+  "automatic_corrections_applied": 0,
+  "issues": [],
+  "distributions": {
+    "fit_label": {
+      "no_signal": 197,
+      "runs_large": 32,
+      "runs_small": 37,
+      "true_to_size": 34
+    },
+    "signal_explicitness": {
+      "explicit": 74,
+      "implicit": 29,
+      "none": 197
+    },
+    "informativeness": {
+      "high": 16,
+      "low": 242,
+      "medium": 42
+    },
+    "user_action": {
+      "chose_another_size": 1,
+      "kept_ordered_size": 126,
+      "not_specified": 164,
+      "ordered_multiple_sizes": 4,
+      "returned": 5
+    },
+    "internal_consistency": {
+      "consistent": 283,
+      "contradictory": 3,
+      "unclear": 14
+    }
+  }
+}

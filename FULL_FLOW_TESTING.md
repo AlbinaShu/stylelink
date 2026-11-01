@@ -9,6 +9,8 @@ The app flow is: frontend form -> backend generation -> GigaChat search queries 
    docker compose -f backend/docker-compose.yml -f backend/docker-compose.full.yml up -d --build
    ```
 
+   B2 is the default fit backend. To check the retained fallback, prefix the command with `FIT_MODEL_BACKEND=zero_shot`. After startup, `http://127.0.0.1:8001/health` must return `"fit_backend": "b2"` for the main configuration.
+
 3. Open `http://localhost:5173`, register or log in, and submit a request from "Подобрать образы". The page polls generation status and then shows product links and any fit signals.
 
 Backend docs: `http://localhost:8000/docs`. ML docs: `http://localhost:8001/docs`.

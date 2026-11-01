@@ -1,0 +1,61 @@
+{
+  "artifact_version": "review_group_folds_v1_1",
+  "checks": {
+    "all_groups_assigned_once": true,
+    "all_labels_present_in_each_validation_fold": true,
+    "all_reviews_assigned_once": true,
+    "five_nonempty_folds": true,
+    "no_item_group_leakage": true
+  },
+  "configuration": {
+    "fold_id_base": 1,
+    "group_column": "item_group_id",
+    "label_order": [
+      "no_signal",
+      "true_to_size",
+      "runs_small",
+      "runs_large"
+    ],
+    "n_splits": 5,
+    "random_state": 42,
+    "shuffle": true,
+    "stratification_target": "fit_label"
+  },
+  "created_on": "2026-10-24",
+  "frozen": true,
+  "implementation": {
+    "script": "src/data/create_review_group_folds_v1.py",
+    "script_sha256": "b96aac84fc8c53ae04152b413191e1c54da394061863627662b1c252d7eacc3f",
+    "sklearn_version": "1.8.0",
+    "splitter": "sklearn.model_selection.StratifiedGroupKFold"
+  },
+  "outputs": {
+    "fold_definition": {
+      "path": "review_group_folds_v1_1.json",
+      "sha256": "6d9e9de50027370c520dde3375c84ce8f8aedbb48dad4b0b47d785f37e148f98"
+    },
+    "group_assignments": {
+      "path": "review_group_folds_v1_1_groups.csv",
+      "sha256": "37d050bc833df73b483e2c44987aa1a717bb49b4377b5c2cfa7164ea54a89be2"
+    },
+    "review_assignments": {
+      "path": "review_group_folds_v1_1.csv",
+      "sha256": "6129e8bff7780217c251ad8d3ad925cb77d3f008f842db0472a597946ff4aac0"
+    }
+  },
+  "source": {
+    "fit_label_counts": {
+      "no_signal": 449,
+      "runs_large": 204,
+      "runs_small": 195,
+      "true_to_size": 352
+    },
+    "path": "data/processed/review_level/2026-10-24/review_level_dataset_v1_1.csv",
+    "rows": 1200,
+    "sha256": "6940d9609953d767fd50c545881588da2e7036d7e799a48aafd2d848733652ab",
+    "unique_item_group_ids": 40,
+    "unique_review_ids": 1200
+  },
+  "status": "frozen_for_review_level_benchmark",
+  "usage_policy": "Downstream benchmarks must read the saved review assignments; they must not instantiate a splitter or regenerate fold membership."
+}

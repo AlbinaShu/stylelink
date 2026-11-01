@@ -1,0 +1,25 @@
+{
+  "freeze_config": {
+    "path": "config/frozen_review_model_v1.json",
+    "sha256": "acddc1e49d8366693dcf83dea07092f4a48b1204dcb98edc3f8d47de9f43e7b8"
+  },
+  "informativeness_model": {
+    "path": "outputs/benchmarks/informativeness/2026-10-24/models/I1_tfidf_logistic_regression.joblib",
+    "sha256": "feb093311c8fbdde8b33ce78a45b84104d87250bd9e891361be1aefb8f3240bf"
+  },
+  "outputs": {
+    "ITEM_LEVEL_PILOT_REPORT.md": "cafaee364cdf68f7219b9d44228e2c346465daf5d8d9f8d7ab5aa3a8b475228c",
+    "item_level_equal_vs_weighted.csv": "15263cff3c72a8477bbf427f2c6e4495fd384c221d513f967dc1f2f5b81f6dbc",
+    "pilot_summary.json": "a541edaa6dfed968e5f4885ec280e95ea8c04f6d329c013c0099b54efea8c85e",
+    "review_level_predictions_for_pilot.csv": "c570aaaebb8971e1cdc9fd609083e1b6cffe44aeb90f06798ac95a21b437032a"
+  },
+  "script": {
+    "path": "src/evaluation/run_item_level_pilot_v1.py",
+    "sha256": "0319561621a8af6700ee284931486bdf9b0c02988bf8442260373a6eb870f828"
+  },
+  "source": {
+    "path": "data/interim/wildberries/2026-09-12/reviews_for_model_annotation_v3.jsonl",
+    "sha256": "cf948c51c34599e1e33688405591986cbd2fe5db7969d6345bd99ffab9738eac"
+  },
+  "status": "complete_exploratory_no_item_gold"
+}

@@ -23,7 +23,14 @@ app = FastAPI(title="AI StyleLink ML API", lifespan=lifespan)
 @app.get("/health")
 def health() -> dict[str, str]:
     ready = bool(get_outfit_models.cache_info().currsize and get_fit_model.cache_info().currsize)
-    return {"status": "ok" if ready else "loading", "mode": "pretrained"}
+    fit_backend = (
+        getattr(get_fit_model(), "backend", "unknown") if ready else os.getenv("FIT_MODEL_BACKEND", "b2")
+    )
+    return {
+        "status": "ok" if ready else "loading",
+        "mode": "pretrained",
+        "fit_backend": fit_backend,
+    }
 
 
 @app.post("/api/v1/outfits", response_model=OutfitResponse)
