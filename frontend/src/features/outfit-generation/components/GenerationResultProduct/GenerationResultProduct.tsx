@@ -6,7 +6,7 @@ import {
 } from '@ant-design/icons';
 import { Collapse, Image, Tag, Typography, message } from 'antd';
 import type { MouseEvent, ReactNode } from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { sendBuyClick, sendSizeChanged, sendTooltipOpen } from '../../../experiment-events/api/experiment-events.api';
 import { getSessionId } from '../../../../shared/utils/session';
 import type { IOutfitItem } from '../../types';
@@ -112,13 +112,17 @@ function GenerationResultProduct({
 
   const initialSize = shoeSizeFromAvailable ?? recommendedSize;
 
-  const [selectedSize, setSelectedSize] = useState<string | null>(
+  const [selection, setSelection] = useState({
+    itemId: item.id,
     initialSize,
-  );
+    size: initialSize,
+  });
+  const shouldResetSelection = selection.itemId !== item.id || selection.initialSize !== initialSize;
+  const selectedSize = shouldResetSelection ? initialSize : selection.size;
 
-  useEffect(() => {
-    setSelectedSize(initialSize);
-  }, [item.id, initialSize]);
+  if (shouldResetSelection) {
+    setSelection({ itemId: item.id, initialSize, size: initialSize });
+  }
 
   const fitConfig = item.fit?.fit_signal != null ? FIT_CONFIG[item.fit.fit_signal] : undefined;
   const isInsufficientFit = item.fit?.status === 'insufficient_evidence';
@@ -130,7 +134,7 @@ function GenerationResultProduct({
 
   const changeSize = (size: string) => {
     const previousSize = selectedSize;
-    setSelectedSize(size);
+    setSelection({ itemId: item.id, initialSize, size });
 
     if (!previousSize || previousSize === size) return;
 
