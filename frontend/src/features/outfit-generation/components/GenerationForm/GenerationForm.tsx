@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 
 import {
     createGeneration,
+    isGenerationLimitError,
 } from '../../api/generation.api';
 
 import { useProfile } from '../../../profile/hooks/useProfile';
@@ -192,7 +193,11 @@ function GenerationForm() {
             const generation = await createGeneration(values);
 
             navigate(`/outfit-generation/${generation.id}/loading`);
-        } catch {
+        } catch (error) {
+            if (isGenerationLimitError(error)) {
+                navigate('/plans', { replace: true });
+                return;
+            }
             setError('Не удалось запустить подбор. Проверьте соединение с сервером.');
             setIsSubmitting(false);
         }
@@ -216,7 +221,11 @@ function GenerationForm() {
             const generation = await createGeneration(values);
 
             navigate(`/outfit-generation/${generation.id}/loading`);
-        } catch {
+        } catch (error) {
+            if (isGenerationLimitError(error)) {
+                navigate('/plans', { replace: true });
+                return;
+            }
             setError(
                 'Не удалось сохранить параметры или запустить подбор. Проверьте соединение с сервером.',
             );

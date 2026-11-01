@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.product import Product
 from app.models.survey import Survey, SurveyAnswer, SurveyItem
@@ -10,205 +9,111 @@ from app.schemas.survey import SurveyAnswerItem
 
 
 class SurveyService:
-    """
-    Операционная логика survey.
-
-    ExperimentEvent здесь не используется как основное хранилище:
-    survey и ответы должны существовать независимо от аналитических событий.
-    """
-
     @staticmethod
-    async def get_survey(
-        session: AsyncSession,
-        survey_id: UUID,
-        user_id: UUID,
-    ) -> Survey | None:
-        result = await session.execute(
-            select(Survey).where(
-                Survey.id == survey_id,
-                Survey.user_id == user_id,
-            )
-        )
+    async def get_survey(session, survey_id: UUID, user_id: UUID):
+        result = await session.execute(select(Survey).where(Survey.id == survey_id, Survey.user_id == user_id))
         return result.scalar_one_or_none()
 
     @staticmethod
-    async def get_active_survey_for_user(
-        session: AsyncSession,
-        user_id: UUID,
-    ) -> Survey | None:
-        """
-        Возвращает последний ещё не завершённый опрос пользователя.
-        Используется pop-up сценарием.
-        """
+    async def get_active_survey_for_user(session, user_id: UUID):
         now = datetime.now(timezone.utc)
-
         result = await session.execute(
-            select(Survey)
-            .where(
+            select(Survey).where(
                 Survey.user_id == user_id,
                 Survey.status.notin_(["answered", "expired"]),
                 Survey.expires_at > now,
-            )
-            .order_by(Survey.created_at.desc())
-            .limit(1)
+                select(SurveyItem.id).where(
+                    SurveyItem.survey_id == Survey.id, SurveyItem.recommended_size.is_not(None),
+                    func.trim(SurveyItem.recommended_size) != "",
+                    SurveyItem.selected_size.is_distinct_from("not_applicable"),
+                ).exists(),
+            ).order_by(Survey.created_at.desc()).limit(1)
         )
-
         return result.scalar_one_or_none()
 
     @staticmethod
-    async def get_items(
-        session: AsyncSession,
-        survey: Survey,
-        offset: int,
-        limit: int,
-    ) -> tuple[list[dict], int]:
-        """
-        Backend сам сортирует товары:
-        от последнего buy_click к более старым.
-        """
-
-        count_result = await session.execute(
-            select(func.count(SurveyItem.id)).where(
-                SurveyItem.survey_id == survey.id
-            )
-        )
+    async def get_items(session, survey, offset, limit):
+        eligible = (SurveyItem.survey_id == survey.id, SurveyItem.recommended_size.is_not(None),
+                    func.trim(SurveyItem.recommended_size) != "", SurveyItem.selected_size.is_distinct_from("not_applicable"))
+        count_result = await session.execute(select(func.count(SurveyItem.id)).where(*eligible))
         total = count_result.scalar_one()
-
         result = await session.execute(
-            select(
-                SurveyItem,
-                Product,
-                SurveyAnswer.id.label("answer_id"),
-            )
-            .join(
-                Product,
-                Product.id == SurveyItem.product_id,
-            )
-            .outerjoin(
-                SurveyAnswer,
-                (SurveyAnswer.survey_id == SurveyItem.survey_id)
-                & (SurveyAnswer.product_id == SurveyItem.product_id),
-            )
-            .where(
-                SurveyItem.survey_id == survey.id
-            )
-            .order_by(SurveyItem.clicked_at.desc())
-            .offset(offset)
-            .limit(limit)
+            select(SurveyItem, Product, SurveyAnswer)
+            .join(Product, Product.id == SurveyItem.product_id)
+            .outerjoin(SurveyAnswer, (SurveyAnswer.survey_id == SurveyItem.survey_id) & (SurveyAnswer.product_id == SurveyItem.product_id))
+            .where(*eligible)
+            .order_by(SurveyItem.clicked_at.desc()).offset(offset).limit(limit)
         )
-
+        fields = set(SurveyAnswerItem.model_fields) - {"product_id"}
         items = []
-
-        for survey_item, product, answer_id in result.all():
-            items.append(
-                {
-                    "product_id": product.id,
-                    "name": product.name,
-                    "image_url": product.image_url,
-                    "recommended_size": survey_item.recommended_size,
-                    "selected_size": survey_item.selected_size,
-                    "status": (
-                        "answered"
-                        if answer_id is not None
-                        else "not_answered"
-                    ),
-                    "clicked_at": survey_item.clicked_at,
-                }
-            )
-
+        for item, product, answer in result.all():
+            saved = {"product_id": str(product.id), **{key: getattr(answer, key) for key in fields}} if answer else None
+            if saved and answer.fit_scope != "recommended_only":
+                # Do not relabel a historical assessment of another size as the recommendation.
+                saved.update(fit_scope="recommended_only", fit_result=None, tried_size=None,
+                             action=None, return_reasons=None, return_reason=None, return_reason_text=None)
+            items.append({
+                "product_id": product.id, "name": product.name, "image_url": product.image_url,
+                "recommended_size": item.recommended_size, "selected_size": item.selected_size,
+                "buy_click_id": item.buy_click_id,
+                "status": "answered" if answer is not None else "not_answered",
+                "clicked_at": item.clicked_at,
+                "answer": saved,
+            })
         return items, total
 
     @staticmethod
-    async def save_answers(
-        session: AsyncSession,
-        survey: Survey,
-        answers: list[SurveyAnswerItem],
-    ) -> int:
-        """
-        Сохраняет ответы только по товарам,
-        действительно принадлежащим этому survey.
-        """
-
+    async def save_answers(session, survey, answers):
+        # Serialize edits of this invitation; the unique survey/product key remains intact.
+        await session.execute(select(Survey.id).where(Survey.id == survey.id).with_for_update())
+        now = datetime.now(timezone.utc)
+        if survey.expires_at <= now:
+            raise ValueError("Survey expired")
         product_ids = [answer.product_id for answer in answers]
-
+        if len(product_ids) != len(set(product_ids)):
+            raise ValueError("Duplicate products in answer batch")
         allowed_result = await session.execute(
-            select(SurveyItem.product_id).where(
-                SurveyItem.survey_id == survey.id,
-                SurveyItem.product_id.in_(product_ids),
-            )
+            select(SurveyItem).where(SurveyItem.survey_id == survey.id, SurveyItem.product_id.in_(product_ids))
         )
-        allowed_ids = set(allowed_result.scalars().all())
-
-        unknown_ids = set(product_ids) - allowed_ids
-        if unknown_ids:
-            raise ValueError(
-                "One or more products do not belong to this survey"
-            )
-
-        existing_result = await session.execute(
-            select(SurveyAnswer.product_id).where(
-                SurveyAnswer.survey_id == survey.id,
-                SurveyAnswer.product_id.in_(product_ids),
-            )
+        allowed = {item.product_id: item for item in allowed_result.scalars().all()}
+        if set(product_ids) - set(allowed):
+            raise ValueError("One or more products do not belong to this survey")
+        result = await session.execute(
+            select(SurveyAnswer).where(SurveyAnswer.survey_id == survey.id, SurveyAnswer.product_id.in_(product_ids))
         )
-        existing_ids = set(existing_result.scalars().all())
-
-        created = 0
-
+        existing = {answer.product_id: answer for answer in result.scalars().all()}
         for answer in answers:
-            # Повторную отправку одного и того же товара не дублируем.
-            if answer.product_id in existing_ids:
-                continue
-
-            session.add(
-                SurveyAnswer(
-                    survey_id=survey.id,
-                    product_id=answer.product_id,
-                    order_placed=answer.order_placed,
-                    sizes_ordered=answer.sizes_ordered,
-                    purchased_size=answer.purchased_size,
-                    added_to_cart=answer.added_to_cart,
-                    sizes_in_cart=answer.sizes_in_cart,
-                    cart_size=answer.cart_size,
-                    fit_result=answer.fit_result,
-                    action=answer.action,
-                    return_reason=answer.return_reason,
-                    return_reason_text=answer.return_reason_text,
-                )
-            )
-            created += 1
-
-        # По ТЗ даже частичная отправка означает, что пользователь ответил.
-        if created > 0:
+            recommended = allowed[answer.product_id].recommended_size
+            if not recommended or not recommended.strip() or allowed[answer.product_id].selected_size == "not_applicable":
+                raise ValueError("Items without a recommended size are excluded from this survey")
+            if answer.order_placed == "yes":
+                if recommended is not None and answer.fit_result is None:
+                    raise ValueError("Please assess the saved recommended size")
+                if recommended is None and answer.fit_result is not None:
+                    raise ValueError("No recommended size exists for this item")
+            row = existing.get(answer.product_id)
+            if row is None:
+                row = SurveyAnswer(survey_id=survey.id, product_id=answer.product_id)
+                session.add(row)
+            for key, value in answer.model_dump(exclude={"product_id"}).items():
+                setattr(row, key, value)
+            row.updated_at = now
+        # Keep the specification's suppression of unsolicited popup/email after a submit.
+        # The user can still complete or update this same invitation until expiry.
+        if answers:
             survey.status = "answered"
-
         await session.commit()
-
-        return created
+        return len(answers)
 
     @staticmethod
-    async def validate_token(
-        session: AsyncSession,
-        token: str,
-    ) -> tuple[Survey | None, str | None]:
-        result = await session.execute(
-            select(Survey).where(Survey.token == token)
-        )
+    async def validate_token(session, token):
+        result = await session.execute(select(Survey).where(Survey.token == token))
         survey = result.scalar_one_or_none()
-
         if survey is None:
             return None, "not_found"
-
-        if survey.status == "answered":
-            return survey, "already_answered"
-
-        now = datetime.now(timezone.utc)
-
-        if survey.expires_at <= now:
+        if survey.expires_at <= datetime.now(timezone.utc):
             if survey.status != "expired":
                 survey.status = "expired"
                 await session.commit()
-
             return survey, "expired"
-
         return survey, None
