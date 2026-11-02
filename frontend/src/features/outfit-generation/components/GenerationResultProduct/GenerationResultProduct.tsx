@@ -110,11 +110,9 @@ function GenerationResultProduct({
   const fitConfig = item.fit?.fit_signal != null ? FIT_CONFIG[item.fit.fit_signal] : undefined;
   const isInsufficientFit = item.fit?.status === 'insufficient_evidence';
   const fitTitle = isInsufficientFit
-    ? 'Недостаточно данных о посадке'
+    ? 'Недостаточно данных для подбора размера'
     : (fitConfig?.label ?? 'Есть информация о посадке');
-  const fitExplanation = isInsufficientFit
-    ? `${item.fit?.explanation ?? ''} Размер подобран по размерной таблице.`.trim()
-    : item.fit?.explanation;
+  const fitSummary = isInsufficientFit ? fitTitle : `По отзывам: ${fitTitle}`;
   const confidenceLabel = getConfidenceLabel(item.fit?.confidence);
   const reviewsLabel = item.fit ? `Проанализировано: ${getReviewsLabel(item.fit.num_reviews)}` : null;
 
@@ -124,7 +122,7 @@ function GenerationResultProduct({
     void sendExplanationView({
       session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
       outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
-        initial_selected_size: initialSize, explanation_visible: true, explanation_summary: 'По отзывам: ' + fitTitle }],
+        initial_selected_size: initialSize, explanation_visible: true, explanation_summary: fitSummary }],
     }).catch(() => undefined);
   });
   const viewRef = useVisibleOnce<HTMLDivElement>(item.id, () => {
@@ -133,7 +131,7 @@ function GenerationResultProduct({
       session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
       outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
         initial_selected_size: initialSize, explanation_visible: showFit && isHalfVisible(fitViewRef.current),
-        explanation_summary: showFit && isHalfVisible(fitViewRef.current) ? 'По отзывам: ' + fitTitle : null }],
+        explanation_summary: showFit && isHalfVisible(fitViewRef.current) ? fitSummary : null }],
     }).catch(() => undefined);
   });
 
@@ -177,7 +175,7 @@ function GenerationResultProduct({
       session_id: getSessionId(),
       product_id: item.product_id,
       tooltip_type: 'fit',
-      explanation_summary: 'По отзывам: ' + fitTitle,
+      explanation_summary: fitSummary,
       explanation_text: item.fit?.explanation ?? null,
       explanation_meta: confidenceLabel ? `${confidenceLabel} · ${reviewsLabel}` : reviewsLabel,
       outfit_id: outfitId,
@@ -270,7 +268,15 @@ function GenerationResultProduct({
 
           {showFit && (
             <div ref={fitViewRef}>
-            <Collapse
+            {isInsufficientFit ? (
+              <div className={styles.fitUnavailable}>
+                <span className={[styles.fitLabel, styles.fitInfo].join(' ')}>
+                  <InfoCircleOutlined />
+                  <span>{fitSummary}</span>
+                </span>
+              </div>
+            ) : (
+              <Collapse
               ghost
               expandIconPosition="end"
               className={styles.fitCollapse}
@@ -280,7 +286,7 @@ function GenerationResultProduct({
                 label: (
                   <span className={[styles.fitLabel, fitConfig?.className ?? styles.fitInfo].filter(Boolean).join(' ')}>
                     {fitConfig?.icon ?? <InfoCircleOutlined />}
-                    <span>По отзывам: {fitTitle}</span>
+                    <span>{fitSummary}</span>
                   </span>
                 ),
                 children: (
@@ -293,15 +299,16 @@ function GenerationResultProduct({
                       </Text>
                     )}
 
-                    {fitExplanation && (
+                    {item.fit?.explanation && (
                       <Text className={styles.fitDescription}>
-                        {fitExplanation}
+                        {item.fit.explanation}
                       </Text>
                     )}
                   </div>
                 ),
               }]}
-            />
+              />
+            )}
             </div>
           )}
         </div>
