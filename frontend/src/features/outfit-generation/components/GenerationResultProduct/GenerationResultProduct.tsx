@@ -116,7 +116,7 @@ function GenerationResultProduct({
     ? `${item.fit?.explanation ?? ''} Размер подобран по размерной таблице.`.trim()
     : item.fit?.explanation;
   const confidenceLabel = getConfidenceLabel(item.fit?.confidence);
-  const reviewsLabel = item.fit ? getReviewsLabel(item.fit.num_reviews) : null;
+  const reviewsLabel = item.fit ? `Проанализировано: ${getReviewsLabel(item.fit.num_reviews)}` : null;
 
 
   const fitViewRef = useVisibleOnce<HTMLDivElement>(item.id + ':fit', () => {
@@ -137,14 +137,22 @@ function GenerationResultProduct({
     }).catch(() => undefined);
   });
 
-  const selectionKey = item.id + ':' + initialSize;
-  const [selection, setSelection] = useState({ key: selectionKey, value: initialSize });
-  const selectedSize = selection.key === selectionKey ? selection.value : initialSize;
+  const [selection, setSelection] = useState({
+    itemId: item.id,
+    initialSize,
+    size: initialSize,
+  });
+  const shouldResetSelection = selection.itemId !== item.id || selection.initialSize !== initialSize;
+  const selectedSize = shouldResetSelection ? initialSize : selection.size;
+
+  if (shouldResetSelection) {
+    setSelection({ itemId: item.id, initialSize, size: initialSize });
+  }
 
 
   const changeSize = (size: string) => {
     const previousSize = selectedSize;
-    setSelection({ key: selectionKey, value: size });
+    setSelection({ itemId: item.id, initialSize, size });
 
     if (!previousSize || previousSize === size) return;
 
