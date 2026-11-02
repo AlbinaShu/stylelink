@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { getEmailSurveyItems, submitEmailSurveyAnswers, validateEmailSurvey } from '../../features/survey/api/survey.api';
 import type { ISurveyAnswerItem, ISurveyItem, ISurveyValidateResponse } from '../../features/survey/types';
 import SurveyForm from '../../features/survey/components/SurveyForm/SurveyForm';
+import { useSurveyTracking } from '../../features/survey/hooks/useSurveyTracking';
 import styles from './SurveyEmailPage.module.css';
 
 const PAGE_SIZE = 10;
@@ -27,13 +28,12 @@ function SurveyEmailPage() {
   const [invalidReason, setInvalidReason] = useState<ISurveyValidateResponse['reason']>(null);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [skipped, setSkipped] = useState(false);
+  const [surveyId, setSurveyId] = useState<string | null>(null);
+  const tracking = useSurveyTracking(surveyId, 'email', token ?? undefined);
 
   useEffect(() => {
-    if (!token) {
-      setInvalidReason('not_found');
-      setLoading(false);
-      return;
-    }
+    if (!token) return;
 
     let cancelled = false;
     const load = async () => {
@@ -50,6 +50,7 @@ function SurveyEmailPage() {
 
         if (cancelled) return;
 
+        setSurveyId(data.survey_id);
         setItems(data.items);
         setTotal(data.total);
         setHasMore(data.has_more);
@@ -86,6 +87,7 @@ function SurveyEmailPage() {
 
     try {
       await submitEmailSurveyAnswers(token, answers);
+      tracking.finish();
       setDone(true);
       void message.success('Ответы сохранены.');
     } catch {
@@ -95,9 +97,11 @@ function SurveyEmailPage() {
     }
   };
 
+  if (!token) return <div className={styles.center}><Result status="info" title="Опрос не найден." /></div>;
   if (loading) return <div className={styles.center}><Spin size="large" /></div>;
   if (error) return <div className={styles.page}><Alert type="error" showIcon message={error} /></div>;
   if (invalidReason) return <div className={styles.center}><Result status="info" title={validationMessage(invalidReason)} /></div>;
+  if (skipped) return <div className={styles.center}><Result status="info" title="Опрос пропущен" subTitle="Вы можете вернуться к нему по этой ссылке позже." /></div>;
   if (done) return <div className={styles.center}><Result status="success" title="Спасибо!" subTitle="Ваш ответ поможет нам улучшить сервис." /></div>;
 
   return (
@@ -111,6 +115,9 @@ function SurveyEmailPage() {
           submitting={submitting}
           onLoadMore={loadMore}
           onSubmit={submit}
+          onItemVisible={tracking.itemVisible}
+          onProgress={tracking.progress}
+          onSkip={(progress) => { tracking.skip('button', progress); setSkipped(true); }}
         />
       </div>
     </main>

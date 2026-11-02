@@ -12,6 +12,7 @@ from app.models.generation import Generation
 from app.models.user import User
 from app.models.profile import Profile
 from app.schemas.generation import (
+    GenerationUsageResponse,
     GenerationRequest,
     GenerationResponse,
     GenerationsPageResponse,
@@ -23,7 +24,18 @@ from app.services.generation_pipeline import GenerationPipeline
 from app.services.ab.ab_test_service import ABTestService
 
 
+from app.services.generation_usage_service import get_generation_usage
+
+
 router = APIRouter()
+
+
+@router.get("/usage", response_model=GenerationUsageResponse)
+async def generation_usage(
+    current_user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+):
+    return await get_generation_usage(session, current_user.id)
 
 
 # Генерация образов
@@ -34,6 +46,18 @@ async def create_generation(
     current_user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):
+    # Serialize account requests until the reservation commits (PostgreSQL).
+    await session.execute(
+        select(User.id).where(User.id == current_user.id).with_for_update()
+    )
+    usage = await get_generation_usage(session, current_user.id)
+    if usage["exhausted"]:
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "generation_limit_exhausted",
+                    "message": "Бесплатные подборы закончились.", **usage},
+        )
+
     generation = Generation(
         user_id=current_user.id,
         occasion=data.occasion,

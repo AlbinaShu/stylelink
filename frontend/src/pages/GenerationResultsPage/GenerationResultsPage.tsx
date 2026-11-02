@@ -5,7 +5,6 @@ import {
 } from 'antd';
 import {
     useEffect,
-    useRef,
     useState,
 } from 'react';
 import {
@@ -21,9 +20,8 @@ import type {
     IGeneration,
     IOutfit,
 } from '../../features/outfit-generation/types';
+import GenerationFeedback from '../../features/feedback/components/GenerationFeedback/GenerationFeedback';
 import GenerationResults from '../../features/outfit-generation/components/GenerationResults/GenerationResults';
-import { sendRecommendationView } from '../../features/experiment-events/api/experiment-events.api';
-import { getDeviceType, getSessionId } from '../../shared/utils/session';
 import AppBottomNav from '../../shared/ui/AppBottomNav/AppBottomNav';
 import AppHeader from '../../shared/ui/AppHeader/AppHeader';
 
@@ -38,7 +36,6 @@ function GenerationResultsPage() {
     const [generation, setGeneration] = useState<IGeneration | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const viewSentRef = useRef(false);
 
     useEffect(() => {
         if (!generationId) {
@@ -64,26 +61,6 @@ function GenerationResultsPage() {
                 setOutfits(data);
                 setGeneration(generationData);
 
-                if (!viewSentRef.current && data.length > 0) {
-                    viewSentRef.current = true;
-                    void sendRecommendationView({
-                        session_id: getSessionId(),
-                        timestamp: new Date().toISOString(),
-                        device_type: getDeviceType(),
-                        outfitItems: data.flatMap((outfit) =>
-                            outfit.items.map((item) => ({
-                                product_id: item.product_id,
-                                name: item.name,
-                                price: item.price,
-                                category: item.category ?? 'unknown',
-                                recommended_size: item.recommended_size,
-                                fit_signal: item.fit?.fit_signal ?? null,
-                                confidence: item.fit?.confidence ?? null,
-                                num_reviews: null,
-                            })),
-                        ),
-                    }).catch(() => undefined);
-                }
             } catch {
                 if (cancelled) {
                     return;
@@ -152,10 +129,12 @@ function GenerationResultsPage() {
                 {!isLoading &&
                     !error &&
                     outfits.length > 0 && (
-                        <GenerationResults
-                            outfits={outfits}
-                            shoeSize={generation?.shoe_size ?? null}
-                        />
+                        <GenerationFeedback key={generationId} generationId={generationId}>
+                            <GenerationResults
+                                outfits={outfits}
+                                shoeSize={generation?.shoe_size ?? null}
+                            />
+                        </GenerationFeedback>
                     )}
             </main>
 

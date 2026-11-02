@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, String, Text, UniqueConstraint, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -111,6 +111,9 @@ class Survey(Base):
         index=True,
     )
 
+    period_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    period_ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
     scheduled_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
@@ -148,6 +151,8 @@ class SurveyItem(Base):
     """
 
     __tablename__ = "survey_items"
+
+    buy_click_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("survey_buy_clicks.id", ondelete="SET NULL"), nullable=True)
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -202,6 +207,11 @@ class SurveyAnswer(Base):
     """
 
     __tablename__ = "survey_answers"
+
+    fit_scope: Mapped[str] = mapped_column(String(30), nullable=False, server_default="legacy_selected")
+
+    tried_size: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -271,7 +281,9 @@ class SurveyAnswer(Base):
         nullable=True,
     )
 
-    # size / quality / color / other
+    return_reasons: Mapped[list[str] | None] = mapped_column(JSONB, nullable=True)
+
+    # Legacy single reason; new clients use return_reasons.
     return_reason: Mapped[str | None] = mapped_column(
         String(20),
         nullable=True,

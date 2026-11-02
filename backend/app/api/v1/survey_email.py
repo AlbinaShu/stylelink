@@ -157,3 +157,35 @@ async def email_validate_token(
         survey_id=survey.id,
         expires_at=survey.expires_at,
     )
+
+
+from app.schemas.experiment_event import SurveyOpenedEvent, SurveySkippedEvent
+from app.services.experiments.survey_event_service import record_survey_event
+
+
+async def save_email_event(token, data, event_type, session):
+    survey = await get_valid_survey(token=token, session=session)
+    if data.survey_type != "email":
+        raise HTTPException(status_code=400, detail="Expected an email survey event")
+    try:
+        event = await record_survey_event(session, survey, data, event_type)
+        await session.commit()
+    except ValueError as exc:
+        await session.rollback()
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"event_id": event.id, "status": "saved"}
+
+
+@router.post("/events/opened")
+async def email_opened(data: SurveyOpenedEvent, token: str = Query(...), session: AsyncSession = Depends(get_db)):
+    return await save_email_event(token, data, "survey_opened", session)
+
+
+@router.post("/events/item-view")
+async def email_item_view(data: SurveyOpenedEvent, token: str = Query(...), session: AsyncSession = Depends(get_db)):
+    return await save_email_event(token, data, "survey_item_view", session)
+
+
+@router.post("/events/skipped")
+async def email_skipped(data: SurveySkippedEvent, token: str = Query(...), session: AsyncSession = Depends(get_db)):
+    return await save_email_event(token, data, "survey_skipped", session)

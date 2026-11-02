@@ -774,6 +774,7 @@ class YandexMarketMarketplace(MarketplaceService):
         params: dict[str, Any] = {
             "text": search_query,
             "page": page,
+            "how": "dpop",
         }
 
         # Яндекс Маркет поддерживает pricefrom / priceto
