@@ -1,0 +1,46 @@
+.panel {
+  margin-top: 20px;
+  padding: 14px;
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid #eadfd9;
+  border-radius: 14px;
+}
+.form { border: 0; margin: 0; padding: 0; min-width: 0; }
+.form + .form { margin-top: 16px; padding-top: 16px; border-top: 1px solid #eee5e0; }
+.title { margin: 0 0 8px; font-size: 17px; font-weight: 600; color: #17100d; }
+.description { margin: 0 0 16px; color: #715b50; line-height: 1.5; }
+.scale { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin: 8px 0; }
+.choice { position: relative; cursor: pointer; }
+.choice input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; }
+.choice span {
+  display: flex; align-items: center; justify-content: center; min-height: 40px;
+  border: 1px solid #d7c5bb; border-radius: 8px; color: #624b40; background: #fff;
+}
+.choice input:checked + span { background: #96344d; border-color: #96344d; color: #fff; }
+.choice input:focus-visible + span { outline: 3px solid #c48799; outline-offset: 2px; }
+.choice input:disabled + span { opacity: .6; cursor: wait; }
+.endpoints { display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: #715b50; margin-bottom: 16px; }
+.endpoints span:last-child { text-align: right; }
+.comment { display: block; margin: 16px 0; color: #624b40; }
+.comment textarea { margin-top: 8px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.saved { color: #624b40; line-height: 1.6; }
+.error { color: #a02035; margin: 8px 0; }
+@media (max-width: 480px) {
+  .panel { padding: 12px; }
+  .scale { gap: 3px; }
+  .choice span { min-height: 36px; font-size: 13px; border-radius: 6px; }
+}
+
+/* Match product-card typography while keeping the dialog comfortable. */
+.panel .title { font-size: 14px; line-height: 18px; margin-bottom: 6px; }
+.panel .description { font-size: 12px; line-height: 18px; margin-bottom: 10px; }
+.panel .choice span { min-height: 32px; font-size: 12px; }
+.panel .endpoints { font-size: 11px; line-height: 16px; margin-bottom: 10px; }
+.panel .comment { font-size: 12px; line-height: 18px; margin: 12px 0; }
+.panel .saved, .panel .error { font-size: 12px; }
+.panel :global(.ant-btn), .panel :global(.ant-input), .panel :global(.ant-input-data-count) { font-size: 12px; }
+@media (max-width: 480px) {
+  .panel .title { font-size: 13px; }
+}

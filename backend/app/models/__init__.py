@@ -16,3 +16,5 @@ from app.models.experiment_event import ExperimentEvent
 # Survey backend models.
 # Operational survey data is stored separately from experiment analytics events.
 from app.models.survey import SurveyPopupSession, Survey, SurveyAnswer, SurveyBuyClick, SurveyItem
+
+from app.models.feedback import FeedbackRating, FeedbackPrompt, FeedbackEvent

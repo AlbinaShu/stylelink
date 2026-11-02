@@ -3,6 +3,7 @@ from app.api.v1.auth import router as auth_router
 from app.api.v1.users import router as users_router
 from app.api.v1.profile import router as profile_router
 from app.api.v1.generations import router as generations_router
+from app.api.v1.feedback import router as feedback_router
 
 from app.api.v1.experiment_events import router as experiment_events_router
 from app.api.v1.survey import router as survey_router
@@ -15,3 +16,5 @@ api_router.include_router(generations_router, prefix="/generations", tags=["Gene
 api_router.include_router(experiment_events_router, prefix="/experiment-events", tags=["Experiment Events"])
 api_router.include_router(survey_router, prefix="/survey", tags=["Survey"])
 api_router.include_router(survey_email_router, prefix="/survey/email", tags=["Survey Email"])
+
+api_router.include_router(feedback_router, prefix="/feedback", tags=["Feedback"])
