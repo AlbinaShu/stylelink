@@ -33,6 +33,8 @@ class OutfitRequest(ContractModel):
     generation_id: UUID
     context: OutfitContext
     products: list[OutfitProduct] = Field(max_length=100)
+    outfit_count: int = Field(default=5, ge=1, le=5)
+    required_categories: list[Category] | None = Field(default=None, min_length=1, max_length=6)
 
     @model_validator(mode="after")
     def unique_products(self):

@@ -14,12 +14,13 @@ def _similarity(left: list[float], right: list[float]) -> float:
 def create_outfits(request: OutfitRequest) -> OutfitResponse:
     by_category: dict[str, list[OutfitProduct]] = {}
     for item in request.products:
-        group = by_category.setdefault(item.category, [])
-        if len(group) < MAX_PRODUCTS_PER_CATEGORY:
-            group.append(item)
+        by_category.setdefault(item.category, []).append(item)
 
-    if not by_category.get("shoes") or not (
-        by_category.get("dress") or (by_category.get("top") and by_category.get("bottom"))
+    required = list(dict.fromkeys(request.required_categories or []))
+    if (required and any(not by_category.get(category) for category in required)) or (
+        not required and (not by_category.get("shoes") or not (
+            by_category.get("dress") or (by_category.get("top") and by_category.get("bottom"))
+        ))
     ):
         return OutfitResponse(generation_id=request.generation_id, outfits=[])
 
@@ -30,6 +31,13 @@ def create_outfits(request: OutfitRequest) -> OutfitResponse:
         for item_id, vector in vectors.items()
     }
 
+    # Rank ALL supplied products before limiting the combinatorial search.
+    for category, items in by_category.items():
+        by_category[category] = sorted(
+            [item for item in items if item.product_id in vectors],
+            key=lambda item: relevance[item.product_id], reverse=True,
+        )[:MAX_PRODUCTS_PER_CATEGORY]
+
     base_candidates = chain(
         product(by_category.get("dress", []), by_category.get("shoes", [])),
         product(
@@ -38,9 +46,11 @@ def create_outfits(request: OutfitRequest) -> OutfitResponse:
             by_category.get("shoes", []),
         ),
     )
+    if required:
+        base_candidates = product(*(by_category[category] for category in required))
     ranked: list[tuple[float, tuple[OutfitProduct, ...]]] = []
-    outerwear_options = [None, *by_category.get("outerwear", [])[:2]]
-    accessory_options = [None, *by_category.get("accessory", [])[:2]]
+    outerwear_options = [None] if required else [None, *by_category.get("outerwear", [])[:2]]
+    accessory_options = [None] if required else [None, *by_category.get("accessory", [])[:2]]
     for base in base_candidates:
         for outerwear, accessory in product(outerwear_options, accessory_options):
             candidate = (*base, *(item for item in (outerwear, accessory) if item))
@@ -56,8 +66,11 @@ def create_outfits(request: OutfitRequest) -> OutfitResponse:
                 _similarity(vectors[left.product_id], vectors[right.product_id])
                 for left, right in product(candidate, repeat=2)
                 if left.product_id != right.product_id
-            ) / (len(candidate) * (len(candidate) - 1))
+            ) / max(1, len(candidate) * (len(candidate) - 1))
             ranked.append((0.8 * item_score + 0.2 * pair_score, candidate))
+            # Retain only the requested best outfits, even for six required categories.
+            ranked.sort(key=lambda entry: entry[0], reverse=True)
+            del ranked[request.outfit_count:]
 
     ranked.sort(key=lambda entry: entry[0], reverse=True)
     outfits = [
@@ -74,6 +87,6 @@ def create_outfits(request: OutfitRequest) -> OutfitResponse:
                 for position, item in enumerate(candidate, start=1)
             ],
         )
-        for rank, (score, candidate) in enumerate(ranked[:5], start=1)
+        for rank, (score, candidate) in enumerate(ranked[:request.outfit_count], start=1)
     ]
     return OutfitResponse(generation_id=request.generation_id, outfits=outfits)

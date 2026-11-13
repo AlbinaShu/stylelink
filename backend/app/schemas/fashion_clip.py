@@ -26,6 +26,8 @@ class FashionClipRequest(BaseModel):
     context: FashionClipContext
 
     # На первом этапе не отправляем больше 100 карточек.
+    outfit_count: int = Field(default=5, ge=1, le=5)
+    required_categories: list[str] | None = None
     products: list[FashionClipProduct] = Field(
         max_length=100
     )

@@ -29,7 +29,7 @@ FIT_LABELS = {
 ALLOWED_IMAGE_HOSTS = tuple(
     host.strip().lower()
     for host in os.getenv(
-        "ML_IMAGE_HOSTS", "yandex.net,yandex.ru,wbbasket.ru,wildberries.ru"
+        "ML_IMAGE_HOSTS", "yandex.net,yandex.ru,wbbasket.ru,wildberries.ru,ozone.ru"
     ).split(",")
     if host.strip()
 )

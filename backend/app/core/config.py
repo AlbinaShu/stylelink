@@ -1,3 +1,5 @@
+from typing import Literal
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -16,6 +18,25 @@ class Settings(BaseSettings):
     smtp_from: str
     gigachat_credentials: str
     gigachat_model: str
+
+    # Pilot defaults preserve the legacy source; enable paid providers explicitly.
+    catalog_provider: Literal["yandex_market", "bhapi_wb"] = "yandex_market"
+    reviews_provider: Literal["yandex_market", "mpdown", "apify", "none"] = "yandex_market"
+    bhapi_wb_token: SecretStr = SecretStr("")
+    mpdown_api_key: SecretStr = SecretStr("")
+    apify_api_token: SecretStr = SecretStr("")
+    apify_run_cap_usd: float = Field(default=0.15, gt=0, le=1)
+    apify_generation_cap_usd: float = Field(default=1.0, gt=0, le=5)
+    apify_reviews_timeout_seconds: float = Field(default=90, gt=0, le=180)
+    apify_allow_group_reviews: bool = False
+    wb_pickup_point_id: int | None = Field(default=None, gt=0)
+    marketplace_search_limit: int = Field(default=20, ge=1, le=30)
+    marketplace_max_calls: int = Field(default=150, ge=1, le=500)
+    marketplace_max_searches: int = Field(default=6, ge=1, le=6)
+    marketplace_timeout_seconds: float = Field(default=120, gt=0, le=240)
+    marketplace_review_limit: int = Field(default=20, ge=1, le=20)
+    marketplace_review_max_pages: int = Field(default=2, ge=1, le=10)
+    outfit_count: int = Field(default=5, ge=1, le=5)
 
     # FashionCLIP ML service
     fashion_clip_url: str = "http://127.0.0.1:8001"
