@@ -1,8 +1,12 @@
+import json
+import logging
 from itertools import chain, product
 
 from app.model_runtime import get_outfit_models
 from app.schemas import Outfit, OutfitItem, OutfitProduct, OutfitRequest, OutfitResponse
 
+
+logger = logging.getLogger(__name__)
 
 MAX_PRODUCTS_PER_CATEGORY = 8
 
@@ -16,12 +20,29 @@ def create_outfits(request: OutfitRequest) -> OutfitResponse:
     for item in request.products:
         by_category.setdefault(item.category, []).append(item)
 
+    category_counts = {
+        category: len(items)
+        for category, items in by_category.items()
+    }
+
+    logger.info(json.dumps({
+        "event": "fashionclip_input",
+        "generation_id": str(request.generation_id),
+        "category_counts": category_counts,
+    }))
+
     required = list(dict.fromkeys(request.required_categories or []))
     if (required and any(not by_category.get(category) for category in required)) or (
         not required and (not by_category.get("shoes") or not (
             by_category.get("dress") or (by_category.get("top") and by_category.get("bottom"))
         ))
     ):
+        logger.warning(json.dumps({
+            "event": "fashionclip_empty",
+            "generation_id": str(request.generation_id),
+            "reason": "missing_required_category",
+            "category_counts": category_counts,
+        }))
         return OutfitResponse(generation_id=request.generation_id, outfits=[])
 
     selected = list(chain.from_iterable(by_category.values()))
@@ -49,16 +70,20 @@ def create_outfits(request: OutfitRequest) -> OutfitResponse:
     if required:
         base_candidates = product(*(by_category[category] for category in required))
     ranked: list[tuple[float, tuple[OutfitProduct, ...]]] = []
+    rejected_budget = 0
+    rejected_vectors = 0
     outerwear_options = [None] if required else [None, *by_category.get("outerwear", [])[:2]]
     accessory_options = [None] if required else [None, *by_category.get("accessory", [])[:2]]
     for base in base_candidates:
         for outerwear, accessory in product(outerwear_options, accessory_options):
             candidate = (*base, *(item for item in (outerwear, accessory) if item))
             if any(item.product_id not in vectors for item in candidate):
+                rejected_vectors += 1
                 continue
             if request.context.budget is not None and sum(
                 item.price for item in candidate
             ) > request.context.budget:
+                rejected_budget += 1
                 continue
 
             item_score = sum(relevance[item.product_id] for item in candidate) / len(candidate)
@@ -89,4 +114,14 @@ def create_outfits(request: OutfitRequest) -> OutfitResponse:
         )
         for rank, (score, candidate) in enumerate(ranked[:request.outfit_count], start=1)
     ]
+    logger.info(json.dumps({
+        "event": "fashionclip_completed",
+        "generation_id": str(request.generation_id),
+        "category_counts": category_counts,
+        "rejected_budget": rejected_budget,
+        "rejected_vectors": rejected_vectors,
+        "valid_candidates": len(ranked),
+        "outfits_generated": len(outfits),
+    }))
+
     return OutfitResponse(generation_id=request.generation_id, outfits=outfits)

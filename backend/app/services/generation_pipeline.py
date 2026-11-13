@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 from uuid import UUID
 
@@ -35,6 +36,12 @@ from app.services.size_recommendation_service import SizeRecommendationService
 
 logger = logging.getLogger(__name__)
 
+def diagnostic(event, **fields):
+    logger.info(json.dumps(
+        {"event": event, **fields},
+        ensure_ascii=False,
+        default=str,
+    ))
 
 class GenerationPipeline:
     MAX_FASHION_CLIP_PRODUCTS = 100
@@ -255,7 +262,18 @@ class GenerationPipeline:
                 # 4. Если товаров нет — валидный пустой результат
                 # -------------------------------------------------
 
+                diagnostic(
+                    "products_filtered",
+                    generation_id=generation_id,
+                    usable_products=len(unique_products),
+                )
+
                 if not unique_products:
+                    diagnostic(
+                        "generation_empty",
+                        generation_id=generation_id,
+                        reason="no_usable_products",
+                    )
                     raise ProviderError("no_usable_products")
 
                 # -------------------------------------------------
@@ -341,6 +359,18 @@ class GenerationPipeline:
                 # 9. Сохраняем Outfit + OutfitItem
                 # -------------------------------------------------
 
+                diagnostic(
+                    "fashionclip_result",
+                    generation_id=generation_id,
+                    outfits_generated=len(fashion_clip_response.outfits),
+                )
+
+                if not fashion_clip_response.outfits:
+                    diagnostic(
+                        "generation_empty",
+                        generation_id=generation_id,
+                        reason="no_valid_outfits",
+                    )
                 # Keep only the requested number before saving or collecting reviews.
                 fashion_clip_response.outfits = fashion_clip_response.outfits[:settings.outfit_count]
                 if not fashion_clip_response.outfits:
@@ -609,8 +639,16 @@ class GenerationPipeline:
 
                 generation.status = "completed"
                 await db.commit()
+                diagnostic(
+                    "generation_completed",
+                    generation_id=generation_id,
+                )
 
             except Exception:
+                logger.exception(
+                    "generation_failed generation_id=%s",
+                    generation_id,
+                )
                 await db.rollback()
 
                 result = await db.execute(

@@ -1,3 +1,4 @@
+import logging
 import asyncio
 import html
 import json
@@ -10,6 +11,8 @@ import requests
 
 from app.services.marketplaces.base import MarketplaceService
 
+
+logger = logging.getLogger(__name__)
 
 class YandexMarketAccessBlocked(RuntimeError):
     pass
@@ -101,7 +104,12 @@ class YandexMarketMarketplace(MarketplaceService):
                         timeout=15,
                     )
 
-                except requests.RequestException:
+                except requests.RequestException as exc:
+                    logger.warning(
+                        "marketplace_request_failed attempt=%s error=%s",
+                        attempt + 1,
+                        type(exc).__name__,
+                    )
                     if attempt >= self.MAX_RETRIES:
                         raise
 
@@ -134,6 +142,10 @@ class YandexMarketMarketplace(MarketplaceService):
 
                 # Too Many Requests.
                 if response.status_code == 429:
+                    logger.warning(
+                        "marketplace_rate_limited attempt=%s",
+                        attempt + 1,
+                    )
                     if attempt >= self.MAX_RETRIES:
                         response.raise_for_status()
 
@@ -159,6 +171,11 @@ class YandexMarketMarketplace(MarketplaceService):
 
                 # Временная ошибка сервера.
                 if 500 <= response.status_code < 600:
+                    logger.warning(
+                        "marketplace_server_error status=%s attempt=%s",
+                        response.status_code,
+                        attempt + 1,
+                    )
                     if attempt >= self.MAX_RETRIES:
                         response.raise_for_status()
 
@@ -567,6 +584,11 @@ class YandexMarketMarketplace(MarketplaceService):
             if isinstance(brand_name, str):
                 brand = brand_name.strip() or None
 
+        # Если бренд отсутствует в JSON-LD,
+        # пробуем извлечь его из характеристик страницы.
+        if not brand:
+            brand = self._extract_brand_from_html(text)
+
         description = product.get("description")
 
         if not isinstance(description, str):
@@ -606,6 +628,45 @@ class YandexMarketMarketplace(MarketplaceService):
             },
         }
 
+
+
+    @staticmethod
+    def _extract_brand_from_html(text: str) -> str | None:
+        """Извлекает бренд из характеристик товара."""
+        import re
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(text, "html.parser")
+
+        for element in soup.find_all(string=True):
+            if element.strip().lower() != "бренд":
+                continue
+
+            label = element.parent
+
+            for parent in list(label.parents)[:4]:
+                children = parent.find_all(
+                    ["span", "div", "dd", "td"],
+                    recursive=True,
+                )
+
+                for child in children:
+                    value = child.get_text(" ", strip=True)
+
+                    if not value or value.lower() == "бренд":
+                        continue
+
+                    if (
+                        len(value) <= 100
+                        and "бренд" not in value.lower()
+                        and value.lower() not in {
+                            "цвет товара", "пол",
+                            "материал верха", "артикул маркета",
+                        }
+                    ):
+                        return value
+
+        return None
 
     @staticmethod
     def _extract_json_string(
