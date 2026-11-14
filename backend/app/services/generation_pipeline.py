@@ -36,12 +36,14 @@ from app.services.size_recommendation_service import SizeRecommendationService
 
 logger = logging.getLogger(__name__)
 
+
 def diagnostic(event, **fields):
     logger.info(json.dumps(
         {"event": event, **fields},
         ensure_ascii=False,
         default=str,
     ))
+
 
 class GenerationPipeline:
     MAX_FASHION_CLIP_PRODUCTS = 100
@@ -519,17 +521,29 @@ class GenerationPipeline:
                             "reviews_fetch_status": "available" if fit_data.get("reviews") else "empty",
                         }
                     except Exception as exc:
-                        logger.warning("reviews_unavailable product=%s error_type=%s",
-                                       product.id, type(exc).__name__)
+                        logger.warning(
+                            "reviews_unavailable product=%s external_id=%s error_type=%s",
+                            product.id,
+                            product.external_id,
+                            type(exc).__name__,
+                        )
                         product.raw_data = {**(product.raw_data or {}),
                                             "reviews_fetch_status": "unavailable"}
                         fit_data = {"model_id": str(product.external_id), "reviews": []}
+
+                    reviews = fit_data.get("reviews") or []
+                    if not reviews:
+                        logger.warning(
+                            "No text reviews parsed: product_id=%s external_id=%s",
+                            product.id,
+                            product.external_id,
+                        )
 
                     size_shift_products.append(
                         {
                             "product_id": str(product.id),
                             "model_id": fit_data.get("model_id"),
-                            "reviews": fit_data.get("reviews") or [],
+                            "reviews": reviews,
                         }
                     )
 
