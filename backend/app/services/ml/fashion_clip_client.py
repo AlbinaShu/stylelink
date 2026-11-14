@@ -43,6 +43,9 @@ class FashionClipClient:
                     json=request.model_dump(
                         mode="json",
                         exclude_none=True,
+                        # Existing production ML rejects unknown request fields.
+                        exclude=({'outfit_count', 'required_categories'}
+                                 if settings.catalog_provider == 'yandex_market' else set()),
                     ),
                 )
 

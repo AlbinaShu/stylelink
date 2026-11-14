@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -9,6 +10,10 @@ from app.api.v1.router import api_router
 from app.core.database import engine
 from app.services.survey_scheduler import survey_scheduler
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

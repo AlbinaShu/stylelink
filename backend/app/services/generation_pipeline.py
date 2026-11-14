@@ -1,6 +1,10 @@
+import asyncio
 import json
 import logging
 from uuid import UUID
+
+from app.core.config import settings
+from app.services.marketplaces.providers import ProviderRegistry, ProviderError
 
 from sqlalchemy import delete, select
 
@@ -22,16 +26,13 @@ from app.schemas.fashion_clip import (
 from app.schemas.size_shift import (
     SizeShiftProduct,
     SizeShiftRequest,
+    SizeShiftResponse,
 )
 from app.services.gigachat import GigaChatService
-from app.services.marketplaces.yandex_market import (
-    YandexMarketMarketplace,
-)
 from app.services.ml.fashion_clip_client import FashionClipClient
-from app.services.ml.size_shift_client import SizeShiftClient
+from app.services.ml.size_shift_client import SizeShiftClient, SizeShiftError
 from app.services.product_service import ProductService
 from app.services.size_recommendation_service import SizeRecommendationService
-
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,19 @@ class GenerationPipeline:
     MAX_FASHION_CLIP_PRODUCTS = 100
 
     async def run(self, generation_id: UUID) -> None:
+        try:
+            async with ProviderRegistry(settings) as providers:
+                await self._run(generation_id, providers)
+        except Exception:
+            # Includes configuration failures before the main pipeline starts.
+            async with AsyncSessionLocal() as db:
+                generation = await db.get(Generation, generation_id)
+                if generation is not None and generation.status != "completed":
+                    generation.status = "failed"
+                    await db.commit()
+            raise
+
+    async def _run(self, generation_id: UUID, providers) -> None:
         async with AsyncSessionLocal() as db:
             try:
                 # -------------------------------------------------
@@ -60,7 +74,7 @@ class GenerationPipeline:
 
                 generation = result.scalar_one_or_none()
 
-                if generation is None:
+                if generation is None or generation.status == "completed":
                     return
 
                 # Профиль пользователя нужен Backend для рекомендации размера.
@@ -80,33 +94,38 @@ class GenerationPipeline:
 
                 gigachat = GigaChatService()
 
-                generated_items = gigachat.generate_search_items(
-                    generation
-                )
-
-                search_items: list[GenerationSearchItem] = []
-
-                for item in generated_items.items:
-                    search_item = GenerationSearchItem(
-                        generation_id=generation.id,
-                        item_type=item.item_type,
-                        category=item.category,
-                        search_query=item.search_query,
-                    )
-
-                    db.add(search_item)
-                    search_items.append(search_item)
-
-                await db.flush()
+                existing = await db.execute(select(GenerationSearchItem).where(
+                    GenerationSearchItem.generation_id == generation.id))
+                search_items = list(existing.scalars().all())
+                if not search_items:
+                    generated_items = await asyncio.to_thread(
+                        gigachat.generate_search_items, generation)
+                    seen_queries = set()
+                    for item in generated_items.items[:settings.marketplace_max_searches]:
+                        key = (item.category, item.search_query.strip().casefold())
+                        if key in seen_queries:
+                            continue
+                        seen_queries.add(key)
+                        search_item = GenerationSearchItem(
+                            generation_id=generation.id, item_type=item.item_type,
+                            category=item.category, search_query=item.search_query)
+                        db.add(search_item)
+                        search_items.append(search_item)
+                    await db.flush()
+                if not search_items:
+                    raise ProviderError("empty_search_plan")
+                for search_item in search_items:
+                    logger.info("generation_search_plan generation_id=%s category=%s query=%r",
+                                generation.id, search_item.category, search_item.search_query)
 
                 # -------------------------------------------------
-                # 2. Ищем товары на Яндекс Маркете
+                # 2. Ищем товары через выбранного провайдера
                 # -------------------------------------------------
 
                 generation.status = "searching_products"
                 await db.commit()
 
-                marketplace = YandexMarketMarketplace()
+                marketplace = providers.catalog
                 product_service = ProductService()
 
                 # Распределяем бюджет по количеству элементов образа.
@@ -136,9 +155,8 @@ class GenerationPipeline:
                         # 2. 3 500–12 000 ₽
                         # 3. 2 000–12 000 ₽
                         price_from_steps = (
-                            target_price * 0.55,
-                            target_price * 0.35,
-                            target_price * 0.20,
+                            (0.0,) if settings.catalog_provider != "yandex_market"
+                            else (target_price * 0.55, target_price * 0.35, target_price * 0.20)
                         )
 
                         for price_from in price_from_steps:
@@ -157,12 +175,17 @@ class GenerationPipeline:
                     # Последний fallback:
                     # если ни один ценовой диапазон не дал товаров,
                     # ищем без ограничения по цене.
-                    if not products:
+                    if not products and (
+                        target_price is None or settings.catalog_provider == "yandex_market"
+                    ):
                         products = await marketplace.search_products(
                             search_item.search_query,
                             fallback_category=search_item.category,
                         )
 
+                    # A manual retry must not include stale candidates from an earlier attempt.
+                    await db.execute(delete(GenerationSearchItemProduct).where(
+                        GenerationSearchItemProduct.generation_search_item_id == search_item.id))
                     await product_service.save_search_products(
                         db=db,
                         search_item=search_item,
@@ -251,9 +274,7 @@ class GenerationPipeline:
                         generation_id=generation_id,
                         reason="no_usable_products",
                     )
-                    generation.status = "completed"
-                    await db.commit()
-                    return
+                    raise ProviderError("no_usable_products")
 
                 # -------------------------------------------------
                 # 5. Формируем FashionCLIP request
@@ -284,6 +305,9 @@ class GenerationPipeline:
                         budget=generation.budget,
                     ),
                     products=fashion_clip_products,
+                    outfit_count=settings.outfit_count,
+                    required_categories=(list(dict.fromkeys(item.category for item in search_items))
+                                         if settings.catalog_provider != 'yandex_market' else None),
                 )
 
                 # -------------------------------------------------
@@ -347,6 +371,27 @@ class GenerationPipeline:
                         generation_id=generation_id,
                         reason="no_valid_outfits",
                     )
+                # Keep only the requested number before saving or collecting reviews.
+                fashion_clip_response.outfits = fashion_clip_response.outfits[:settings.outfit_count]
+                if not fashion_clip_response.outfits:
+                    raise ProviderError("no_complete_outfit_within_budget")
+                required_categories = (set(fashion_clip_request.required_categories)
+                                       if fashion_clip_request.required_categories else set())
+                for candidate in fashion_clip_response.outfits:
+                    if any(item.product_id not in products_by_id for item in candidate.items):
+                        raise RuntimeError("ML returned an unknown product")
+                    if len({item.product_id for item in candidate.items}) != len(candidate.items):
+                        raise RuntimeError("ML returned duplicate products")
+                    if any(item.category != products_by_id[item.product_id].category
+                           for item in candidate.items):
+                        raise RuntimeError("ML returned a wrong product category")
+                    if required_categories and {products_by_id[item.product_id].category for item in candidate.items} != required_categories:
+                        raise RuntimeError("ML returned an incomplete outfit")
+                    if generation.budget is not None and sum(
+                        float(products_by_id[item.product_id].price or 0)
+                        for item in candidate.items
+                    ) > generation.budget:
+                        raise RuntimeError("ML returned an outfit over budget")
 
                 for ml_outfit in fashion_clip_response.outfits:
                     valid_items: list[
@@ -468,13 +513,17 @@ class GenerationPipeline:
                         continue
 
                     try:
-                        fit_data = await marketplace.get_fit_data(
-                            product.product_url
-                        )
-                    except Exception:
-                        # Ошибка отзывов одного товара не должна
-                        # уничтожать всю уже сформированную подборку.
-                        continue
+                        fit_data = await providers.reviews.get_reviews(product)
+                        product.raw_data = {
+                            **(product.raw_data or {}),
+                            "reviews_fetch_status": "available" if fit_data.get("reviews") else "empty",
+                        }
+                    except Exception as exc:
+                        logger.warning("reviews_unavailable product=%s error_type=%s",
+                                       product.id, type(exc).__name__)
+                        product.raw_data = {**(product.raw_data or {}),
+                                            "reviews_fetch_status": "unavailable"}
+                        fit_data = {"model_id": str(product.external_id), "reviews": []}
 
                     size_shift_products.append(
                         {
@@ -501,11 +550,20 @@ class GenerationPipeline:
 
                 size_shift_client = SizeShiftClient()
 
-                size_shift_response = (
-                    await size_shift_client.predict(
-                        size_shift_request
-                    )
-                )
+                try:
+                    size_shift_response = await size_shift_client.predict(size_shift_request)
+                except SizeShiftError:
+                    logger.warning("fit_service_unavailable generation=%s", generation.id)
+                    # Outfits have already been saved; do not refund/re-run a successful search.
+                    size_shift_response = SizeShiftResponse(
+                        generation_id=generation.id, predictions=[])
+                    result = await db.execute(select(OutfitItem).join(
+                        Outfit, Outfit.id == OutfitItem.outfit_id).where(
+                        Outfit.generation_id == generation.id))
+                    for item in result.scalars().all():
+                        item.fit_status = "insufficient_evidence"
+                        item.fit_explanation = "Анализ посадки временно недоступен."
+
 
                 if (
                     size_shift_response.generation_id
@@ -532,12 +590,8 @@ class GenerationPipeline:
                             f"{prediction.product_id}"
                         )
 
-                print(
-                    "SIZE_SHIFT_RESPONSE:",
-                    size_shift_response.model_dump(
-                        mode="json"
-                    ),
-                )
+                logger.info("fit_predictions generation=%s count=%s",
+                            generation.id, len(size_shift_response.predictions))
 
                 # -------------------------------------------------
                 # 13. Сохраняем Size Shift prediction

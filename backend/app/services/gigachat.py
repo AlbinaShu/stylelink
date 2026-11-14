@@ -12,7 +12,7 @@ SEARCH_ITEMS_SYSTEM_PROMPT = """
 Ты — AI-стилист.
 
 Твоя задача — определить конкретные товары одежды и обуви,
-которые нужно найти на Яндекс Маркете для формирования образа пользователя.
+которые нужно найти на маркетплейсе для формирования образа пользователя.
 
 Правила:
 
@@ -90,7 +90,7 @@ SEARCH_ITEMS_SYSTEM_PROMPT = """
 """
 
 
-def clean_search_query(query: str) -> str:
+def clean_search_query(query: str, budget: float | None = None) -> str:
     """Удаляет из поискового запроса служебные параметры."""
 
     # "style casual" -> "casual"
@@ -154,6 +154,16 @@ def clean_search_query(query: str) -> str:
         query,
         flags=re.IGNORECASE,
     )
+
+    # A live GigaChat response can append the bare budget without a currency.
+    # Remove only the known amount, preserving unrelated numeric product features.
+    if budget is not None:
+        amounts = {str(budget), format(float(budget), "g")}
+        for amount in sorted(amounts, key=len, reverse=True):
+            query = re.sub(
+                r"(?<![\w.,])" + re.escape(amount) + r"(?![\w.,])",
+                "", query,
+            )
 
     # Убираем лишние пробелы и знаки.
     query = re.sub(r"\s+", " ", query).strip(" ,.-")
@@ -235,6 +245,6 @@ class GigaChatService:
         result = self.parse_search_items(prompt)
 
         for item in result.items:
-            item.search_query = clean_search_query(item.search_query)
+            item.search_query = clean_search_query(item.search_query, budget=generation.budget)
 
         return result
