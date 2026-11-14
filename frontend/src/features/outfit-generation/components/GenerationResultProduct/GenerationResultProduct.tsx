@@ -217,7 +217,15 @@ function GenerationResultProduct({
             <div className={styles.productInfo}>
               <div className={styles.meta}>
                 <Tag className={styles.marketplace}>{getMarketplaceLabel(item.marketplace)}</Tag>
-                {item.brand && <Text className={styles.brand} ellipsis>{item.brand}</Text>}
+                {item.brand?.trim() &&
+                  !['unknown', 'не определён', 'не определен',
+                    'не указан', 'без бренда'].includes(
+                      item.brand.trim().toLowerCase()
+                    ) && (
+                    <Text className={styles.brand} ellipsis>
+                      {item.brand.trim()}
+                    </Text>
+                  )}
               </div>
               <Text strong className={styles.name}>{item.name}</Text>
               <Text strong className={styles.price}>{Math.round(item.price).toLocaleString('ru-RU')} ₽</Text>
