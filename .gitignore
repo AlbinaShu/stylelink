@@ -31,3 +31,6 @@ frontend/package-lock.json
 *.njsproj
 *.sln
 *.sw?
+
+# Local provider credentials
+backend/.env.review

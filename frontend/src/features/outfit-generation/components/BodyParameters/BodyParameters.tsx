@@ -108,10 +108,11 @@ function BodyParameters({
               max={50}
               step={0.5}
                 formatter={(value) =>
-                  value == null
+                  value == null || Number(value) === 0
                     ? ''
                     : String(Number(value))
-                }controls={false}
+                }
+                controls={false}
               placeholder="—"
               onChange={(nextValue) => {
                 onChange('shoe_size', nextValue);

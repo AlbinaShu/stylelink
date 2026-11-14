@@ -12,6 +12,7 @@ __pycache__
 .gitignore
 
 .env
+.env.review
 
 *.log
 README.md

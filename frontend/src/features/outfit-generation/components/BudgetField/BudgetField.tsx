@@ -15,7 +15,7 @@ interface IBudgetFieldProps {
     onChange: (value: number) => void;
 }
 
-const MIN_BUDGET = 500;
+const MIN_BUDGET = 5000;
 const MAX_BUDGET = 100000;
 
 function BudgetField({
@@ -60,7 +60,7 @@ function BudgetField({
                 />
 
                 <div className={styles.range}>
-                    <Text>500 ₽</Text>
+                    <Text>5 000 ₽</Text>
                     <Text>100 000 ₽</Text>
                 </div>
             </Card>

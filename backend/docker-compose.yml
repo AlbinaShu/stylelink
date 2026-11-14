@@ -17,6 +17,7 @@ services:
       context: ../ml
     environment:
       FIT_MODEL_BACKEND: ${FIT_MODEL_BACKEND:-b2}
+      ML_IMAGE_HOSTS: ${ML_IMAGE_HOSTS:-yandex.net,yandex.ru,wbbasket.ru,wildberries.ru,ozone.ru}
     restart: unless-stopped
     ports:
       - "127.0.0.1:8001:8001"
