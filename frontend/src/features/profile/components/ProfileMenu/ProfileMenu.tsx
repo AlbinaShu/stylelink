@@ -9,6 +9,7 @@ import {
 } from '@ant-design/icons';
 
 import styles from './ProfileMenu.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 interface IProfileMenuItem {
   key: string;
@@ -31,12 +32,13 @@ const items: IProfileMenuItem[] = [
 
 function ProfileMenu() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleClick = (key: string) => {
     if (key === 'favorites') {
       void message.open({
         type: 'info',
-        content: 'Избранное скоро появится. Мы уже работаем над этой функцией.',
+        content: t('Избранное скоро появится. Мы уже работаем над этой функцией.'),
         duration: 3,
         icon: <HeartOutlined style={{ color: 'var(--primary)' }} />,
       });
@@ -71,7 +73,7 @@ function ProfileMenu() {
             >
               <span className={styles.label}>
                 {item.icon}
-                <span>{item.title}</span>
+                <span>{t(item.title)}</span>
               </span>
 
               <RightOutlined className={styles.arrow} />

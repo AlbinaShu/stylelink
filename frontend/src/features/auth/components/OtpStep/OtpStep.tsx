@@ -5,6 +5,7 @@ import Button from '../../../../shared/ui/Button/Button';
 import { maskEmail } from '../../../../shared/utils/mask-email';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './OtpStep.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 interface IOtpStepProps {
   email: string;
@@ -25,6 +26,7 @@ function OtpStep({
   const [seconds, setSeconds] = useState(RESEND_SECONDS);
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   const { requestCode, verifyCode } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (seconds <= 0) return;
@@ -68,8 +70,8 @@ function OtpStep({
     } catch (error) {
       message.error(
         error instanceof Error
-          ? error.message
-          : 'Неверный код',
+          ? t(error.message)
+          : t('Неверный код'),
       );
 
       return;
@@ -80,8 +82,8 @@ function OtpStep({
     } catch (error) {
       message.error(
         error instanceof Error
-          ? error.message
-          : 'Не удалось завершить регистрацию',
+          ? t(error.message)
+          : t('Не удалось завершить регистрацию'),
       );
     } finally {
       setLoading(false);
@@ -94,12 +96,12 @@ function OtpStep({
     try {
       await requestCode(email);
       setSeconds(RESEND_SECONDS);
-      message.success('Код отправлен повторно');
+      message.success(t('Код отправлен повторно'));
     } catch (error) {
       message.error(
         error instanceof Error
-          ? error.message
-          : 'Не удалось отправить код',
+          ? t(error.message)
+          : t('Не удалось отправить код'),
       );
     }
   };
@@ -110,10 +112,10 @@ function OtpStep({
         <SafetyOutlined />
       </div>
 
-      <h1>Подтвердите email</h1>
+      <h1>{t('Подтвердите email')}</h1>
 
       <p className={styles.description}>
-        Код отправлен на <strong>{maskEmail(email)}</strong>
+        {t('Код отправлен на')} <strong>{maskEmail(email)}</strong>
       </p>
 
       <div className={styles.inputs}>
@@ -126,7 +128,7 @@ function OtpStep({
             value={value}
             inputMode="numeric"
             maxLength={1}
-            aria-label={`Цифра ${index + 1}`}
+            aria-label={t('Цифра {number}', { number: index + 1 })}
             onChange={(event) => change(index, event.target.value)}
             onKeyDown={(event) => keyDown(index, event)}
           />
@@ -134,7 +136,7 @@ function OtpStep({
       </div>
 
       <Button
-        title="Подтвердить"
+        title={t('Подтвердить')}
         onClick={verify}
         isDisabled={code.join('').length !== LENGTH}
         isLoading={loading}
@@ -147,13 +149,13 @@ function OtpStep({
         disabled={seconds > 0}
         onClick={resend}
       >
-        Отправить код повторно через <strong>{seconds}с</strong>
+        {t('Отправить код повторно через')} <strong>{seconds}{t('с')}</strong>
       </button>
 
       <br />
 
       <button type="button" className={styles.change} onClick={onBack}>
-        Изменить email
+        {t('Изменить email')}
       </button>
     </div>
   );

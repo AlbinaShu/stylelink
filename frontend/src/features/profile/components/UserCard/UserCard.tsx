@@ -3,6 +3,7 @@ import { UserOutlined } from '@ant-design/icons';
 
 import type { IUser } from '../../types';
 import styles from './UserCard.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const { Text } = Typography;
 
@@ -13,6 +14,7 @@ interface IUserCardProps {
 function UserCard({
   user,
 }: IUserCardProps) {
+  const { t } = useLanguage();
   return (
     <Card
       bordered
@@ -27,7 +29,7 @@ function UserCard({
 
         <div className={styles.info}>
           <Text strong>
-            {user?.name || 'Пользователь'}
+            {user?.name || t('Пользователь')}
           </Text>
 
           <Text type="secondary">

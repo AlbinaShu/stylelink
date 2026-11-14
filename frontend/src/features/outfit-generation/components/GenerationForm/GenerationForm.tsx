@@ -30,6 +30,7 @@ import CustomPrompt from '../CustomPrompt/CustomPrompt';
 import OptionSelector from '../OptionSelector/OptionSelector';
 
 import styles from './GenerationForm.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const { Text } = Typography;
 
@@ -107,6 +108,7 @@ const initialValues: IGenerationForm = {
 
 function GenerationForm() {
     const navigate = useNavigate();
+    const { t } = useLanguage();
 
     const {
         profile,
@@ -198,7 +200,7 @@ function GenerationForm() {
                 navigate('/plans', { replace: true });
                 return;
             }
-            setError('Не удалось запустить подбор. Проверьте соединение с сервером.');
+            setError(t('Не удалось запустить подбор. Проверьте соединение с сервером.'));
             setIsSubmitting(false);
         }
     };
@@ -227,7 +229,7 @@ function GenerationForm() {
                 return;
             }
             setError(
-                'Не удалось сохранить параметры или запустить подбор. Проверьте соединение с сервером.',
+                t('Не удалось сохранить параметры или запустить подбор. Проверьте соединение с сервером.'),
             );
             setIsSubmitting(false);
         }
@@ -240,12 +242,12 @@ function GenerationForm() {
 
         if (!profileBodyIsComplete && bodyValuesAreComplete) {
             Modal.confirm({
-                title: 'Сохранить параметры тела?',
+                title: t('Сохранить параметры тела?'),
                 icon: <UserOutlined style={{ color: 'var(--primary)' }} />,
                 content:
-                    'Сохранить эти данные в профиле, чтобы автоматически использовать их при следующих подборах?',
-                okText: 'Сохранить',
-                cancelText: 'Не сейчас',
+                    t('Сохранить эти данные в профиле, чтобы автоматически использовать их при следующих подборах?'),
+                okText: t('Сохранить'),
+                cancelText: t('Не сейчас'),
                 centered: true,
                 okButtonProps: {
                     style: {
@@ -271,21 +273,21 @@ function GenerationForm() {
     return (
         <div className={styles.form}>
             <OptionSelector
-                label="Повод"
+                label={t('Повод')}
                 required
                 value={values.occasion}
                 columns={2}
-                options={occasionOptions}
+                options={occasionOptions.map((option) => ({ ...option, label: t(option.label) }))}
                 onChange={(value) => {
                     setField('occasion', value);
                 }}
             />
 
             <OptionSelector
-                label="Стиль"
+                label={t('Стиль')}
                 required
                 value={values.style}
-                options={styleOptions}
+                options={styleOptions.map((option) => ({ ...option, label: t(option.label) }))}
                 columns={2}
                 onChange={(value) => {
                     setField('style', value);
@@ -293,9 +295,9 @@ function GenerationForm() {
             />
 
             <OptionSelector
-                label="Сезон"
+                label={t('Сезон')}
                 value={values.season}
-                options={seasonOptions}
+                options={seasonOptions.map((option) => ({ ...option, label: t(option.label) }))}
                 columns={3}
                 onChange={(value) => {
                     setField('season', value);
@@ -342,7 +344,7 @@ function GenerationForm() {
 
             <div className={styles.submit}>
                 <Text className={styles.hint}>
-                    Заполните параметры тела и выберите повод и стиль или введите свой запрос (≥5 символов)
+                    {t('Заполните параметры тела и выберите повод и стиль или введите свой запрос (≥5 символов)')}
                 </Text>
 
                 <Button
@@ -355,7 +357,7 @@ function GenerationForm() {
                     className={styles.generateButton}
                 >
                     <span>
-                        Подобрать образы
+                        {t('Подобрать образы')}
                     </span>
 
                     {!isSubmitting && (

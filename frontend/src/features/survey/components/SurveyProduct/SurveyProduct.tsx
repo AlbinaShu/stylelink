@@ -11,6 +11,7 @@ import {
 } from '../../configurations/survey-questions';
 import SurveyQuestion from '../SurveyQuestion/SurveyQuestion';
 import styles from './SurveyProduct.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 interface ISurveyProductProps {
     answer: Partial<ISurveyAnswerItem>;
@@ -28,6 +29,7 @@ function SurveyProduct({
     onChange,
     onSave,
 }: ISurveyProductProps) {
+    const { t } = useLanguage();
     return (
         <div className={styles.questions}>
             <SurveyQuestion
@@ -69,7 +71,7 @@ function SurveyProduct({
 
                             {answer.sizes_in_cart && (
                                 <SurveyQuestion
-                                    title={answer.sizes_in_cart === '1' ? 'Какой размер был в корзине?' : 'Среди добавленных размеров был рекомендованный размер ' + recommendedSize + '?'}
+                                    title={answer.sizes_in_cart === '1' ? t('Какой размер был в корзине?') : t('Среди добавленных размеров был рекомендованный размер {size}?', { size: recommendedSize ?? '' })}
                                     value={answer.cart_size}
                                     options={answer.sizes_in_cart === '1' ? SIZE_CHOICE_OPTIONS : [{value: 'recommended', label: 'Да'}, {value: 'other', label: 'Нет'}]}
                                     onChange={(value) => onChange('cart_size', value)}
@@ -82,7 +84,7 @@ function SurveyProduct({
 
             {answer.order_placed === 'yes' && recommendedSize && (
                 <SurveyQuestion
-                    title={'Как подошёл рекомендованный нами размер ' + recommendedSize + '?'}
+                    title={t('Как подошёл рекомендованный нами размер {size}?', { size: recommendedSize })}
                     value={answer.fit_result}
                     options={FIT_OPTIONS}
                     onChange={(value) => onChange('fit_result', value)}
@@ -92,7 +94,7 @@ function SurveyProduct({
             {answer.order_placed === 'yes' && answer.fit_result &&
                 recommendedSize && !['in_transit', 'not_ordered'].includes(answer.fit_result) && (
                     <SurveyQuestion
-                        title={'Что вы сделали с рекомендованным размером ' + recommendedSize + '?'}
+                        title={t('Что вы сделали с рекомендованным размером {size}?', { size: recommendedSize })}
                         value={answer.action}
                         options={ACTION_OPTIONS}
                         onChange={(value) => onChange('action', value)}
@@ -102,10 +104,10 @@ function SurveyProduct({
             {answer.action === 'returned' && (
                 <>
                     <Typography.Text strong>
-                        Почему вернули рекомендованный размер {recommendedSize}? Можно выбрать несколько причин.
+                        {t('Почему вернули рекомендованный размер {size}? Можно выбрать несколько причин.', { size: recommendedSize ?? '' })}
                     </Typography.Text>
                     <Checkbox.Group
-                        options={[...RETURN_REASON_OPTIONS]}
+                        options={RETURN_REASON_OPTIONS.map((option) => ({ ...option, label: t(option.label) }))}
                         value={answer.return_reasons ?? (answer.return_reason ? [answer.return_reason] : [])}
                         onChange={(values) => onChange('return_reasons', values)}
                     />
@@ -114,7 +116,7 @@ function SurveyProduct({
                         <Input.TextArea
                             maxLength={2000}
                             rows={3}
-                            placeholder="Укажите причину"
+                            placeholder={t('Укажите причину')}
                             value={answer.return_reason_text ?? ''}
                             onChange={(event) =>
                                 onChange(
@@ -131,7 +133,7 @@ function SurveyProduct({
                 type="primary"
                 className={styles.surveySaveButton}
                 onClick={onSave}>
-                Сохранить ответ
+                {t('Сохранить ответ')}
             </Button>
         </div>
     );

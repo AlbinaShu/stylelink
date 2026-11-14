@@ -12,6 +12,7 @@ import { getDeviceType, getSessionId } from '../../../../shared/utils/session';
 import type { IOutfitItem } from '../../types';
 import styles from './GenerationResultProduct.module.css';
 import { isHalfVisible, useVisibleOnce } from '../../../../shared/hooks/useVisibleOnce';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const { Text } = Typography;
 
@@ -79,6 +80,7 @@ function GenerationResultProduct({
   outfitId,
   shoeSize,
 }: IGenerationResultProductProps) {
+  const { language, t } = useLanguage();
   const isAccessory = item.category === 'accessory';
 
   // Категории обуви, которые могут прийти с backend/marketplace.
@@ -90,7 +92,6 @@ function GenerationResultProduct({
     'обувь',
   ].includes(normalizedCategory);
 
-  const showFit = item.fit != null;
   const showSizes = !isAccessory && Boolean(item.available_sizes?.length);
 
   // Нормализация нужна, чтобы 39.0 совпадал с "39",
@@ -107,14 +108,32 @@ function GenerationResultProduct({
 
   const recommendedSize = isAccessory ? null : (item.recommended_size ?? shoeSizeFromAvailable);
   const initialSize = recommendedSize && item.available_sizes?.includes(recommendedSize) ? recommendedSize : null;
+  const showFit = item.fit != null || recommendedSize != null;
   const fitConfig = item.fit?.fit_signal != null ? FIT_CONFIG[item.fit.fit_signal] : undefined;
-  const isInsufficientFit = item.fit?.status === 'insufficient_evidence';
-  const fitTitle = isInsufficientFit
-    ? 'Недостаточно данных для подбора размера'
-    : (fitConfig?.label ?? 'Есть информация о посадке');
-  const fitSummary = isInsufficientFit ? fitTitle : `По отзывам: ${fitTitle}`;
-  const confidenceLabel = getConfidenceLabel(item.fit?.confidence);
-  const reviewsLabel = item.fit ? `Проанализировано: ${getReviewsLabel(item.fit.num_reviews)}` : null;
+  const isInsufficientFit = item.fit == null || item.fit.status === 'insufficient_evidence';
+  const fitSummaryRu = isInsufficientFit
+    ? recommendedSize
+      ? shoeSizeFromAvailable
+        ? 'По отзывам нет надежной оценки посадки. Размер выбран по вашему размеру обуви.'
+        : 'По отзывам нет надежной оценки посадки. Размер подобран по размерной таблице.'
+      : 'Недостаточно данных для подбора размера'
+    : `По отзывам: ${fitConfig?.label ?? 'Есть информация о посадке'}`;
+  const fitSummary = isInsufficientFit
+    ? t(fitSummaryRu)
+    : t('По отзывам: {fit}', { fit: t(fitConfig?.label ?? 'Есть информация о посадке') });
+  const confidenceLabelRu = getConfidenceLabel(item.fit?.confidence);
+  const confidenceLabel = item.fit?.confidence != null && confidenceLabelRu
+    ? t('Уверенность: {percent}%', { percent: Math.round(item.fit.confidence * 100) })
+    : null;
+  const reviewsLabelRu = item.fit ? `Проанализировано: ${getReviewsLabel(item.fit.num_reviews)}` : null;
+  const reviewsLabel = item.fit
+    ? language === 'en'
+      ? t('Проанализировано: {count} {word}', {
+          count: item.fit.num_reviews,
+          word: item.fit.num_reviews === 1 ? 'review' : 'reviews',
+        })
+      : reviewsLabelRu
+    : null;
 
 
   const fitViewRef = useVisibleOnce<HTMLDivElement>(item.id + ':fit', () => {
@@ -122,7 +141,7 @@ function GenerationResultProduct({
     void sendExplanationView({
       session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
       outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
-        initial_selected_size: initialSize, explanation_visible: true, explanation_summary: fitSummary }],
+        initial_selected_size: initialSize, explanation_visible: true, explanation_summary: fitSummaryRu }],
     }).catch(() => undefined);
   });
   const viewRef = useVisibleOnce<HTMLDivElement>(item.id, () => {
@@ -131,7 +150,7 @@ function GenerationResultProduct({
       session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
       outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
         initial_selected_size: initialSize, explanation_visible: showFit && isHalfVisible(fitViewRef.current),
-        explanation_summary: showFit && isHalfVisible(fitViewRef.current) ? fitSummary : null }],
+        explanation_summary: showFit && isHalfVisible(fitViewRef.current) ? fitSummaryRu : null }],
     }).catch(() => undefined);
   });
 
@@ -175,9 +194,9 @@ function GenerationResultProduct({
       session_id: getSessionId(),
       product_id: item.product_id,
       tooltip_type: 'fit',
-      explanation_summary: fitSummary,
+      explanation_summary: fitSummaryRu,
       explanation_text: item.fit?.explanation ?? null,
-      explanation_meta: confidenceLabel ? `${confidenceLabel} · ${reviewsLabel}` : reviewsLabel,
+      explanation_meta: confidenceLabelRu ? `${confidenceLabelRu} · ${reviewsLabelRu}` : reviewsLabelRu,
       outfit_id: outfitId,
       outfit_item_id: item.id,
       timestamp: new Date().toISOString(),
@@ -189,7 +208,7 @@ function GenerationResultProduct({
 
     if (!sizeForEvent) {
       event.preventDefault();
-      void message.warning('Выберите размер перед переходом к покупке.');
+      void message.warning(t('Выберите размер перед переходом к покупке.'));
       return;
     }
 
@@ -216,7 +235,7 @@ function GenerationResultProduct({
           <div className={styles.productHeader}>
             <div className={styles.productInfo}>
               <div className={styles.meta}>
-                <Tag className={styles.marketplace}>{getMarketplaceLabel(item.marketplace)}</Tag>
+                <Tag className={styles.marketplace}>{t(getMarketplaceLabel(item.marketplace))}</Tag>
                 {item.brand?.trim() &&
                   !['unknown', 'не определён', 'не определен',
                     'не указан', 'без бренда'].includes(
@@ -228,7 +247,7 @@ function GenerationResultProduct({
                   )}
               </div>
               <Text strong className={styles.name}>{item.name}</Text>
-              <Text strong className={styles.price}>{Math.round(item.price).toLocaleString('ru-RU')} ₽</Text>
+              <Text strong className={styles.price}>{Math.round(item.price).toLocaleString(language === 'en' ? 'en-US' : 'ru-RU')} ₽</Text>
             </div>
 
             <a
@@ -236,7 +255,7 @@ function GenerationResultProduct({
               target="_blank"
               rel="noopener noreferrer"
               className={styles.external}
-              aria-label={`Открыть ${item.name}`}
+              aria-label={t('Открыть {name}', { name: item.name })}
               onClick={handleBuy}
             >
               <ExportOutlined />
@@ -271,7 +290,7 @@ function GenerationResultProduct({
           )}
 
           {recommendedSize !== null && !item.available_sizes?.includes(recommendedSize) && (
-            <div className={styles.recommendation}>Рекомендуемый размер: <strong>{recommendedSize}</strong></div>
+            <div className={styles.recommendation}>{t('Рекомендуемый размер:')} <strong>{recommendedSize}</strong></div>
           )}
 
           {showFit && (
@@ -307,11 +326,6 @@ function GenerationResultProduct({
                       </Text>
                     )}
 
-                    {item.fit?.explanation && (
-                      <Text className={styles.fitDescription}>
-                        {item.fit.explanation}
-                      </Text>
-                    )}
                   </div>
                 ),
               }]}

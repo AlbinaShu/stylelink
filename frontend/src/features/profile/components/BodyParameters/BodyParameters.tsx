@@ -18,6 +18,7 @@ import type {
 } from '../../types';
 
 import styles from './BodyParameters.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const { Text } = Typography;
 
@@ -28,6 +29,7 @@ interface IBodyParametersProps {
 function BodyParameters({
   profile,
 }: IBodyParametersProps) {
+  const { t } = useLanguage();
   const [form] = Form.useForm<IUpdateProfileRequest>();
 
   const [isOpen, setIsOpen] = useState(true);
@@ -86,7 +88,7 @@ function BodyParameters({
         className={styles.form}
       >
         <Form.Item
-          label="Пол"
+          label={t('Пол')}
           name="gender"
           className={styles.genderField}
         >
@@ -96,11 +98,11 @@ function BodyParameters({
             className={styles.gender}
           >
             <Radio.Button value="female">
-              Женский
+              {t('Женский')}
             </Radio.Button>
 
             <Radio.Button value="male">
-              Мужской
+              {t('Мужской')}
             </Radio.Button>
           </Radio.Group>
         </Form.Item>
@@ -108,7 +110,7 @@ function BodyParameters({
         <Row gutter={[10, 0]}>
           <Col xs={12} span={12}>
             <Form.Item
-              label="Рост / см"
+              label={t('Рост / см')}
               name="height"
             >
               <InputNumber
@@ -123,7 +125,7 @@ function BodyParameters({
 
           <Col xs={12} span={12}>
             <Form.Item
-              label="Вес / кг"
+              label={t('Вес / кг')}
               name="weight"
             >
               <InputNumber
@@ -138,7 +140,7 @@ function BodyParameters({
 
           <Col xs={12} span={12}>
             <Form.Item
-              label="Размер обуви / RU"
+              label={t('Размер обуви / RU')}
               name="shoe_size"
             >
               <InputNumber
@@ -158,7 +160,7 @@ function BodyParameters({
 
           <Col xs={12} span={12}>
             <Form.Item
-              label="Обхват груди / см"
+              label={t('Обхват груди / см')}
               name="chest"
             >
               <InputNumber
@@ -173,7 +175,7 @@ function BodyParameters({
 
           <Col xs={12} span={12}>
             <Form.Item
-              label="Обхват талии / см"
+              label={t('Обхват талии / см')}
               name="waist"
             >
               <InputNumber
@@ -188,7 +190,7 @@ function BodyParameters({
 
           <Col xs={12} span={12}>
             <Form.Item
-              label="Обхват бёдер / см"
+              label={t('Обхват бёдер / см')}
               name="hips"
             >
               <InputNumber
@@ -209,7 +211,7 @@ function BodyParameters({
           onClick={handleEdit}
           className={styles.editButton}
         >
-          Изменить
+          {t('Изменить')}
         </Button>
       ) : (
         <div className={styles.actions}>
@@ -219,7 +221,7 @@ function BodyParameters({
             onClick={handleSave}
             className={styles.saveButton}
           >
-            Сохранить
+            {t('Сохранить')}
           </Button>
 
           <Button
@@ -227,7 +229,7 @@ function BodyParameters({
             onClick={handleCancel}
             className={styles.cancelButton}
           >
-            Отмена
+            {t('Отмена')}
           </Button>
         </div>
       )}
@@ -246,10 +248,10 @@ function BodyParameters({
           key: 'body',
           label: (
             <Space size={8}>
-              <Text>Параметры тела</Text>
+              <Text>{t('Параметры тела')}</Text>
 
               <span className={styles.optional}>
-                Необязательно
+                {t('Необязательно')}
               </span>
             </Space>
           ),

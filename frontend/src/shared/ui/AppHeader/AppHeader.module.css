@@ -19,8 +19,14 @@
   text-decoration: none;
 }
 
-.profileButton {
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-left: auto;
+}
+
+.profileButton {
   width: 30px;
   height: 30px;
   border-radius: 50%;

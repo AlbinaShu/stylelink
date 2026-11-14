@@ -12,6 +12,7 @@ import {
 } from 'antd';
 
 import styles from './SubscriptionPlans.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const { Title, Text } = Typography;
 
@@ -50,11 +51,12 @@ const plans: IPlan[] = [
 ];
 
 function SubscriptionPlans() {
+    const { t } = useLanguage();
     return (
         <section className={styles.wrapper}>
             <div className={styles.heading}>
                 <Title level={5}>
-                    Тарифы
+                    {t('Тарифы')}
                 </Title>
             </div>
 
@@ -78,7 +80,7 @@ function SubscriptionPlans() {
                                 <div>
                                     <Space size={8}>
                                         <Title level={5}>
-                                            {plan.title}
+                                            {t(plan.title)}
                                         </Title>
 
                                         {plan.popular && (
@@ -86,25 +88,25 @@ function SubscriptionPlans() {
                                                 color="magenta"
                                                 icon={<CrownOutlined />}
                                             >
-                                                Популярный
+                                                {t('Популярный')}
                                             </Tag>
                                         )}
                                     </Space>
 
                                     <Text className={styles.description}>
-                                        {plan.description}
+                                        {t(plan.description)}
                                     </Text>
                                 </div>
 
                                 {plan.current && (
                                     <Tag color="default">
-                                        Текущий
+                                        {t('Текущий')}
                                     </Tag>
                                 )}
                             </div>
 
                             <div className={styles.price}>
-                                {plan.price}
+                                {t(plan.price)}
                             </div>
 
                             <List
@@ -118,7 +120,7 @@ function SubscriptionPlans() {
                                             <CheckOutlined />
 
                                             <Text>
-                                                {item}
+                                                {t(item)}
                                             </Text>
                                         </Space>
                                     </List.Item>
@@ -132,8 +134,8 @@ function SubscriptionPlans() {
                                 className={styles.button}
                             >
                                 {plan.current
-                                    ? 'Ваш тариф'
-                                    : 'Скоро доступно'}
+                                    ? t('Ваш тариф')
+                                    : t('Скоро доступно')}
                             </Button>
                         </Space>
                     </Card>

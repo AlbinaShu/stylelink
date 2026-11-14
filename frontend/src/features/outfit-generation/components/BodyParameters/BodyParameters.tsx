@@ -9,6 +9,7 @@ import {
 
 import type { IGenerationForm } from '../../types';
 import styles from './BodyParameters.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const { Text } = Typography;
 
@@ -35,15 +36,16 @@ function BodyParameters({
   value,
   onChange,
 }: IBodyParametersProps) {
+  const { t } = useLanguage();
   return (
     <div className={styles.root}>
       <Text className={styles.title}>
-        Параметры тела <span style={{ color: 'var(--primary)' }}>*</span>
+        {t('Параметры тела')} <span style={{ color: 'var(--primary)' }}>*</span>
       </Text>
 
       <Card className={styles.card}>
         <Text className={styles.label}>
-          Пол <span style={{ color: 'var(--primary)' }}>*</span>
+          {t('Пол')} <span style={{ color: 'var(--primary)' }}>*</span>
         </Text>
 
         <Radio.Group
@@ -54,18 +56,18 @@ function BodyParameters({
           className={styles.gender}
         >
           <Radio.Button value="female">
-            Женский
+            {t('Женский')}
           </Radio.Button>
 
           <Radio.Button value="male">
-            Мужской
+            {t('Мужской')}
           </Radio.Button>
         </Radio.Group>
 
         <Row gutter={[10, 0]} className={styles.fields}>
           <Col xs={12}>
             <Text className={styles.fieldLabel}>
-              Рост / см <span style={{ color: 'var(--primary)' }}>*</span>
+              {t('Рост / см')} <span style={{ color: 'var(--primary)' }}>*</span>
             </Text>
 
             <InputNumber
@@ -81,7 +83,7 @@ function BodyParameters({
 
           <Col xs={12}>
             <Text className={styles.fieldLabel}>
-              Вес / кг <span style={{ color: 'var(--primary)' }}>*</span>
+              {t('Вес / кг')} <span style={{ color: 'var(--primary)' }}>*</span>
             </Text>
 
             <InputNumber
@@ -97,7 +99,7 @@ function BodyParameters({
 
           <Col xs={12}>
             <Text className={styles.fieldLabel}>
-              Размер обуви / RU <span style={{ color: 'var(--primary)' }}>*</span>
+              {t('Размер обуви / RU')} <span style={{ color: 'var(--primary)' }}>*</span>
             </Text>
 
             <InputNumber
@@ -120,7 +122,7 @@ function BodyParameters({
 
           <Col xs={12}>
             <Text className={styles.fieldLabel}>
-              Обхват груди / см <span style={{ color: 'var(--primary)' }}>*</span>
+              {t('Обхват груди / см')} <span style={{ color: 'var(--primary)' }}>*</span>
             </Text>
 
             <InputNumber
@@ -136,7 +138,7 @@ function BodyParameters({
 
           <Col xs={12}>
             <Text className={styles.fieldLabel}>
-              Обхват талии / см <span style={{ color: 'var(--primary)' }}>*</span>
+              {t('Обхват талии / см')} <span style={{ color: 'var(--primary)' }}>*</span>
             </Text>
 
             <InputNumber
@@ -152,7 +154,7 @@ function BodyParameters({
 
           <Col xs={12}>
             <Text className={styles.fieldLabel}>
-              Обхват бёдер / см <span style={{ color: 'var(--primary)' }}>*</span>
+              {t('Обхват бёдер / см')} <span style={{ color: 'var(--primary)' }}>*</span>
             </Text>
 
             <InputNumber

@@ -1,13 +1,23 @@
 import { Alert, Result, Spin, message } from 'antd';
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { getEmailSurveyItems, submitEmailSurveyAnswers, validateEmailSurvey } from '../../features/survey/api/survey.api';
 import type { ISurveyAnswerItem, ISurveyItem, ISurveyValidateResponse } from '../../features/survey/types';
 import SurveyForm from '../../features/survey/components/SurveyForm/SurveyForm';
 import { useSurveyTracking } from '../../features/survey/hooks/useSurveyTracking';
 import styles from './SurveyEmailPage.module.css';
+import LanguageSwitcher from '../../shared/ui/LanguageSwitcher/LanguageSwitcher';
+import { useLanguage } from '../../shared/i18n/LanguageContext';
 
 const PAGE_SIZE = 10;
+
+function SurveyEmailShell({ children }: { children: ReactNode }) {
+  return <div className={styles.shell}>
+    <header className={styles.header}><LanguageSwitcher /></header>
+    {children}
+  </div>;
+}
 
 function validationMessage(reason: ISurveyValidateResponse['reason']): string {
   if (reason === 'already_answered') return 'Спасибо! Вы уже ответили на этот опрос.';
@@ -17,6 +27,7 @@ function validationMessage(reason: ISurveyValidateResponse['reason']): string {
 }
 
 function SurveyEmailPage() {
+  const { t } = useLanguage();
   const [params] = useSearchParams();
   const token = params.get('token');
   const [items, setItems] = useState<ISurveyItem[]>([]);
@@ -89,23 +100,23 @@ function SurveyEmailPage() {
       await submitEmailSurveyAnswers(token, answers);
       tracking.finish();
       setDone(true);
-      void message.success('Ответы сохранены.');
+      void message.success(t('Ответы сохранены.'));
     } catch {
-      void message.error('Не удалось отправить ответы. Проверьте заполнение формы.');
+      void message.error(t('Не удалось отправить ответы. Проверьте заполнение формы.'));
     } finally {
       setSubmitting(false);
     }
   };
 
-  if (!token) return <div className={styles.center}><Result status="info" title="Опрос не найден." /></div>;
-  if (loading) return <div className={styles.center}><Spin size="large" /></div>;
-  if (error) return <div className={styles.page}><Alert type="error" showIcon message={error} /></div>;
-  if (invalidReason) return <div className={styles.center}><Result status="info" title={validationMessage(invalidReason)} /></div>;
-  if (skipped) return <div className={styles.center}><Result status="info" title="Опрос пропущен" subTitle="Вы можете вернуться к нему по этой ссылке позже." /></div>;
-  if (done) return <div className={styles.center}><Result status="success" title="Спасибо!" subTitle="Ваш ответ поможет нам улучшить сервис." /></div>;
+  if (!token) return <SurveyEmailShell><div className={styles.center}><Result status="info" title={t('Опрос не найден.')} /></div></SurveyEmailShell>;
+  if (loading) return <SurveyEmailShell><div className={styles.center}><Spin size="large" /></div></SurveyEmailShell>;
+  if (error) return <SurveyEmailShell><div className={styles.page}><Alert type="error" showIcon message={t(error)} /></div></SurveyEmailShell>;
+  if (invalidReason) return <SurveyEmailShell><div className={styles.center}><Result status="info" title={t(validationMessage(invalidReason))} /></div></SurveyEmailShell>;
+  if (skipped) return <SurveyEmailShell><div className={styles.center}><Result status="info" title={t('Опрос пропущен')} subTitle={t('Вы можете вернуться к нему по этой ссылке позже.')} /></div></SurveyEmailShell>;
+  if (done) return <SurveyEmailShell><div className={styles.center}><Result status="success" title={t('Спасибо!')} subTitle={t('Ваш ответ поможет нам улучшить сервис.')} /></div></SurveyEmailShell>;
 
   return (
-    <main className={styles.page}>
+    <SurveyEmailShell><main className={styles.page}>
       <div className={styles.card}>
         <SurveyForm
           items={items}
@@ -120,7 +131,7 @@ function SurveyEmailPage() {
           onSkip={(progress) => { tracking.skip('button', progress); setSkipped(true); }}
         />
       </div>
-    </main>
+    </main></SurveyEmailShell>
   );
 }
 

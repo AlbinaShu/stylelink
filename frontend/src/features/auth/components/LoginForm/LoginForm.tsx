@@ -5,6 +5,7 @@ import Button from '../../../../shared/ui/Button/Button';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './LoginForm.module.css';
 import type { IAuthCredentials } from '../../types';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 interface ILoginFormProps {
   onLoggedIn: () => void;
@@ -21,6 +22,7 @@ function LoginForm({
 }: ILoginFormProps) {
   const [form] = Form.useForm<IAuthCredentials>();
   const [loading, setLoading] = useState(false);
+  const { t } = useLanguage();
 
   const {
     identify,
@@ -45,8 +47,8 @@ function LoginForm({
     } catch (error) {
       message.error(
         error instanceof Error
-          ? error.message
-          : 'Не удалось выполнить вход',
+          ? t(error.message)
+          : t('Не удалось выполнить вход'),
       );
     } finally {
       setLoading(false);
@@ -64,8 +66,8 @@ function LoginForm({
       <Form.Item
         name="email"
         rules={[
-          { required: true, message: 'Введите email' },
-          { type: 'email', message: 'Введите корректный email' },
+          { required: true, message: t('Введите email') },
+          { type: 'email', message: t('Введите корректный email') },
         ]}
       >
         <Input
@@ -77,11 +79,11 @@ function LoginForm({
 
       <Form.Item
         name="password"
-        rules={[{ required: true, message: 'Введите пароль' }]}
+        rules={[{ required: true, message: t('Введите пароль') }]}
       >
         <Input.Password
           className={styles.input}
-          placeholder="Пароль"
+          placeholder={t('Пароль')}
           size="large"
           iconRender={(visible) =>
             visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
@@ -91,21 +93,21 @@ function LoginForm({
 
       <div className={styles.forgot}>
         <button type="button" onClick={onForgotPassword}>
-          Забыли пароль?
+          {t('Забыли пароль?')}
         </button>
       </div>
 
       <Button
-        title="Войти"
+        title={t('Войти')}
         htmlType="submit"
         isLoading={loading}
         block
       />
 
       <div className={styles.switch}>
-        <span>Нет аккаунта?</span>{' '}
+        <span>{t('Нет аккаунта?')}</span>{' '}
         <button type="button" onClick={onRegister}>
-          Зарегистрироваться
+          {t('Зарегистрироваться')}
         </button>
       </div>
     </Form>

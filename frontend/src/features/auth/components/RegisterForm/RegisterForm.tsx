@@ -5,6 +5,7 @@ import Button from '../../../../shared/ui/Button/Button';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './RegisterForm.module.css';
 import type { IAuthCredentials } from '../../types';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 interface IRegisterFormProps {
   onNeedVerification: (credentials: IAuthCredentials) => void;
@@ -20,6 +21,7 @@ function RegisterForm({
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm<IAuthCredentials>();
   const { identify, login, requestCode } = useAuth();
+  const { t } = useLanguage();
 
   const submit = async (values: IAuthCredentials) => {
     try {
@@ -38,8 +40,8 @@ function RegisterForm({
     } catch (error) {
       message.error(
         error instanceof Error
-          ? error.message
-          : 'Не удалось продолжить авторизацию',
+          ? t(error.message)
+          : t('Не удалось продолжить авторизацию'),
       );
     } finally {
       setLoading(false);
@@ -57,8 +59,8 @@ function RegisterForm({
       <Form.Item
         name="email"
         rules={[
-          { required: true, message: 'Введите email' },
-          { type: 'email', message: 'Введите корректный email' },
+          { required: true, message: t('Введите email') },
+          { type: 'email', message: t('Введите корректный email') },
         ]}
       >
         <Input
@@ -71,13 +73,13 @@ function RegisterForm({
       <Form.Item
         name="password"
         rules={[
-          { required: true, message: 'Введите пароль' },
-          { min: 6, message: 'Минимум 6 символов' },
+          { required: true, message: t('Введите пароль') },
+          { min: 6, message: t('Минимум 6 символов') },
         ]}
       >
         <Input.Password
           className={styles.input}
-          placeholder="Пароль"
+          placeholder={t('Пароль')}
           size="large"
           iconRender={(visible) =>
             visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
@@ -93,33 +95,33 @@ function RegisterForm({
             validator: (_, value) =>
               value
                 ? Promise.resolve()
-                : Promise.reject(new Error('Необходимо согласие')),
+                : Promise.reject(new Error(t('Необходимо согласие'))),
           },
         ]}
       >
         <Checkbox className={styles.consent}>
-          Я согласен(а) с{' '}
+          {t('Я согласен(а) с')}{' '}
           <a href="#" onClick={(event) => event.preventDefault()}>
-            обработкой персональных данных
+            {t('обработкой персональных данных')}
           </a>{' '}
-          и{' '}
+          {t('и')}{' '}
           <a href="#" onClick={(event) => event.preventDefault()}>
-            политикой конфиденциальности
+            {t('политикой конфиденциальности')}
           </a>
         </Checkbox>
       </Form.Item>
 
       <Button
-        title="Продолжить"
+        title={t('Продолжить')}
         htmlType="submit"
         isLoading={loading}
         block
       />
 
       <div className={styles.switch}>
-        <span>Уже есть аккаунт?</span>{' '}
+        <span>{t('Уже есть аккаунт?')}</span>{' '}
         <button type="button" onClick={onLogin}>
-          Войти
+          {t('Войти')}
         </button>
       </div>
     </Form>

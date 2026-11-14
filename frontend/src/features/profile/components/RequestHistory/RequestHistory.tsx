@@ -2,10 +2,12 @@ import { Card, Empty, Typography } from 'antd';
 import { FileTextOutlined } from '@ant-design/icons';
 
 import styles from './RequestHistory.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const { Text } = Typography;
 
 function RequestHistory() {
+  const { t } = useLanguage();
   return (
     <Card
       bordered
@@ -16,11 +18,11 @@ function RequestHistory() {
 
         <div className={styles.headerText}>
           <Text strong>
-            История запросов
+            {t('История запросов')}
           </Text>
 
           <Text type="secondary">
-            0 подборов
+            {t('0 подборов')}
           </Text>
         </div>
       </div>
@@ -33,13 +35,13 @@ function RequestHistory() {
         description={
           <div className={styles.emptyDescription}>
             <Text className={styles.emptyTitle}>
-              Нет истории запросов
+              {t('Нет истории запросов')}
             </Text>
 
             <Text type="secondary">
-              После первого подбора образов
+              {t('После первого подбора образов')}
               <br />
-              здесь появятся ваши запросы
+              {t('здесь появятся ваши запросы')}
             </Text>
           </div>
         }
