@@ -46,7 +46,28 @@ export interface IGenerationsPage {
   pages: number;
 }
 
+export type MarketplaceId =
+  | 'wildberries'
+  | 'yandex_market'
+  | 'ozon';
+
+export interface IMarketplaceOffer {
+  marketplace: MarketplaceId;
+  product_id: string;
+  name: string;
+  brand: string | null;
+  price: number;
+  currency: 'RUB';
+  image: string | null;
+  url: string;
+  available_sizes: string[];
+  match_type: 'exact' | 'similar';
+  match_score: number;
+  verified_at: string;
+}
+
 export interface IOutfitItem {
+  alternatives?: IMarketplaceOffer[];
   id: string;
   product_id: string;
   name: string;
