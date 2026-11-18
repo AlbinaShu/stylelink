@@ -1,12 +1,15 @@
+// STYLELINK_UNIVERSAL_SIZE_SELECTION_V1
+/* STYLELINK_YANDEX_STRIP_V1 */
+import http from '../../../../shared/api/http-client';
 import {
   CheckCircleOutlined,
-  ExportOutlined,
   InfoCircleOutlined,
   WarningOutlined,
 } from '@ant-design/icons';
 import { Collapse, Image, Tag, Typography, message } from 'antd';
 import type { MouseEvent, ReactNode } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { sendBuyClick, sendSizeChanged, sendTooltipOpen, sendRecommendationView, sendExplanationView } from '../../../experiment-events/api/experiment-events.api';
 import { getDeviceType, getSessionId } from '../../../../shared/utils/session';
 import type { IOutfitItem } from '../../types';
@@ -19,6 +22,484 @@ interface IGenerationResultProductProps {
   item: IOutfitItem;
   outfitId: string;
   shoeSize: number | null;
+}
+
+
+
+// STYLELINK_PRODUCT_CARD_CLEANUP_V2
+const sortMarketplaceSizes = (sizes: string[]): string[] =>
+  [...sizes].sort((a, b) =>
+    a.localeCompare(b, 'ru', {
+      numeric: true,
+      sensitivity: 'base',
+    }),
+  );
+
+interface MarketplaceOffer {
+  marketplace: string;
+  name: string;
+  brand: string | null;
+  price: number;
+  currency: string;
+  image: string | null;
+  url: string;
+  available_sizes: string[];
+  match_type: 'similar' | 'exact';
+  match_score: number;
+  size_match_status?: 'match' | 'mismatch' | 'unknown';
+  recommended_size?: string | null;
+}
+
+export interface AlternativesResponse {
+  source_marketplace: string;
+  offers: MarketplaceOffer[];
+  marketplace_status: Record<string, string>;
+}
+
+
+// STYLELINK_UNIFIED_MARKETPLACES_V3
+
+// STYLELINK_RESTORE_LOCAL_FETCH_V2
+function MarketplaceAlternatives({
+  item,
+  onAvailabilityChange,
+}: {
+  item: IOutfitItem;
+  onAvailabilityChange: (available: boolean) => void;
+}) {
+  const [data, setData] = useState<AlternativesResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let active = true;
+
+    setLoading(true);
+    setError(false);
+
+    // STYLELINK_YANDEX_REQUEST_DIAGNOSTICS_V1
+    const requestStarted = performance.now();
+    const requestNumber = 1;
+
+    console.info('[StyleLink YM] START', {
+      itemId: item.id,
+      requestNumber,
+      trigger: 'automatic',
+    });
+
+    // STYLELINK_YM_AUTO_RETRY_V3
+    void (async () => {
+      const maxAttempts = 3;
+      let lastError: unknown = null;
+      let receivedResponse = false;
+
+      try {
+        for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+          if (!active || controller.signal.aborted) return;
+
+          const attemptStarted = performance.now();
+
+          console.info('[StyleLink YM] ATTEMPT', {
+            itemId: item.id,
+            requestNumber,
+            attempt,
+            maxAttempts,
+          });
+
+          try {
+            const response = await http.get<AlternativesResponse>(
+              `/api/v1/marketplaces/outfit-items/${item.id}/alternatives`,
+              {
+                signal: controller.signal,
+                timeout: 95000,
+              },
+            );
+
+            if (!active || controller.signal.aborted) return;
+
+            receivedResponse = true;
+            lastError = null;
+
+            const next = response.data?.offers?.find(
+              offer => offer.marketplace === 'yandex_market'
+            );
+
+            console.info('[StyleLink YM] SUCCESS', {
+              itemId: item.id,
+              requestNumber,
+              attempt,
+              httpStatus: response.status,
+              attemptDurationMs: Math.round(
+                performance.now() - attemptStarted
+              ),
+              durationMs: Math.round(
+                performance.now() - requestStarted
+              ),
+              yandexStatus:
+                response.data?.marketplace_status?.yandex_market,
+              offersCount: response.data?.offers?.length ?? 0,
+              yandexOffers: (response.data?.offers ?? [])
+                .filter(offer => offer.marketplace === 'yandex_market')
+                .map(offer => ({
+                  name: offer.name,
+                  url: offer.url,
+                  price: offer.price,
+                  score: offer.match_score,
+                  matchType: offer.match_type,
+                })),
+            });
+
+            setData(previous => {
+              const old = previous?.offers?.find(
+                offer => offer.marketplace === 'yandex_market'
+              );
+
+              if (!next && old) return previous;
+
+              if (
+                old &&
+                next &&
+                old.url !== next.url &&
+                next.match_type !== 'exact'
+              ) {
+                return previous;
+              }
+
+              return response.data;
+            });
+
+            if (next) {
+              onAvailabilityChange(true);
+              console.info('[StyleLink YM] FOUND', {
+                itemId: item.id,
+                attempt,
+              });
+              return;
+            }
+
+            if (
+              response.data?.marketplace_status?.yandex_market
+                === 'not_configured'
+            ) {
+              return;
+            }
+          } catch (error: unknown) {
+            if (!active || controller.signal.aborted) return;
+
+            lastError = error;
+
+            const failure = error as {
+              message?: string;
+              code?: string;
+              response?: { status?: number };
+            };
+
+            console.warn('[StyleLink YM] ATTEMPT_ERROR', {
+              itemId: item.id,
+              requestNumber,
+              attempt,
+              httpStatus: failure?.response?.status ?? null,
+              code: failure?.code ?? null,
+              message: failure?.message ?? String(error),
+            });
+          }
+
+          if (attempt < maxAttempts) {
+            await new Promise<void>(resolve => {
+              if (controller.signal.aborted) {
+                resolve();
+                return;
+              }
+
+              const onAbort = () => {
+                clearTimeout(timer);
+                resolve();
+              };
+
+              const timer = setTimeout(() => {
+                controller.signal.removeEventListener(
+                  'abort',
+                  onAbort,
+                );
+                resolve();
+              }, 1200);
+
+              controller.signal.addEventListener(
+                'abort',
+                onAbort,
+                { once: true },
+              );
+            });
+          }
+        }
+
+        if (!active || controller.signal.aborted) return;
+
+        if (!receivedResponse && lastError !== null) {
+          console.error('[StyleLink YM] ERROR', {
+            itemId: item.id,
+            requestNumber,
+            durationMs: Math.round(
+              performance.now() - requestStarted
+            ),
+            message: 'All attempts failed',
+          });
+          setError(true);
+        } else {
+          console.info('[StyleLink YM] FINISHED_WITHOUT_MATCH', {
+            itemId: item.id,
+            requestNumber,
+            attempts: maxAttempts,
+          });
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [item.id, onAvailabilityChange]);
+
+
+  const offers = (data?.offers ?? []).filter(
+    offer => offer.marketplace === 'yandex_market'
+  );
+
+  const status = data?.marketplace_status?.yandex_market;
+
+  const statusText = error
+    ? 'Не удалось получить предложения'
+    : status === 'not_configured'
+      ? 'Источник не настроен'
+      : status === 'unavailable'
+        ? 'Источник временно недоступен'
+        : 'Подходящий товар не найден';
+
+  const stripStyle: CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: 12,
+    padding: 14,
+    border: '1px solid #e5e7eb',
+    borderRadius: 12,
+  };
+
+
+  if (!offers.length) {
+    return (
+      <div style={stripStyle}>
+        <div style={{ flex: '1 1 220px' }}>
+          <div style={{ fontWeight: 600 }}>
+            Яндекс Маркет
+          </div>
+          <div style={{ marginTop: 8, opacity: 0.7 }}>
+            {loading ? 'Обновляем предложение...' : statusText}
+          </div>
+        </div>
+
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {offers.map(offer => (
+        <YandexMarketplaceStrip
+          key={`${item.id}:${offer.url}`}
+          offer={offer}
+          recommendedSize={offer.recommended_size ?? null}
+        />
+      ))}
+    </>
+  );
+}
+
+function YandexMarketplaceStrip({
+  offer,
+  recommendedSize,
+}: {
+  offer: MarketplaceOffer;
+  recommendedSize: string | null;
+}) {
+  const sizes = sortMarketplaceSizes(offer.available_sizes ?? []);
+
+  const initialSize = recommendedSize
+    ? sizes.find(size => size === recommendedSize) ?? null
+    : null;
+
+  const [selection, setSelection] = useState<{
+    url: string;
+    initialSize: string | null;
+    size: string | null;
+  }>({
+    url: offer.url,
+    initialSize,
+    size: initialSize,
+  });
+
+  const resetSelection =
+    selection.url !== offer.url ||
+    selection.initialSize !== initialSize;
+
+  const selectedSize = resetSelection
+    ? initialSize
+    : selection.size;
+
+  if (resetSelection) {
+    setSelection({
+      url: offer.url,
+      initialSize,
+      size: initialSize,
+    });
+  }
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 12,
+        padding: 14,
+        border: '1px solid #e5e7eb',
+        borderRadius: 12,
+      }}
+    >
+      <div style={{ flex: '1 1 220px', minWidth: 0 }}>
+        <div style={{ fontWeight: 600 }}>
+          Яндекс Маркет
+        </div>
+
+        <div
+          style={{
+            fontSize: 18,
+            fontWeight: 700,
+            marginTop: 4,
+          }}
+        >
+          {Math.round(offer.price).toLocaleString('ru-RU')} ₽
+        </div>
+
+        <div
+          style={{
+            marginTop: 8,
+            fontSize: 12,
+            opacity: 0.7,
+          }}
+        >
+          Доступные размеры
+        </div>
+
+        {sizes.length ? (
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 6,
+              marginTop: 6,
+            }}
+          >
+            {sizes.map(size => {
+              const chosen = selectedSize === size;
+              const recommended =
+                recommendedSize !== null &&
+                sizeEquivalent(size, recommendedSize);
+
+              return (
+                <button
+                  key={size}
+                  type="button"
+                  aria-pressed={chosen}
+                  onClick={() => setSelection({
+                    url: offer.url,
+                    initialSize,
+                    size,
+                  })}
+                  style={{
+                    padding: '5px 10px',
+                    borderRadius: 8,
+                    border: chosen
+                      ? '2px solid #7c3aed'
+                      : '1px solid #d1d5db',
+                    background: chosen
+                      ? '#f3e8ff'
+                      : 'transparent',
+                    color: 'inherit',
+                    cursor: 'pointer',
+                    fontWeight: chosen ? 700 : 400,
+                  }}
+                >
+                  {size}{recommended ? ' ✓' : ''}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div style={{ marginTop: 6, fontSize: 12 }}>
+            Размеры не указаны — совпадение не подтверждено
+          </div>
+        )}
+
+        {recommendedSize && sizes.length > 0 && !initialSize && (
+          <div style={{ marginTop: 6, fontSize: 12 }}>
+            Рекомендованный размер {recommendedSize} недоступен
+          </div>
+        )}
+
+        {selectedSize && (
+          <div style={{ marginTop: 6, fontSize: 12 }}>
+            Выбран размер: {selectedSize}
+          </div>
+        )}
+
+        <div
+          style={{
+            marginTop: 8,
+            fontSize: 12,
+            opacity: 0.7,
+          }}
+        >
+          Сходство: {Math.round(offer.match_score * 100)}%
+        </div>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: 8,
+        }}
+      >
+
+        <a
+          href={offer.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '9px 14px',
+            border: '1px solid #d1d5db',
+            borderRadius: 9,
+            color: 'inherit',
+            textDecoration: 'none',
+            fontWeight: 600,
+          }}
+        >
+          Открыть ЯМ ↗
+        </a>
+      </div>
+    </div>
+  );
 }
 
 interface IFitConfig { label: string; icon: ReactNode; className: string; }
@@ -74,11 +555,66 @@ function getMarketplaceLabel(marketplace: string): string {
   }
 }
 
+
+// STYLELINK_ALTERNATIVE_SIZE_V1
+function alternativeSizeNumbers(value: string): number[] | null {
+  const s = value.trim().toUpperCase().replace(/^RU\s*/, '');
+
+  const shoe = s.match(/^(\d{2})\s*[-–—]\s*\d+[.,]\d+\s*СМ$/);
+  if (shoe) return [Number(shoe[1])];
+
+  const height = s.match(
+    /^(\d{2})\s*[-–—/]\s*(1\d{2}|2\d{2})$/
+  );
+  if (height) return [Number(height[1])];
+
+  const one = s.match(/^(\d{2})$/);
+  if (one) {
+    const n = Number(one[1]);
+    return n >= 30 && n <= 70 ? [n] : null;
+  }
+
+  const range = s.match(/^(\d{2})\s*[-–—]\s*(\d{2})$/);
+  if (range) {
+    const low = Number(range[1]);
+    const high = Number(range[2]);
+    if (low >= 30 && high <= 70 && high >= low && high - low <= 8) {
+      return Array.from(
+        { length: Math.floor((high - low) / 2) + 1 },
+        (_, i) => low + i * 2
+      );
+    }
+  }
+
+  return null;
+}
+
+function sizeEquivalent(
+  a: string,
+  b: string
+): boolean {
+  const left = alternativeSizeNumbers(a);
+  const right = alternativeSizeNumbers(b);
+
+  if (left && right) {
+    return left.some(n => right.includes(n));
+  }
+
+  return a.trim().toUpperCase() === b.trim().toUpperCase();
+}
+
 function GenerationResultProduct({
   item,
   outfitId,
   shoeSize,
 }: IGenerationResultProductProps) {
+  // STYLELINK_MARKETPLACE_BADGES_V1
+  const [hasYandexOffer, setHasYandexOffer] = useState(false);
+
+  useEffect(() => {
+    setHasYandexOffer(false);
+  }, [item.id]);
+
   const isAccessory = item.category === 'accessory';
 
   // Категории обуви, которые могут прийти с backend/marketplace.
@@ -91,7 +627,6 @@ function GenerationResultProduct({
   ].includes(normalizedCategory);
 
   const showFit = item.fit != null;
-  const showSizes = !isAccessory && Boolean(item.available_sizes?.length);
 
   // Нормализация нужна, чтобы 39.0 совпадал с "39",
   // а 38.5 продолжал совпадать с "38.5".
@@ -106,7 +641,9 @@ function GenerationResultProduct({
       : null;
 
   const recommendedSize = isAccessory ? null : (item.recommended_size ?? shoeSizeFromAvailable);
-  const initialSize = recommendedSize && item.available_sizes?.includes(recommendedSize) ? recommendedSize : null;
+  const initialSize = recommendedSize
+    ? item.available_sizes?.find(size => sizeEquivalent(size, recommendedSize)) ?? null
+    : null;
   const fitConfig = item.fit?.fit_signal != null ? FIT_CONFIG[item.fit.fit_signal] : undefined;
   const isInsufficientFit = item.fit?.status === 'insufficient_evidence';
   const fitTitle = isInsufficientFit
@@ -203,7 +740,7 @@ function GenerationResultProduct({
       price: item.price,
       outfit_id: outfitId,
       selected_size: sizeForEvent,
-      match: recommendedSize !== null && sizeForEvent === recommendedSize,
+      match: recommendedSize !== null && sizeEquivalent(sizeForEvent, recommendedSize),
     }).catch(() => undefined);
   };
 
@@ -218,7 +755,26 @@ function GenerationResultProduct({
           <div className={styles.productHeader}>
             <div className={styles.productInfo}>
               <div className={styles.meta}>
-                <Tag className={styles.marketplace}>{getMarketplaceLabel(item.marketplace)}</Tag>
+                <Tag
+                  className={styles.marketplace}
+                  style={{
+                    background: '#8A32E6',
+                    color: '#FFFFFF',
+                  }}
+                >
+                  {getMarketplaceLabel(item.marketplace)}
+                </Tag>
+                {hasYandexOffer && (
+                  <Tag
+                    className={styles.marketplace}
+                    style={{
+                      background: '#FFCC00',
+                      color: '#211800',
+                    }}
+                  >
+                    Яндекс Маркет
+                  </Tag>
+                )}
                 {item.brand?.trim() &&
                   !['unknown', 'не определён', 'не определен',
                     'не указан', 'без бренда'].includes(
@@ -229,50 +785,13 @@ function GenerationResultProduct({
                     </Text>
                   )}
               </div>
-              <Text strong className={styles.name}>{item.name}</Text>
+              <Text strong className={styles.name} title={item.name}>{item.name}</Text>
               <Text strong className={styles.price}>{Math.round(item.price).toLocaleString('ru-RU')} ₽</Text>
             </div>
 
-            <a
-              href={item.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.external}
-              aria-label={`Открыть ${item.name}`}
-              onClick={handleBuy}
-            >
-              <ExportOutlined />
-            </a>
           </div>
 
-          {showSizes && (
-            <div className={styles.sizes}>
-              {item.available_sizes!.map((size) => {
-                const isRecommended = recommendedSize !== null && size === recommendedSize;
-                const isSelected = selectedSize === size;
-                return (
-                  <Tag
-                    key={size}
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => changeSize(size)}
-                    onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') changeSize(size); }}
-                    className={[
-                      styles.size,
-                      isRecommended
-                        ? styles.recommendedSize
-                        : '',
-                      isSelected ? styles.selectedSize : '',
-                    ].filter(Boolean).join(' ')}
-                  >
-                    {size}
-                  </Tag>
-                );
-              })}
-            </div>
-          )}
-
-          {recommendedSize !== null && !item.available_sizes?.includes(recommendedSize) && (
+          {recommendedSize !== null && !item.available_sizes?.some(size => sizeEquivalent(size, recommendedSize)) && (
             <div className={styles.recommendation}>Рекомендуемый размер: <strong>{recommendedSize}</strong></div>
           )}
 
@@ -314,6 +833,119 @@ function GenerationResultProduct({
           )}
         </div>
       </div>
+      {/* STYLELINK_MARKETPLACE_STRIPS_V1 */}
+      <section
+        aria-label="Где купить"
+        style={{
+          marginTop: 16,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10,
+        }}
+      >
+        <strong style={{ fontSize: 16 }}>Где купить</strong>
+
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 12,
+            padding: 14,
+            border: '1px solid #e5e7eb',
+            borderRadius: 12,
+          }}
+        >
+          <div style={{ flex: '1 1 220px', minWidth: 0 }}>
+            <div style={{ fontWeight: 600 }}>Wildberries</div>
+
+            <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>
+              {Math.round(item.price).toLocaleString('ru-RU')} ₽
+            </div>
+
+            {!isAccessory && (
+              <>
+                <div style={{ marginTop: 8, fontSize: 12, opacity: 0.7 }}>
+                  Доступные размеры
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 6,
+                  marginTop: 6,
+                }}>
+                  {sortMarketplaceSizes(item.available_sizes ?? []).map(size => {
+                    const chosen = selectedSize === size;
+                    const recommended = recommendedSize !== null
+                      && sizeEquivalent(size, recommendedSize);
+
+                    return (
+                      <button
+                        key={size}
+                        type="button"
+                        aria-pressed={chosen}
+                        onClick={() => changeSize(size)}
+                        style={{
+                          padding: '5px 10px',
+                          borderRadius: 8,
+                          border: chosen
+                            ? '2px solid #7c3aed'
+                            : '1px solid #d1d5db',
+                          background: chosen ? '#f3e8ff' : 'transparent',
+                          color: 'inherit',
+                          cursor: 'pointer',
+                          fontWeight: chosen ? 700 : 400,
+                        }}
+                      >
+                        {size}{recommended ? ' ✓' : ''}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {recommendedSize !== null && !initialSize && (
+                  <div style={{ marginTop: 6, fontSize: 12 }}>
+                    Рекомендованный размер {recommendedSize} недоступен
+                  </div>
+                )}
+
+                {selectedSize && (
+                  <div style={{ marginTop: 6, fontSize: 12 }}>
+                    Выбран размер: {selectedSize}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={handleBuy}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '9px 14px',
+              border: '1px solid #d1d5db',
+              borderRadius: 9,
+              color: 'inherit',
+              textDecoration: 'none',
+              fontWeight: 600,
+            }}
+          >
+            Открыть WB ↗
+          </a>
+        </div>
+
+        <MarketplaceAlternatives
+          item={item}
+          onAvailabilityChange={setHasYandexOffer}
+        />
+      </section>
     </article>
   );
 }
