@@ -1,8 +1,185 @@
+import re
 from typing import Any
 
 
 class SizeRecommendationService:
     """Backend-логика работы с размерным рядом продавца."""
+
+
+    # STYLELINK_UNIVERSAL_SIZE_SELECTION_V1
+
+    @staticmethod
+    def size_numbers(value: str | None) -> set[int] | None:
+        """
+        Безопасное сопоставление RU-размеров.
+
+        Поддержка:
+        50
+        RU 50
+        50(65)
+        50 (65)
+        50/170
+        48-50
+        40 - 25.5 см
+
+        Неизвестные форматы не угадываем.
+        """
+        if value is None:
+            return None
+
+        raw = str(value).strip().upper()
+
+        if not raw:
+            return None
+
+        raw = re.sub(r"^RU\s*", "", raw)
+
+        # Размер + дополнительный параметр в скобках.
+        raw = re.sub(
+            r"\s*\(\s*\d{2,3}\s*\)\s*$",
+            "",
+            raw,
+        )
+
+        # Размер + рост.
+        raw = re.sub(
+            r"\s*[/\-–—]\s*(?:1\d{2}|2\d{2})$",
+            "",
+            raw,
+        )
+
+        # RU-размер обуви с обозначением Р. и длиной стельки.
+        match = re.fullmatch(
+            r"(\d{2})\s*Р\.?\s*[-–—]\s*\d{2}(?:[.,]\d+)?\s*СМ",
+            raw,
+        )
+        if match:
+            size = int(match.group(1))
+            return {size} if 30 <= size <= 70 else None
+
+        # RU-размер обуви и длина стельки без СМ.
+        match = re.fullmatch(
+            r"(\d{2})\s*[-–—]\s*(\d{2}(?:[.,]\d+)?)",
+            raw,
+        )
+        if match:
+            size = int(match.group(1))
+            insole = float(match.group(2).replace(",", "."))
+            if 35 <= size <= 47 and 20 <= insole <= 33:
+                return {size}
+
+        # Диапазон размеров одежды через слеш.
+        match = re.fullmatch(r"(\d{2})\s*/\s*(\d{2})", raw)
+        if match:
+            low, high = map(int, match.groups())
+            if 36 <= low <= high <= 70 and high - low <= 8:
+                return set(range(low, high + 1, 2))
+
+        # Размер обуви + длина стопы.
+        raw = re.sub(
+            r"\s*[-–—]\s*\d{2}[.,]\d+\s*СМ$",
+            "",
+            raw,
+        )
+
+        single = re.fullmatch(r"(\d{2})", raw)
+
+        if single:
+            value = int(single.group(1))
+            return {value} if 30 <= value <= 70 else None
+
+        pair = re.fullmatch(
+            r"(\d{2})\s*[-–—]\s*(\d{2})",
+            raw,
+        )
+
+        if pair:
+            low, high = map(int, pair.groups())
+
+            if 30 <= low <= high <= 70 and high - low <= 8:
+                return set(range(low, high + 1, 2))
+
+        return None
+
+    @classmethod
+    def select_available_size(
+        cls,
+        recommended: str | None,
+        available_sizes: list[str] | None,
+    ) -> str | None:
+        """
+        Возвращает исходную метку продавца,
+        только если совпадение подтверждено.
+        """
+        target = cls.size_numbers(recommended)
+
+        if not target or not available_sizes:
+            return None
+
+        for label in available_sizes:
+            values = cls.size_numbers(label)
+
+            if values and target & values:
+                return str(label)
+
+        return None
+
+    @classmethod
+    def recommend_for_offer(
+        cls,
+        available_sizes: list[str] | None,
+        category: str | None,
+        gender: str | None,
+        chest: float | None,
+        waist: float | None,
+        hips: float | None,
+        shoe_size: float | None = None,
+    ) -> str | None:
+        """
+        Единый расчёт для любого маркетплейса.
+
+        Для одежды используем размерную модель.
+        Для обуви — размер ноги из анкеты.
+        """
+        sizes = cls.normalize_available_sizes(
+            available_sizes, category
+        )
+
+        if not sizes:
+            return None
+
+        normalized_category = (category or "").lower()
+
+        if normalized_category in {
+            "shoes", "shoe", "footwear", "обувь"
+        }:
+            if shoe_size is None:
+                return None
+
+            return cls.select_available_size(
+                str(shoe_size).removesuffix(".0"),
+                sizes,
+            )
+
+        if normalized_category in {
+            "accessory", "accessories", "аксессуары"
+        }:
+            return None
+
+        # Определяем целевой RU-размер независимо
+        # от ассортимента конкретного продавца.
+        target = cls.recommend_size(
+            available_sizes=[
+                str(number) for number in range(36, 72, 2)
+            ],
+            category=normalized_category,
+            gender=gender,
+            chest=chest,
+            waist=waist,
+            hips=hips,
+        )
+
+        return cls.select_available_size(target, sizes)
 
     @staticmethod
     def normalize_available_sizes(
@@ -76,6 +253,12 @@ class SizeRecommendationService:
             raw = str(value).strip()
 
             if not raw:
+                continue
+
+            # Универсальный разбор размера.
+            values = SizeRecommendationService.size_numbers(raw)
+            if values:
+                size_options.append((raw, min(values), max(values)))
                 continue
 
             # Обычный размер: "44"
@@ -171,18 +354,10 @@ class SizeRecommendationService:
             )
             return recommended[0]
 
-        # Если target_ru не входит ни в один доступный диапазон,
-        # выбираем ближайший размер или диапазон продавца.
-        def distance(option: tuple[str, int, int]) -> tuple[int, int]:
-            _, start, end = option
-
-            if target_ru < start:
-                return (start - target_ru, start)
-
-            return (target_ru - end, start)
-
-        recommended = min(size_options, key=distance)
-
-        # Возвращаем исходное значение из available_sizes:
-        # например "44" или "44-46".
-        return recommended[0]
+        # STYLELINK_STRICT_SIZE_V1
+        # Если рассчитанный RU-размер не входит ни в один
+        # доступный диапазон, не подменяем его ближайшим.
+        #
+        # Например, при target_ru=50 и размерах ["42", "44"]
+        # нельзя рекомендовать "44".
+        return None

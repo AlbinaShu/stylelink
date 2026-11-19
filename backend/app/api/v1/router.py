@@ -1,3 +1,4 @@
+from app.api.v1.marketplace_alternatives import router as marketplace_alternatives_router
 from fastapi import APIRouter
 from app.api.v1.auth import router as auth_router
 from app.api.v1.users import router as users_router
@@ -18,3 +19,5 @@ api_router.include_router(survey_router, prefix="/survey", tags=["Survey"])
 api_router.include_router(survey_email_router, prefix="/survey/email", tags=["Survey Email"])
 
 api_router.include_router(feedback_router, prefix="/feedback", tags=["Feedback"])
+
+api_router.include_router(marketplace_alternatives_router, prefix="/marketplaces", tags=["Marketplace alternatives"])

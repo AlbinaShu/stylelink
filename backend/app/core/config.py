@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     gigachat_model: str
 
     # Pilot defaults preserve the legacy source; enable paid providers explicitly.
-    catalog_provider: Literal["yandex_market", "bhapi_wb"] = "yandex_market"
+    catalog_provider: Literal["yandex_market", "bhapi_wb"] = "bhapi_wb"
     reviews_provider: Literal["yandex_market", "mpdown", "apify", "none"] = "yandex_market"
     bhapi_wb_token: SecretStr = SecretStr("")
     mpdown_api_key: SecretStr = SecretStr("")

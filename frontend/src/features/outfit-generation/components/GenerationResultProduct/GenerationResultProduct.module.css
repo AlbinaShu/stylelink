@@ -78,7 +78,7 @@
     display: inline-flex !important;
     align-items: center;
     justify-content: center;
-    background: var(--marketplace-yandex) !important;
+    background: var(--marketplace-yandex);
     color: var(--marketplace-yandex-text) !important;
     font-size: 10px !important;
     font-weight: 700 !important;
@@ -108,7 +108,10 @@
     font-weight: 600;
     line-height: 18px;
     text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
 }
 
 .price {
@@ -376,4 +379,97 @@
     outline: 2px solid #7044f5;
     outline-offset: 1px;
     cursor: pointer;
+}
+
+
+.alternatives {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid #eadfe2;
+}
+
+.alternativesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.alternativesButton {
+  padding: 8px 13px;
+  border: 1px solid #96344d;
+  border-radius: 20px;
+  background: white;
+  color: #96344d;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.alternativesButton:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.alternativeOffer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid #f0e8e8;
+}
+
+.alternativeImage {
+  width: 60px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.alternativeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+  font-size: 12px;
+}
+
+.alternativeMarket {
+  color: #96344d;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.alternativeName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alternativeMeta {
+  color: #8d7777;
+  font-size: 10px;
+}
+
+.alternativeLink {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f7edef;
+  color: #96344d;
+  flex-shrink: 0;
+}
+
+.alternativesNote {
+  margin: 8px 0;
+  font-size: 11px;
+  color: #8d7777;
 }

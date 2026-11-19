@@ -45,6 +45,164 @@ def diagnostic(event, **fields):
     ))
 
 
+# STYLELINK_OUTFIT_INTELLIGENCE_V1
+import math
+import re
+
+
+def _stylelink_quality_score(product):
+    """Оценка качества по реальным полям карточки."""
+    def number(value):
+        try:
+            result = float(value)
+            return result if math.isfinite(result) else 0.0
+        except (TypeError, ValueError, OverflowError):
+            return 0.0
+
+    rating = number(getattr(product, "rating", None))
+    review_rating = number(
+        getattr(product, "review_rating", None)
+    )
+    feedbacks = max(
+        0.0, number(getattr(product, "feedbacks", None))
+    )
+
+    valid_ratings = [
+        r for r in (rating, review_rating)
+        if 1.0 <= r <= 5.0
+    ]
+
+    if not valid_ratings:
+        return 0.0
+
+    r = sum(valid_ratings) / len(valid_ratings)
+
+    # Сглаживание: товар с одним отзывом не должен
+    # автоматически побеждать товар с сотнями отзывов.
+    confidence = feedbacks / (feedbacks + 30.0)
+    adjusted = 3.8 + (r - 3.8) * confidence
+
+    return (
+        (adjusted - 3.8) * 10.0
+        + min(math.log1p(feedbacks), 9.0) * 0.35
+    )
+
+
+def _stylelink_context_text(generation):
+    return " ".join(
+        str(getattr(generation, field, "") or "")
+        for field in ("occasion", "style", "prompt")
+    ).lower()
+
+
+def _stylelink_is_inappropriate(product, context):
+    """Только явные конфликты назначения, без агрессивной цензуры."""
+    name = str(getattr(product, "name", "") or "").lower()
+    description = str(
+        getattr(product, "description", "") or ""
+    ).lower()[:400]
+
+    text = name + " " + description
+
+    home_words = (
+        "домашние тапочки",
+        "тапочки домашние",
+        "тапочки комнатные",
+        "комнатные тапочки",
+        "домашние шлепанцы",
+        "тапки домашние",
+        "пижама",
+        "пижамный комплект",
+        "халат банный",
+        "халат домашний",
+    )
+
+    outdoor = any(word in context for word in (
+        "прогул", "улиц", "город", "офис",
+        "работ", "делов", "свидан", "вечерин",
+        "restaurant", "office", "walk",
+        "casual", "street",
+    ))
+
+    if outdoor and any(word in text for word in home_words):
+        return True
+
+    office = any(word in context for word in (
+        "офис", "делов", "business", "office"
+    ))
+
+    if office and any(word in text for word in (
+        "пляжные шлепанцы",
+        "пляжные тапочки",
+        "купальник",
+        "плавки",
+    )):
+        return True
+
+    return False
+
+
+def _stylelink_rank_products(products, generation, limit):
+    """Балансируем качество, категории и порядок кандидатов."""
+    context = _stylelink_context_text(generation)
+
+    accepted = [
+        product for product in products
+        if not _stylelink_is_inappropriate(product, context)
+    ]
+
+    groups = {}
+    for product in accepted:
+        category = str(
+            getattr(product, "category", "") or "other"
+        )
+        groups.setdefault(category, []).append(product)
+
+    for group in groups.values():
+        group.sort(
+            key=_stylelink_quality_score,
+            reverse=True,
+        )
+
+    # Round-robin: не отдаём все 100 мест одной категории.
+    selected = []
+    while len(selected) < limit and any(groups.values()):
+        ordered_categories = sorted(
+            groups,
+            key=lambda c: (
+                -_stylelink_quality_score(groups[c][0])
+                if groups[c] else float("inf"),
+                c,
+            ),
+        )
+
+        for category in ordered_categories:
+            if groups[category] and len(selected) < limit:
+                selected.append(groups[category].pop(0))
+
+    return selected
+
+
+def _stylelink_deduplicate_outfits(outfits):
+    """Удаляем полностью идентичные наборы товаров."""
+    result = []
+    seen = set()
+
+    for outfit in outfits:
+        ids = tuple(sorted(
+            str(item.product_id)
+            for item in outfit.items
+        ))
+
+        if ids in seen:
+            continue
+
+        seen.add(ids)
+        result.append(outfit)
+
+    return result
+
+
 class GenerationPipeline:
     MAX_FASHION_CLIP_PRODUCTS = 100
 
@@ -254,11 +412,8 @@ class GenerationPipeline:
 
                     unique_products.append(product)
 
-                    if (
-                        len(unique_products)
-                        >= self.MAX_FASHION_CLIP_PRODUCTS
-                    ):
-                        break
+                    # STYLELINK_OUTFIT_INTELLIGENCE_V1
+                    # Не обрываем сбор до оценки качества.
 
                 # -------------------------------------------------
                 # 4. Если товаров нет — валидный пустой результат
@@ -284,6 +439,111 @@ class GenerationPipeline:
 
                 generation.status = "forming_outfits"
                 await db.commit()
+
+
+                # STYLELINK_UNIVERSAL_SIZE_FILTER_V1
+                # Размер проверяется ДО FashionCLIP.
+                # Если размер известен, допускаем только подтвержденное
+                # совпадение с реальными размерами продавца.
+                size_checked_products = []
+                size_excluded_count = 0
+
+                for product in unique_products:
+                    category = (product.category or "").lower()
+
+                    if category in {
+                        "accessory", "accessories", "аксессуары"
+                    }:
+                        size_checked_products.append(product)
+                        continue
+
+                    available = (
+                        SizeRecommendationService.normalize_available_sizes(
+                            product.sizes, category
+                        )
+                    )
+
+                    is_shoes = category in {
+                        "shoes", "shoe", "footwear", "обувь"
+                    }
+
+                    if is_shoes:
+                        shoe_size = getattr(
+                            generation, "shoe_size", None
+                        )
+                        target = (
+                            str(shoe_size).removesuffix(".0")
+                            if shoe_size is not None
+                            else None
+                        )
+                    else:
+                        target = (
+                            SizeRecommendationService.recommend_size(
+                                available_sizes=[
+                                    str(n) for n in range(36, 72, 2)
+                                ],
+                                category=category,
+                                gender=generation.gender,
+                                chest=generation.chest,
+                                waist=generation.waist,
+                                hips=generation.hips,
+                            )
+                        )
+
+                    if target is None:
+                        # Без данных анкеты не угадываем размер.
+                        size_checked_products.append(product)
+                        continue
+
+                    selected = (
+                        SizeRecommendationService.select_available_size(
+                            target, available
+                        )
+                    )
+
+                    if selected is None:
+                        # Нет подтвержденного размера пользователя:
+                        # не передаем товар в FashionCLIP.
+                        size_excluded_count += 1
+                        continue
+
+                    size_checked_products.append(product)
+
+                diagnostic(
+                    "universal_size_filter",
+                    generation_id=generation_id,
+                    accepted=len(size_checked_products),
+                    excluded=size_excluded_count,
+                )
+
+                if not size_checked_products:
+                    raise ProviderError(
+                        "no_products_with_compatible_sizes"
+                    )
+
+                unique_products = size_checked_products
+
+                # STYLELINK_OUTFIT_INTELLIGENCE_V1
+                before_quality = len(unique_products)
+
+                unique_products = _stylelink_rank_products(
+                    unique_products,
+                    generation,
+                    self.MAX_FASHION_CLIP_PRODUCTS,
+                )
+
+                diagnostic(
+                    "outfit_intelligence_candidates",
+                    generation_id=generation_id,
+                    before=before_quality,
+                    after=len(unique_products),
+                    removed=before_quality - len(unique_products),
+                )
+
+                if not unique_products:
+                    raise ProviderError(
+                        "no_style_compatible_products"
+                    )
 
                 fashion_clip_products = [
                     FashionClipProduct(
@@ -374,7 +634,13 @@ class GenerationPipeline:
                         reason="no_valid_outfits",
                     )
                 # Keep only the requested number before saving or collecting reviews.
-                fashion_clip_response.outfits = fashion_clip_response.outfits[:settings.outfit_count]
+                # STYLELINK_OUTFIT_INTELLIGENCE_V1
+                # Не показываем одинаковые комплекты дважды.
+                fashion_clip_response.outfits = (
+                    _stylelink_deduplicate_outfits(
+                        fashion_clip_response.outfits
+                    )[:settings.outfit_count]
+                )
                 if not fashion_clip_response.outfits:
                     raise ProviderError("no_complete_outfit_within_budget")
                 required_categories = (set(fashion_clip_request.required_categories)
@@ -447,14 +713,18 @@ class GenerationPipeline:
                             )
                         )
 
+                        # STYLELINK_UNIVERSAL_SIZE_FILTER_V1
                         recommended_size = (
-                            SizeRecommendationService.recommend_size(
+                            SizeRecommendationService.recommend_for_offer(
                                 available_sizes=available_sizes,
                                 category=ml_item.category,
                                 gender=generation.gender,
                                 chest=generation.chest,
                                 waist=generation.waist,
                                 hips=generation.hips,
+                                shoe_size=getattr(
+                                    generation, "shoe_size", None
+                                ),
                             )
                         )
 
