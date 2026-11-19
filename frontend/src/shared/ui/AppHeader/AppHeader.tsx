@@ -1,6 +1,8 @@
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { Link, useNavigate } from 'react-router-dom';
 import Brand from '../Brand/Brand';
+import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
+import { useLanguage } from '../../i18n/LanguageContext';
 import styles from './AppHeader.module.css';
 
 interface IAppHeaderProps {
@@ -15,6 +17,7 @@ function AppHeader({
   showProfile = false,
 }: IAppHeaderProps) {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   if (showBack) {
     return (
@@ -24,12 +27,13 @@ function AppHeader({
             type="button"
             className={styles.back}
             onClick={() => navigate('/main')}
-            aria-label="Назад"
+            aria-label={t('Назад')}
           >
             <ArrowLeftOutlined />
           </button>
 
           <span className={styles.title}>{title}</span>
+          <div className={styles.actions}><LanguageSwitcher /></div>
         </div>
       </header>
     );
@@ -42,15 +46,18 @@ function AppHeader({
           <Brand />
         </Link>
 
-        {showProfile && (
-          <Link
-            to="/profile"
-            className={styles.profileButton}
-            aria-label="Профиль"
-          >
-            П
-          </Link>
-        )}
+        <div className={styles.actions}>
+          <LanguageSwitcher />
+          {showProfile && (
+            <Link
+              to="/profile"
+              className={styles.profileButton}
+              aria-label={t('Профиль')}
+            >
+              {t('П')}
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );

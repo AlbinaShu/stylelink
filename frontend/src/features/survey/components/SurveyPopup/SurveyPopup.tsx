@@ -6,6 +6,7 @@ import type { ISurveyAnswerItem, ISurveyItem, ISurveyItemsResponse, ISurveyProgr
 import { useSurveyTracking } from '../../hooks/useSurveyTracking';
 import SurveyForm from '../SurveyForm/SurveyForm';
 import styles from './SurveyPopup.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const PAGE_SIZE = 10;
 // Reuse the in-flight request across React StrictMode effect remounts.
@@ -22,6 +23,7 @@ function loadPopup(sessionId: string) {
 }
 
 function SurveyPopup() {
+  const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<ISurveyItem[]>([]);
   const [surveyId, setSurveyId] = useState<string | null>(null);
@@ -74,13 +76,13 @@ function SurveyPopup() {
       tracking.finish();
       setOpen(false);
       Modal.success({
-        title: 'Спасибо! Ответ сохранен.',
+        title: t('Спасибо! Ответ сохранен.'),
         content: result.continuation_path
-          ? <a href={result.continuation_path} target="_blank" rel="noopener noreferrer">Открыть ссылку, чтобы позже дополнить или обновить ответ</a>
-          : 'Ваш ответ поможет нам улучшить сервис.',
+          ? <a href={result.continuation_path} target="_blank" rel="noopener noreferrer">{t('Открыть ссылку, чтобы позже дополнить или обновить ответ')}</a>
+          : t('Ваш ответ поможет нам улучшить сервис.'),
       });
     } catch {
-      void message.error('Не удалось отправить ответы. Проверьте заполнение формы.');
+      void message.error(t('Не удалось отправить ответы. Проверьте заполнение формы.'));
     } finally { setSubmitting(false); }
   };
 

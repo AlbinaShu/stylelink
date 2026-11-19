@@ -1,3 +1,4 @@
+import { ExportOutlined } from '@ant-design/icons';
 // STYLELINK_UNIVERSAL_SIZE_SELECTION_V1
 /* STYLELINK_YANDEX_STRIP_V1 */
 import http from '../../../../shared/api/http-client';
@@ -15,6 +16,7 @@ import { getDeviceType, getSessionId } from '../../../../shared/utils/session';
 import type { IOutfitItem } from '../../types';
 import styles from './GenerationResultProduct.module.css';
 import { isHalfVisible, useVisibleOnce } from '../../../../shared/hooks/useVisibleOnce';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const { Text } = Typography;
 
@@ -608,6 +610,7 @@ function GenerationResultProduct({
   outfitId,
   shoeSize,
 }: IGenerationResultProductProps) {
+  const { language, t } = useLanguage();
   // STYLELINK_MARKETPLACE_BADGES_V1
   const [hasYandexOffer, setHasYandexOffer] = useState(false);
 
@@ -626,7 +629,7 @@ function GenerationResultProduct({
     'обувь',
   ].includes(normalizedCategory);
 
-  const showFit = item.fit != null;
+  const showSizes = !isAccessory && Boolean(item.available_sizes?.length);
 
   // Нормализация нужна, чтобы 39.0 совпадал с "39",
   // а 38.5 продолжал совпадать с "38.5".
@@ -644,16 +647,32 @@ function GenerationResultProduct({
   const initialSize = recommendedSize
     ? item.available_sizes?.find(size => sizeEquivalent(size, recommendedSize)) ?? null
     : null;
+  const showFit = item.fit != null || recommendedSize != null;
   const fitConfig = item.fit?.fit_signal != null ? FIT_CONFIG[item.fit.fit_signal] : undefined;
-  const isInsufficientFit = item.fit?.status === 'insufficient_evidence';
-  const fitTitle = isInsufficientFit
-    ? 'Недостаточно данных о посадке'
-    : (fitConfig?.label ?? 'Есть информация о посадке');
-  const fitExplanation = isInsufficientFit
-    ? `${item.fit?.explanation ?? ''} Размер подобран по размерной таблице.`.trim()
-    : item.fit?.explanation;
-  const confidenceLabel = getConfidenceLabel(item.fit?.confidence);
-  const reviewsLabel = item.fit ? `Проанализировано: ${getReviewsLabel(item.fit.num_reviews)}` : null;
+  const isInsufficientFit = item.fit == null || item.fit.status === 'insufficient_evidence';
+  const fitSummaryRu = isInsufficientFit
+    ? recommendedSize
+      ? shoeSizeFromAvailable
+        ? 'По отзывам нет надежной оценки посадки. Размер выбран по вашему размеру обуви.'
+        : 'По отзывам нет надежной оценки посадки. Размер подобран по размерной таблице.'
+      : 'Недостаточно данных для подбора размера'
+    : `По отзывам: ${fitConfig?.label ?? 'Есть информация о посадке'}`;
+  const fitSummary = isInsufficientFit
+    ? t(fitSummaryRu)
+    : t('По отзывам: {fit}', { fit: t(fitConfig?.label ?? 'Есть информация о посадке') });
+  const confidenceLabelRu = getConfidenceLabel(item.fit?.confidence);
+  const confidenceLabel = item.fit?.confidence != null && confidenceLabelRu
+    ? t('Уверенность: {percent}%', { percent: Math.round(item.fit.confidence * 100) })
+    : null;
+  const reviewsLabelRu = item.fit ? `Проанализировано: ${getReviewsLabel(item.fit.num_reviews)}` : null;
+  const reviewsLabel = item.fit
+    ? language === 'en'
+      ? t('Проанализировано: {count} {word}', {
+          count: item.fit.num_reviews,
+          word: item.fit.num_reviews === 1 ? 'review' : 'reviews',
+        })
+      : reviewsLabelRu
+    : null;
 
 
   const fitViewRef = useVisibleOnce<HTMLDivElement>(item.id + ':fit', () => {
@@ -661,7 +680,7 @@ function GenerationResultProduct({
     void sendExplanationView({
       session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
       outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
-        initial_selected_size: initialSize, explanation_visible: true, explanation_summary: 'По отзывам: ' + fitTitle }],
+        initial_selected_size: initialSize, explanation_visible: true, explanation_summary: fitSummaryRu }],
     }).catch(() => undefined);
   });
   const viewRef = useVisibleOnce<HTMLDivElement>(item.id, () => {
@@ -670,7 +689,7 @@ function GenerationResultProduct({
       session_id: getSessionId(), timestamp: new Date().toISOString(), device_type: getDeviceType(),
       outfitItems: [{ product_id: item.product_id, outfit_id: outfitId, outfit_item_id: item.id,
         initial_selected_size: initialSize, explanation_visible: showFit && isHalfVisible(fitViewRef.current),
-        explanation_summary: showFit && isHalfVisible(fitViewRef.current) ? 'По отзывам: ' + fitTitle : null }],
+        explanation_summary: showFit && isHalfVisible(fitViewRef.current) ? fitSummaryRu : null }],
     }).catch(() => undefined);
   });
 
@@ -714,9 +733,9 @@ function GenerationResultProduct({
       session_id: getSessionId(),
       product_id: item.product_id,
       tooltip_type: 'fit',
-      explanation_summary: 'По отзывам: ' + fitTitle,
+      explanation_summary: fitSummaryRu,
       explanation_text: item.fit?.explanation ?? null,
-      explanation_meta: confidenceLabel ? `${confidenceLabel} · ${reviewsLabel}` : reviewsLabel,
+      explanation_meta: confidenceLabelRu ? `${confidenceLabelRu} · ${reviewsLabelRu}` : reviewsLabelRu,
       outfit_id: outfitId,
       outfit_item_id: item.id,
       timestamp: new Date().toISOString(),
@@ -728,7 +747,7 @@ function GenerationResultProduct({
 
     if (!sizeForEvent) {
       event.preventDefault();
-      void message.warning('Выберите размер перед переходом к покупке.');
+      void message.warning(t('Выберите размер перед переходом к покупке.'));
       return;
     }
 
@@ -762,7 +781,7 @@ function GenerationResultProduct({
                     color: '#FFFFFF',
                   }}
                 >
-                  {getMarketplaceLabel(item.marketplace)}
+                  {t(getMarketplaceLabel(item.marketplace))}
                 </Tag>
                 {hasYandexOffer && (
                   <Tag
@@ -772,7 +791,7 @@ function GenerationResultProduct({
                       color: '#211800',
                     }}
                   >
-                    Яндекс Маркет
+                    {t('Яндекс Маркет')}
                   </Tag>
                 )}
                 {item.brand?.trim() &&
@@ -786,18 +805,63 @@ function GenerationResultProduct({
                   )}
               </div>
               <Text strong className={styles.name} title={item.name}>{item.name}</Text>
-              <Text strong className={styles.price}>{Math.round(item.price).toLocaleString('ru-RU')} ₽</Text>
+              <Text strong className={styles.price}>{Math.round(item.price).toLocaleString(language === 'en' ? 'en-US' : 'ru-RU')} ₽</Text>
             </div>
 
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.external}
+              aria-label={t('Открыть {name}', { name: item.name })}
+              onClick={handleBuy}
+            >
+              <ExportOutlined />
+            </a>
           </div>
 
+          {showSizes && (
+            <div className={styles.sizes}>
+              {item.available_sizes!.map((size) => {
+                const isRecommended = recommendedSize !== null && size === recommendedSize;
+                const isSelected = selectedSize === size;
+                return (
+                  <Tag
+                    key={size}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => changeSize(size)}
+                    onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') changeSize(size); }}
+                    className={[
+                      styles.size,
+                      isRecommended
+                        ? styles.recommendedSize
+                        : '',
+                      isSelected ? styles.selectedSize : '',
+                    ].filter(Boolean).join(' ')}
+                  >
+                    {size}
+                  </Tag>
+                );
+              })}
+            </div>
+          )}
+
           {recommendedSize !== null && !item.available_sizes?.some(size => sizeEquivalent(size, recommendedSize)) && (
-            <div className={styles.recommendation}>Рекомендуемый размер: <strong>{recommendedSize}</strong></div>
+            <div className={styles.recommendation}>{t('Рекомендуемый размер:')} <strong>{recommendedSize}</strong></div>
           )}
 
           {showFit && (
             <div ref={fitViewRef}>
-            <Collapse
+            {isInsufficientFit ? (
+              <div className={styles.fitUnavailable}>
+                <span className={[styles.fitLabel, styles.fitInfo].join(' ')}>
+                  <InfoCircleOutlined />
+                  <span>{fitSummary}</span>
+                </span>
+              </div>
+            ) : (
+              <Collapse
               ghost
               expandIconPosition="end"
               className={styles.fitCollapse}
@@ -807,7 +871,7 @@ function GenerationResultProduct({
                 label: (
                   <span className={[styles.fitLabel, fitConfig?.className ?? styles.fitInfo].filter(Boolean).join(' ')}>
                     {fitConfig?.icon ?? <InfoCircleOutlined />}
-                    <span>По отзывам: {fitTitle}</span>
+                    <span>{fitSummary}</span>
                   </span>
                 ),
                 children: (
@@ -820,15 +884,11 @@ function GenerationResultProduct({
                       </Text>
                     )}
 
-                    {fitExplanation && (
-                      <Text className={styles.fitDescription}>
-                        {fitExplanation}
-                      </Text>
-                    )}
                   </div>
                 ),
               }]}
-            />
+              />
+            )}
             </div>
           )}
         </div>

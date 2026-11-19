@@ -199,6 +199,19 @@
     background: #f8f5f2 !important;
 }
 
+.fitUnavailable {
+    margin-top: 12px;
+    padding: 7px 11px;
+    border-radius: 12px;
+    background: #f8f5f2;
+}
+
+.fitUnavailable .fitLabel,
+.fitUnavailable .fitLabel > span:last-child {
+    overflow: visible;
+    white-space: normal;
+}
+
 .fitCollapse
     :global(.ant-collapse-item) {
     border: 0 !important;
@@ -277,13 +290,6 @@
 }
 
 .fitMeta {
-    display: block;
-    color: #a57d70 !important;
-    font-size: 11px;
-    line-height: 16px;
-}
-
-.fitDescription {
     display: block;
     color: #a57d70 !important;
     font-size: 11px;

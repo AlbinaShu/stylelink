@@ -13,6 +13,8 @@ import {
 } from '../../types';
 
 import styles from './GenerationLoading.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
+import LanguageSwitcher from '../../../../shared/ui/LanguageSwitcher/LanguageSwitcher';
 
 const { Text, Title } = Typography;
 
@@ -91,6 +93,7 @@ function GenerationLoading({
     onFailed,
     onCancel,
 }: IGenerationLoadingProps) {
+    const { t } = useLanguage();
     const [status, setStatus] =
         useState<ActiveGenerationStatus>(
             'generating_queries',
@@ -236,10 +239,11 @@ function GenerationLoading({
 
     return (
         <div className={styles.root}>
+            <div className={styles.language}><LanguageSwitcher /></div>
             <div className={styles.content}>
                 <div
                     className={styles.loader}
-                    aria-label="Создаём образы"
+                    aria-label={t('Создаём образы')}
                 >
                     <div className={styles.loaderGlow} />
 
@@ -268,11 +272,11 @@ function GenerationLoading({
                     level={3}
                     className={styles.title}
                 >
-                    Создаём ваши образы
+                    {t('Создаём ваши образы')}
                 </Title>
 
                 <Text className={styles.description}>
-                    {step.text}
+                    {t(step.text)}
                 </Text>
 
                 <div className={styles.progressBlock}>
@@ -282,10 +286,10 @@ function GenerationLoading({
                                 styles.progressLabel
                             }
                         >
-                            Этап {currentStep} из{' '}
-                            {
-                                GENERATION_STATUS_ORDER.length
-                            }
+                            {t('Этап {current} из {total}', {
+                                current: currentStep,
+                                total: GENERATION_STATUS_ORDER.length,
+                            })}
                         </Text>
 
                         <Text
@@ -312,13 +316,12 @@ function GenerationLoading({
                             styles.connectionMessage
                         }
                     >
-                        Восстанавливаем соединение...
+                        {t('Восстанавливаем соединение...')}
                     </Text>
                 )}
 
                 <Text className={styles.hint}>
-                    Подбор может занять некоторое время.
-                    Страницу можно оставить открытой.
+                    {t('Подбор может занять некоторое время. Страницу можно оставить открытой.')}
                 </Text>
 
                 <Button
@@ -326,7 +329,7 @@ function GenerationLoading({
                     className={styles.cancelButton}
                     onClick={onCancel}
                 >
-                    Отменить
+                    {t('Отменить')}
                 </Button>
             </div>
         </div>

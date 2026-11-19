@@ -1,6 +1,7 @@
 import { UserOutlined } from '@ant-design/icons';
 import Button from '../../../../shared/ui/Button/Button';
 import styles from './NameStep.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 interface INameStepProps {
   name: string;
@@ -17,24 +18,25 @@ function NameStep({
   onComplete,
   onSkip,
 }: INameStepProps) {
+  const { t } = useLanguage();
   return (
     <div className={styles.root}>
       <div className={styles.icon} aria-hidden="true">
         <UserOutlined />
       </div>
 
-      <h1>Как вас зовут?</h1>
-      <p>Будем обращаться к вам по имени при подборе образов</p>
+      <h1>{t('Как вас зовут?')}</h1>
+      <p>{t('Будем обращаться к вам по имени при подборе образов')}</p>
 
       <input
         className={styles.input}
         value={name}
         onChange={(event) => onNameChange(event.target.value)}
-        placeholder="Введите ваше имя"
+        placeholder={t('Введите ваше имя')}
       />
 
       <Button
-        title="Начать подбор образов"
+        title={t('Начать подбор образов')}
         onClick={onComplete}
         isDisabled={!name.trim()}
         isLoading={loading}
@@ -47,7 +49,7 @@ function NameStep({
         disabled={loading}
         onClick={onSkip}
       >
-        Пропустить
+        {t('Пропустить')}
       </button>
     </div>
   );

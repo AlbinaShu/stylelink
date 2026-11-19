@@ -4,6 +4,7 @@ import type { IOutfit } from '../../types';
 import GenerationResultProduct from '../GenerationResultProduct/GenerationResultProduct';
 
 import styles from './GenerationResultCard.module.css';
+import { useLanguage, type Language } from '../../../../shared/i18n/LanguageContext';
 
 const { Text } = Typography;
 
@@ -28,7 +29,8 @@ const STYLE_LABELS: Record<string, string> = {
     romantic: 'Романтический',
 };
 
-function getItemsLabel(count: number): string {
+function getItemsLabel(count: number, language: Language): string {
+    if (language === 'en') return `${count} ${count === 1 ? 'item' : 'items'}`;
     const mod10 = count % 10;
     const mod100 = count % 100;
 
@@ -52,14 +54,14 @@ function GenerationResultCard({
     number,
     shoeSize,
 }: IGenerationResultCardProps) {
+    const { language, t } = useLanguage();
+    const titleNumber = /^Образ (\d+)$/.exec(outfit.title)?.[1];
     const occasionLabel = outfit.occasion
-        ? OCCASION_LABELS[outfit.occasion] ??
-        outfit.occasion
+        ? t(OCCASION_LABELS[outfit.occasion] ?? outfit.occasion)
         : null;
 
     const styleLabel = outfit.style
-        ? STYLE_LABELS[outfit.style] ??
-        outfit.style
+        ? t(STYLE_LABELS[outfit.style] ?? outfit.style)
         : null;
 
     return (
@@ -78,7 +80,7 @@ function GenerationResultCard({
                             strong
                             className={styles.title}
                         >
-                            {outfit.title}
+                            {titleNumber ? t('Образ {number}', { number: titleNumber }) : outfit.title}
                         </Text>
 
                         {(occasionLabel ||
@@ -130,7 +132,7 @@ function GenerationResultCard({
                         {Math.round(
                             outfit.total_price,
                         ).toLocaleString(
-                            'ru-RU',
+                            language === 'en' ? 'en-US' : 'ru-RU',
                         )}{' '}
                         ₽
                     </Text>
@@ -142,6 +144,7 @@ function GenerationResultCard({
                     >
                         {getItemsLabel(
                             outfit.items.length,
+                            language,
                         )}
                     </Text>
                 </div>

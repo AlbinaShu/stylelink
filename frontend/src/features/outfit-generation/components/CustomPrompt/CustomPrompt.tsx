@@ -4,6 +4,7 @@ import {
 } from 'antd';
 
 import styles from './CustomPrompt.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -17,14 +18,15 @@ function CustomPrompt({
     value,
     onChange,
 }: ICustomPromptProps) {
+    const { t } = useLanguage();
     return (
         <div className={styles.root}>
             <Text className={styles.title}>
-                Свой запрос
+                {t('Свой запрос')}
             </Text>
 
             <Text className={styles.description}>
-                Заполните (≥5 символов), чтобы заменить выбор повода и стиля
+                {t('Заполните (≥5 символов), чтобы заменить выбор повода и стиля')}
             </Text>
 
             <TextArea
@@ -32,7 +34,7 @@ function CustomPrompt({
                 maxLength={500}
                 rows={5}
                 showCount
-                placeholder="Например: хочу образ в стиле 90-х для похода в клуб..."
+                placeholder={t('Например: хочу образ в стиле 90-х для похода в клуб...')}
                 onChange={(event) => onChange(event.target.value)}
                 className={styles.input}
             />

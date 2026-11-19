@@ -390,4 +390,3 @@ async def search_exact_products(source, query_offset=0):
         "exact": exact[:8],
         "candidates": candidates[:16],
     }
-

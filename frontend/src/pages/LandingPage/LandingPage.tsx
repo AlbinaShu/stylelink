@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 
 import Brand from '../../shared/ui/Brand/Brand';
 import Button from '../../shared/ui/Button/Button';
+import LanguageSwitcher from '../../shared/ui/LanguageSwitcher/LanguageSwitcher';
+import { useLanguage } from '../../shared/i18n/LanguageContext';
 import styles from './LandingPage.module.css';
 
 interface IStep {
@@ -62,6 +64,7 @@ const steps: IStep[] = [
 
 function LandingPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleLogin = () => {
     navigate('/auth');
@@ -77,13 +80,14 @@ function LandingPage() {
         <div className={styles.headerInner}>
           <Brand />
 
-          <nav className={styles.nav} aria-label="Авторизация">
+          <nav className={styles.nav} aria-label={t('Авторизация')}>
+            <LanguageSwitcher />
             <button
               type="button"
               className={styles.login}
               onClick={handleLogin}
             >
-              Вход
+              {t('Вход')}
             </button>
 
             <button
@@ -91,7 +95,7 @@ function LandingPage() {
               className={styles.register}
               onClick={handleStart}
             >
-              Регистрация
+              {t('Регистрация')}
             </button>
           </nav>
         </div>
@@ -102,23 +106,23 @@ function LandingPage() {
           <div className={styles.hero}>
             <div className={styles.heroCopy}>
               <span className={styles.marketplace}>
-                Яндекс Маркет
+                {t('Яндекс Маркет')}
               </span>
 
               <h1 className={styles.heroTitle}>
-                Подбери
+                {t('Подбери')}
                 <br />
-                образы
+                {t('образы')}
                 <br />
-                <span>под свой запрос</span>
+                <span>{t('под свой запрос')}</span>
               </h1>
 
               <p className={styles.description}>
-                Вещи из Яндекс Маркета в рамках бюджета. Посадку оцениваем по отзывам.
+                {t('Вещи из Яндекс Маркета в рамках бюджета. Посадку оцениваем по отзывам.')}
               </p>
 
               <Button
-                title="Начать подбор"
+                title={t('Начать подбор')}
                 onClick={handleStart}
                 icon={<ClockCircleOutlined />}
                 suffix={<ArrowRightOutlined />}
@@ -128,8 +132,8 @@ function LandingPage() {
               <div className={styles.stats}>
                 {stats.map((stat) => (
                   <div className={styles.stat} key={stat.label}>
-                    <strong>{stat.value}</strong>
-                    <span>{stat.label}</span>
+                    <strong>{t(stat.value)}</strong>
+                    <span>{t(stat.label)}</span>
                   </div>
                 ))}
               </div>
@@ -160,7 +164,7 @@ function LandingPage() {
         <section className={styles.howItWorks}>
           <div className={styles.sectionInner}>
             <div className={styles.sectionLabel}>
-              Как работает
+              {t('Как работает')}
             </div>
 
             <div className={styles.steps}>
@@ -176,11 +180,11 @@ function LandingPage() {
                   <div className={styles.stepCopy}>
                     <div className={styles.stepTitle}>
                       {/* <span>{step.number}</span> */}
-                      {step.title}
+                      {t(step.title)}
                     </div>
 
                     <div className={styles.stepText}>
-                      {step.text}
+                      {t(step.text)}
                     </div>
                   </div>
                 </article>
@@ -190,13 +194,13 @@ function LandingPage() {
             <article className={styles.bottomCta}>
               <div className={styles.bottomCtaContent}>
                 <span className={styles.bottomCtaLabel}>
-                  Начни прямо сейчас
+                  {t('Начни прямо сейчас')}
                 </span>
 
                 <h2>
-                  Твой стиль — за 10
+                  {t('Твой стиль — за 10')}
                   <br />
-                  минут
+                  {t('минут')}
                 </h2>
 
                 <button
@@ -204,7 +208,7 @@ function LandingPage() {
                   onClick={handleStart}
                 >
                   <span>
-                    Зарегистрироваться бесплатно
+                    {t('Зарегистрироваться бесплатно')}
                   </span>
 
                   <ArrowRightOutlined />

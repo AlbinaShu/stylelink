@@ -15,6 +15,7 @@ import GenerationHistory from '../../features/outfit-generation/components/Gener
 import { useProfile } from '../../features/profile/hooks/useProfile';
 import AppBottomNav from '../../shared/ui/AppBottomNav/AppBottomNav';
 import AppHeader from '../../shared/ui/AppHeader/AppHeader';
+import { useLanguage } from '../../shared/i18n/LanguageContext';
 
 import firstGenerationFlatlay from '/images/first-generation-flatlay.webp';
 import styles from './MainPage.module.css';
@@ -27,6 +28,7 @@ function MainHistory({
   onCreate: () => void;
 }) {
   const [isEmpty, setIsEmpty] = useState(false);
+  const { t } = useLanguage();
 
   if (isEmpty) {
     return (
@@ -42,7 +44,7 @@ function MainHistory({
         <div className={styles.preview}>
           <img
             src={firstGenerationFlatlay}
-            alt="Подбор образа AI-StyleLink"
+            alt={t('Подбор образа AI-StyleLink')}
             className={styles.previewImage}
           />
         </div>
@@ -53,11 +55,11 @@ function MainHistory({
           className={styles.startContent}
         >
           <Title level={5} className={styles.startTitle}>
-            Начните первый подбор
+            {t('Начните первый подбор')}
           </Title>
 
           <Text className={styles.startDescription}>
-            После первого подбора здесь появится история ваших образов
+            {t('После первого подбора здесь появится история ваших образов')}
           </Text>
 
           <Button
@@ -67,7 +69,7 @@ function MainHistory({
             onClick={onCreate}
             className={styles.startButton}
           >
-            Начать подбор
+            {t('Начать подбор')}
           </Button>
         </Flex>
       </Card>
@@ -85,6 +87,7 @@ function MainHistory({
 function MainPage() {
   const navigate = useNavigate();
   const { user, loadProfile, isLoading } = useProfile();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (!user) {
@@ -92,17 +95,18 @@ function MainPage() {
     }
   }, [user]);
 
-  const userName = user?.name?.trim() || 'Пользователь';
+  const userName = user?.name?.trim() || t('Пользователь');
   const hour = new Date().getHours();
 
-  const greeting =
+  const greeting = t(
     hour >= 5 && hour < 12
       ? 'Доброе утро'
       : hour >= 12 && hour < 18
         ? 'Добрый день'
         : hour >= 18 && hour < 23
           ? 'Добрый вечер'
-          : 'Доброй ночи';
+          : 'Доброй ночи',
+  );
 
   const handleCreate = () => {
     navigate('/outfit-generation');
@@ -119,7 +123,7 @@ function MainPage() {
           </Text>
 
           <Title level={2} className={styles.title}>
-            {isLoading ? 'Пользователь' : userName} 👋
+            {isLoading ? t('Пользователь') : userName} 👋
           </Title>
         </section>
 
@@ -149,11 +153,11 @@ function MainPage() {
               <div className={styles.heroBottom}>
                 <div>
                   <Title level={4} className={styles.heroTitle}>
-                    Новый подбор образов
+                    {t('Новый подбор образов')}
                   </Title>
 
                   <Text className={styles.heroDescription}>
-                    До 5 образов из Яндекс Маркета
+                    {t('До 5 образов из Яндекс Маркета')}
                   </Text>
                 </div>
 
