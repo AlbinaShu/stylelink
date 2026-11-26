@@ -1,0 +1,18 @@
+.switcher {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.switcher:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}

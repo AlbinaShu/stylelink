@@ -1,5 +1,18 @@
-.page {
+.shell {
     min-height: 100vh;
+    background: #f7f7fb;
+}
+
+.header {
+    height: 48px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.page {
+    min-height: calc(100vh - 48px);
     padding: 40px 16px;
     background: #f7f7fb;
 }
@@ -14,7 +27,7 @@
 }
 
 .center {
-    min-height: 100vh;
+    min-height: calc(100vh - 48px);
     display: grid;
     place-items: center;
     padding: 24px;

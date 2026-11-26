@@ -12,11 +12,13 @@ import UsageLimit from '../../features/profile/components/UsageLimit/UsageLimit'
 
 import AppBottomNav from '../../shared/ui/AppBottomNav/AppBottomNav';
 import AppHeader from '../../shared/ui/AppHeader/AppHeader';
+import { useLanguage } from '../../shared/i18n/LanguageContext';
 
 import styles from './ProfilePage.module.css';
 
 function ProfilePage() {
   const { logout } = useAuth();
+  const { t } = useLanguage();
 
   const {
     user,
@@ -43,7 +45,7 @@ function ProfilePage() {
   return (
     <div className={styles.page}>
       <AppHeader
-        title="Профиль"
+        title={t('Профиль')}
         showBack
       />
 
@@ -70,7 +72,7 @@ function ProfilePage() {
               className={styles.logoutButton}
               onClick={handleLogout}
             >
-              Выйти из аккаунта
+              {t('Выйти из аккаунта')}
             </Button>
           </>
         )}

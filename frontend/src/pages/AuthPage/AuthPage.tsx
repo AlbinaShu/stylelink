@@ -2,6 +2,8 @@ import { useState, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import Brand from '../../shared/ui/Brand/Brand';
+import LanguageSwitcher from '../../shared/ui/LanguageSwitcher/LanguageSwitcher';
+import { useLanguage } from '../../shared/i18n/LanguageContext';
 import LoginForm from '../../features/auth/components/LoginForm/LoginForm';
 import RegisterForm from '../../features/auth/components/RegisterForm/RegisterForm';
 import OtpStep from '../../features/auth/components/OtpStep/OtpStep';
@@ -23,14 +25,18 @@ interface IAuthShellProps {
 }
 
 function AuthShell({ children, onBack, progress }: IAuthShellProps) {
+  const { t } = useLanguage();
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <button type="button" className={styles.back} onClick={onBack} aria-label="Назад">
+          <button type="button" className={styles.back} onClick={onBack} aria-label={t('Назад')}>
             <ArrowLeftOutlined />
           </button>
           <Brand />
+          <div className={styles.language}>
+            <LanguageSwitcher />
+          </div>
           {progress && (
             <div className={styles.progress}>
               {[1, 2, 3].map((item) => (
@@ -49,6 +55,7 @@ function AuthShell({ children, onBack, progress }: IAuthShellProps) {
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [searchParams] = useSearchParams();
   const { register, setRegistrationInProgress } = useAuth();
   const { updateCurrentUser } = useProfile();
@@ -160,8 +167,8 @@ function AuthPage() {
     return (
       <AuthShell onBack={() => navigate('/')}>
         <div className={styles.heading}>
-          <h1>Добро пожаловать</h1>
-          <p>Войдите, чтобы продолжить подбор</p>
+          <h1>{t('Добро пожаловать')}</h1>
+          <p>{t('Войдите, чтобы продолжить подбор')}</p>
         </div>
         <LoginForm
           onLoggedIn={() => navigate('/main', { replace: true })}
@@ -176,8 +183,8 @@ function AuthPage() {
   return (
     <AuthShell onBack={() => navigate('/')} progress={1}>
       <div className={styles.heading}>
-        <h1>Создать аккаунт</h1>
-        <p>Введите email и пароль. Если аккаунт уже существует, выполним вход без кода.</p>
+        <h1>{t('Создать аккаунт')}</h1>
+        <p>{t('Введите email и пароль. Если аккаунт уже существует, выполним вход без кода.')}</p>
       </div>
       <RegisterForm
         onNeedVerification={startRegistrationVerification}

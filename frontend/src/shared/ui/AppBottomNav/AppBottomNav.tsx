@@ -13,6 +13,7 @@ import {
 } from 'react-router-dom';
 
 import styles from './AppBottomNav.module.css';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface IAppBottomNavItem {
   key: string;
@@ -60,12 +61,13 @@ const items: IAppBottomNavItem[] = [
 function AppBottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
 
   const handleItemClick = (item: IAppBottomNavItem) => {
     if (item.key === 'favorites') {
       void message.open({
         type: 'info',
-        content: 'Избранное скоро появится. Мы уже работаем над этой функцией.',
+        content: t('Избранное скоро появится. Мы уже работаем над этой функцией.'),
         duration: 3,
         icon: <HeartOutlined style={{ color: 'var(--primary)' }} />,
       });
@@ -112,7 +114,7 @@ function AppBottomNav() {
               </span>
 
               <span className={styles.label}>
-                {item.label}
+                {t(item.label)}
               </span>
             </Button>
           );

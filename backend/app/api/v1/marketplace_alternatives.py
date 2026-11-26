@@ -978,4 +978,3 @@ async def search_yandex(source):
         )
 
     return offers[:1]  # STYLELINK_VISION_BEST_AUTO_V1
-

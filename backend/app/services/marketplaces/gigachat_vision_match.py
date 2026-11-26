@@ -385,4 +385,3 @@ async def rank_offers_vision(source, offers):
     )
 
     return best
-

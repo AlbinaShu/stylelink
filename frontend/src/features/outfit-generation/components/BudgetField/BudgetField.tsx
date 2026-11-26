@@ -6,6 +6,7 @@ import {
 } from 'antd';
 
 import styles from './BudgetField.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const { Text } = Typography;
 
@@ -21,10 +22,11 @@ function BudgetField({
     value,
     onChange,
 }: IBudgetFieldProps) {
+    const { t } = useLanguage();
     return (
         <div className={styles.root}>
             <Text className={styles.label}>
-                Бюджет <span>*</span>
+                {t('Бюджет')} <span>*</span>
             </Text>
 
             <Card className={styles.card}>

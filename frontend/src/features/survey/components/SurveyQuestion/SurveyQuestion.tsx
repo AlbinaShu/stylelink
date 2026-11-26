@@ -1,6 +1,7 @@
 import { Radio, Typography } from 'antd';
 import type { ISurveyOption } from '../../configurations/survey-questions';
 import styles from './SurveyQuestion.module.css';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 const { Text } = Typography;
 
@@ -17,9 +18,10 @@ function SurveyQuestion<T extends string>({
     options,
     onChange,
 }: ISurveyQuestionProps<T>) {
+    const { t } = useLanguage();
     return (
         <div className={styles.question}>
-            <Text strong>{title}</Text>
+            <Text strong>{t(title)}</Text>
 
             <Radio.Group
                 className={styles.radioGroup}
@@ -31,7 +33,7 @@ function SurveyQuestion<T extends string>({
                         key={option.value}
                         value={option.value}
                     >
-                        {option.label}
+                        {t(option.label)}
                     </Radio>
                 ))}
             </Radio.Group>

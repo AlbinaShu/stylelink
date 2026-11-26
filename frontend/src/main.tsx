@@ -1,26 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
-import ruRU from 'antd/locale/ru_RU';
 import { AppRouter } from './router';
+import { LanguageProvider } from './shared/i18n/LanguageProvider';
 import './styles/index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ConfigProvider
-      locale={ruRU}
-      theme={{
-        token: {
-          colorPrimary: '#8B3045',
-          borderRadius: 13,
-          fontFamily: 'Inter, Arial, sans-serif',
-        },
-      }}
-    >
+    <LanguageProvider>
       <BrowserRouter>
         <AppRouter />
       </BrowserRouter>
-    </ConfigProvider>
+    </LanguageProvider>
   </React.StrictMode>,
 );

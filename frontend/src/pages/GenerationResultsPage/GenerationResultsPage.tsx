@@ -24,10 +24,12 @@ import GenerationFeedback from '../../features/feedback/components/GenerationFee
 import GenerationResults from '../../features/outfit-generation/components/GenerationResults/GenerationResults';
 import AppBottomNav from '../../shared/ui/AppBottomNav/AppBottomNav';
 import AppHeader from '../../shared/ui/AppHeader/AppHeader';
+import { useLanguage } from '../../shared/i18n/LanguageContext';
 
 import styles from './GenerationResultsPage.module.css';
 
 function GenerationResultsPage() {
+    const { t } = useLanguage();
     const { generationId } = useParams<{
         generationId: string;
     }>();
@@ -36,6 +38,15 @@ function GenerationResultsPage() {
     const [generation, setGeneration] = useState<IGeneration | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const count = outfits.length;
+    const mod10 = count % 10;
+    const mod100 = count % 100;
+    const readyTitle = mod10 === 1 && mod100 !== 11
+        ? t('{count} образ готов', { count })
+        : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+            ? t('{count} образа готово', { count })
+            : t('{count} образов готово', { count });
 
     useEffect(() => {
         if (!generationId) {
@@ -97,8 +108,8 @@ function GenerationResultsPage() {
             <AppHeader
                 title={
                     isLoading
-                        ? 'Результаты подбора'
-                        : `${outfits.length} образов готово`
+                        ? t('Результаты подбора')
+                        : readyTitle
                 }
                 showBack
             />
@@ -114,7 +125,7 @@ function GenerationResultsPage() {
                     <Alert
                         type="error"
                         showIcon
-                        message={error}
+                        message={t(error)}
                     />
                 )}
 
@@ -122,7 +133,7 @@ function GenerationResultsPage() {
                     !error &&
                     outfits.length === 0 && (
                         <Empty
-                            description="Подходящих образов не найдено"
+                            description={t('Подходящих образов не найдено')}
                         />
                     )}
 

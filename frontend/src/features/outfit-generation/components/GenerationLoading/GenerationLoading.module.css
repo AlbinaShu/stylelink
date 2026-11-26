@@ -1,4 +1,5 @@
 .root {
+    position: relative;
     width: 100%;
     min-height: 100dvh;
     display: flex;
@@ -6,6 +7,12 @@
     justify-content: center;
     padding: 24px 20px;
     box-sizing: border-box;
+}
+
+.language {
+    position: absolute;
+    top: 16px;
+    right: 16px;
 }
 
 .content {

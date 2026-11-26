@@ -22,6 +22,7 @@ import SurveyProduct from '../SurveyProduct/SurveyProduct';
 import styles from './SurveyForm.module.css';
 import { useVisibleOnce } from '../../../../shared/hooks/useVisibleOnce';
 import type { ReactNode } from 'react';
+import { useLanguage } from '../../../../shared/i18n/LanguageContext';
 
 function VisibleHeader({ productId, onVisible, children }: { productId: string; onVisible?: (id: string) => void; children: ReactNode }) {
   const ref = useVisibleOnce<HTMLDivElement>(productId, () => onVisible?.(productId));
@@ -71,6 +72,7 @@ function SurveyForm({
   onProgress,
   onItemVisible,
 }: ISurveyFormProps) {
+  const { t } = useLanguage();
   const [drafts, setDrafts] =
     useState<DraftMap>({});
 
@@ -219,7 +221,7 @@ function SurveyForm({
     const recommendedSize = items.find((item) => item.product_id === productId)?.recommended_size ?? null;
     if (!isSurveyAnswerValid(answer, recommendedSize)) {
       void message.warning(
-        'Заполните обязательные вопросы по этому товару.',
+        t('Заполните обязательные вопросы по этому товару.'),
       );
 
       return;
@@ -231,7 +233,7 @@ function SurveyForm({
     }));
 
     setActiveKey([]);
-    void message.info("Ответ подготовлен. Нажмите «Отправить», чтобы сохранить его в системе.");
+    void message.info(t('Ответ подготовлен. Нажмите «Отправить», чтобы сохранить его в системе.'));
   };
 
   const collapseItems = items.map((item) => {
@@ -269,7 +271,7 @@ function SurveyForm({
             <img
               className={styles.thumb}
               src={item.image_url}
-              alt={item.name || 'Товар'}
+              alt={item.name || t('Товар')}
             />
           )}
 
@@ -278,7 +280,7 @@ function SurveyForm({
               strong
               className={styles.itemName}
             >
-              {item.name || 'Товар'}
+              {item.name || t('Товар')}
             </Text>
 
             {item.recommended_size && (
@@ -287,7 +289,7 @@ function SurveyForm({
                   styles.recommendedSize
                 }
               >
-                Рекомендованный размер:{' '}
+                {t('Рекомендованный размер:')}{' '}
                 {item.recommended_size}
               </Text>
             )}
@@ -322,12 +324,11 @@ function SurveyForm({
           level={2}
           className={styles.title}
         >
-          Помогите нам стать лучше
+          {t('Помогите нам стать лучше')}
         </Title>
 
         <Text className={styles.subtitle}>
-          Вы недавно переходили к покупке этих товаров.
-          Расскажите, подошли ли размеры.
+          {t('Вы недавно переходили к покупке этих товаров. Расскажите, подошли ли размеры.')}
         </Text>
       </div>
 
@@ -348,13 +349,13 @@ function SurveyForm({
           loading={loadingMore}
           onClick={() => void onLoadMore()}
         >
-          Показать ещё
+          {t('Показать ещё')}
         </Button>
       )}
 
       <div className={styles.footer}>
         <Text className={styles.counter}>
-          Отвечено: {answeredCount} из {total}
+          {t('Отвечено: {answered} из {total}', { answered: answeredCount, total })}
         </Text>
 
         <Button
@@ -370,7 +371,7 @@ function SurveyForm({
             )
           }
         >
-          Отправить
+          {t('Отправить')}
         </Button>
 
         {onSkip && (
@@ -389,7 +390,7 @@ function SurveyForm({
               })
             }
           >
-            Пропустить
+            {t('Пропустить')}
           </Button>
         )}
       </div>

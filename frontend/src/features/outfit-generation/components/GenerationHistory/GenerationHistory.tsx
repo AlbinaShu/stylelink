@@ -7,6 +7,7 @@ import { getGenerations } from '../../api/generation.api';
 import type { IGeneration } from '../../types';
 
 import styles from './GenerationHistory.module.css';
+import { useLanguage, type Language } from '../../../../shared/i18n/LanguageContext';
 
 const { Text, Title } = Typography;
 
@@ -120,21 +121,21 @@ function humanize(value: string | null): string | null {
   return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
 }
 
-function formatPrice(value: number | null): string {
+function formatPrice(value: number | null, language: Language): string {
   if (value == null) {
     return '';
   }
 
-  return `${new Intl.NumberFormat('ru-RU', {
+  return `${new Intl.NumberFormat(language === 'en' ? 'en-US' : 'ru-RU', {
     maximumFractionDigits: 0,
   }).format(value)} ₽`;
 }
 
-function getGenerationTitle(generation: IGeneration): string {
+function getGenerationTitle(generation: IGeneration, t: (text: string) => string): string {
   const parts = [
     humanize(generation.occasion),
     humanize(generation.style),
-  ].filter(Boolean);
+  ].filter((part): part is string => Boolean(part)).map(t);
 
   if (parts.length > 0) {
     return parts.join(' · ');
@@ -144,7 +145,7 @@ function getGenerationTitle(generation: IGeneration): string {
     return generation.prompt.trim();
   }
 
-  return 'Подбор образов';
+  return t('Подбор образов');
 }
 
 function getGenerationPrompt(generation: IGeneration): string | null {
@@ -162,15 +163,16 @@ function getGenerationPrompt(generation: IGeneration): string | null {
   return hasMainTitle ? prompt : null;
 }
 
-function getGenerationSubtitle(generation: IGeneration): string {
-  const season = humanize(generation.season);
+function getGenerationSubtitle(generation: IGeneration, t: (text: string) => string): string {
+  const rawSeason = humanize(generation.season);
+  const season = rawSeason ? t(rawSeason) : null;
 
   if (generation.status === 'failed') {
-    return season ? `${season} · Ошибка генерации` : 'Ошибка генерации';
+    return season ? `${season} · ${t('Ошибка генерации')}` : t('Ошибка генерации');
   }
 
   if (generation.status !== 'completed') {
-    return season ? `${season} · Создаётся` : 'Создаётся';
+    return season ? `${season} · ${t('Создаётся')}` : t('Создаётся');
   }
 
   return season ?? '';
@@ -182,6 +184,7 @@ function GenerationHistory({
   onEmpty,
 }: IGenerationHistoryProps) {
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
 
   const [generations, setGenerations] = useState<IGeneration[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -250,7 +253,7 @@ function GenerationHistory({
     <section className={styles.section}>
       {showTitle && (
         <Title level={5} className={styles.heading}>
-          История подборов
+          {t('История подборов')}
         </Title>
       )}
 
@@ -268,7 +271,7 @@ function GenerationHistory({
 
             <span className={styles.info}>
               <Text className={styles.itemTitle}>
-                {getGenerationTitle(generation)}
+                {getGenerationTitle(generation, t)}
               </Text>
 
               {getGenerationPrompt(generation) && (
@@ -277,9 +280,9 @@ function GenerationHistory({
                 </Text>
               )}
 
-              {getGenerationSubtitle(generation) && (
+              {getGenerationSubtitle(generation, t) && (
                 <Text className={styles.subtitle}>
-                  {getGenerationSubtitle(generation)}
+                  {getGenerationSubtitle(generation, t)}
                 </Text>
               )}
             </span>
@@ -287,7 +290,7 @@ function GenerationHistory({
             <span className={styles.right}>
               {generation.budget != null && (
                 <Text className={styles.price}>
-                  {formatPrice(generation.budget)}
+                  {formatPrice(generation.budget, language)}
                 </Text>
               )}
 
